@@ -1,0 +1,82 @@
+##
+##-------------------------------------
+# Needs:
+#
+# Calls:
+#-----------------------------------
+# Defines
+# ROOT_MIN_CORR
+##-------------------------------------
+## Format definition for the message  for the install-gui message
+## http://developer.gnome.org/doc/API/2.0/pango/PangoMarkupFormat.html"
+##
+##-------------------------------------
+#
+
+#
+##
+##-------------------------------------
+# Needs
+# INSTALLER_INOTIFY - to communicate with the gui
+##-------------------------------------
+# This must be enhanced when we want an
+# ascii/curses frontend for the installer
+##-------------------------------------
+##
+abort_progress()
+{
+	# printf for new install-gui choice "install with terminal output, debug modus"
+	[ -z "${INSTALLER_INOTIFY}" ] && \
+	printf "\n==========================\n install end, close the terminal \n==========================\n"
+
+	[ -n "$DISPLAY" ] && [ -e "${INSTALLER_INOTIFY}" ] && \
+	printf "$@\n" > ${INSTALLER_INOTIFY}
+}
+
+# 
+##-------------------------------------
+##
+end_progress()
+{
+	# printf for new install-gui choice "install with terminal output, debug modus"
+	[ -z "${INSTALLER_INOTIFY}" ] && \
+	printf "\n==========================\n install abort, close the terminal \n==========================\n"
+
+	[ -n "$DISPLAY" ] && [ -e "${INSTALLER_INOTIFY}" ] && \
+	printf "end\n" > ${INSTALLER_INOTIFY}
+}
+
+##
+##-------------------------------------
+# Needs
+# INSTALLER_INOTIFY - to communicate with the gui
+# ACTION  to keep track of the step
+##-------------------------------------
+# This must be enhanced when we want an
+# ascii/curses frontend for the installer
+##-------------------------------------
+##
+progress()
+{
+	local perc
+	local total
+	local text
+
+	# printf for new install-gui choice "install with terminal output, debug modus"
+	[ -z "${INSTALLER_INOTIFY}" ] && \
+	printf "\n==========================\n $@ \n==========================\n"
+
+	if [ -n "$DISPLAY" ] && [ -e "${INSTALLER_INOTIFY}" ] ;then
+	
+		[ "${ACTION}" -lt 9 ] && ACTION=$((ACTION + 1))
+		text=$(echo "$@"|cut -d ":" -f 1)
+		perc=$(awk -v action=$ACTION 'BEGIN{printf ("%1.2f", action / 10)}')
+		perci=$(awk -v action=$ACTION 'BEGIN{printf ("%d", action * 100 / 10)}')
+		[ "$perci" -gt "100" ] && perc="1.0"
+
+		# send message to the gui
+		printf  "PERC=${perc}\n\
+CURRENT=<b>$text</b>\n\
+COMPLETE=completed ${ACTION} of 10" > $INSTALLER_INOTIFY
+	fi
+}

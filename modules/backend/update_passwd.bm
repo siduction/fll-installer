@@ -1,0 +1,58 @@
+##
+##-------------------------------------
+# Needs:
+# TARGET_MNT_POINT
+# DEFAULT_USER
+# TMPDIR
+# ROOTPASS_CRYPT
+# USERPASS_CRYPT
+# USER_NAME
+#
+# Calls:
+# logit
+# chroot_it
+#
+##-------------------------------------
+##
+update_passwd()
+{
+	#
+	# log my call
+	#
+	logit "update_passwd"
+	#
+
+	[ -z "$USER_NAME" ] && USER_NAME="$DEFAULT_USER"
+
+	#
+	# Change user in passwd
+	#
+	sed -i	-e "s|^$DEFAULT_USER|$USER_NAME|" \
+		-e "s|/home/$DEFAULT_USER|/home/$USER_NAME|" \
+		-e "s|:$DEFAULT_NAME,|:$NAME_NAME,|" \
+			"${TARGET_MNT_POINT}/etc/passwd"
+	
+	#
+	# Change user in shadow
+	#
+	sed -i	-e "s/^$DEFAULT_USER/$USER_NAME/" \
+			"${TARGET_MNT_POINT}/etc/shadow"
+
+	#
+	# change user in /etc/group
+	#
+	sed -i	-e "s/^$DEFAULT_USER/$USER_NAME/" \
+		-e "s/\:$DEFAULT_USER/\:$USER_NAME/" \
+		-e "s/\,$DEFAULT_USER/\,$USER_NAME/" \
+			"${TARGET_MNT_POINT}/etc/group"
+	
+	#
+	# Change password of user/root
+	#
+	chroot_it sh -c "usermod -p $ROOTPASS_CRYPT root"
+	chroot_it sh -c "usermod -p $USERPASS_CRYPT $USER_NAME"
+
+	return 0
+}
+##-------------------------------------
+

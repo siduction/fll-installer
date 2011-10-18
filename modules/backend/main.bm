@@ -1,0 +1,108 @@
+##
+##-------------------------------------
+# Needs:
+# FLL_DISTRO_NAME-installer
+# CONFIG_FILE
+# TMPDIR
+# BOOT_DISK
+# HD_MAP
+# ACTION (changes)
+# LOG
+#
+# Calls:
+# logit
+# progress
+# load_config
+# prepareHD
+# copy2HD
+# convert_live2HD
+# add_bootmanager
+# update_fstab
+# fix_usb_install
+# purge_live_only_stuff
+# end_progress
+#
+# exit code 1 : Config file $CONFIG_FILE could not be found.
+##-------------------------------------
+##
+main()
+{
+	local rc
+	local all_actions="load_config \
+		prepareHD \
+		copy2HD \
+		convert_live2HD \
+		add_bootmanager \
+		update_fstab \
+		fix_usb_install \
+		purge_live_only_stuff"
+
+	#
+	# log my call
+	#
+	logit "starting installation"
+	#
+
+	if [ ! -f "$CONFIG_FILE" ]; then
+		error 1 "Config file $CONFIG_FILE could not be found."
+		# exit 1
+	fi
+	
+	# initialize the ACTION variable for progress()
+	if [ "$BOOT_DISK" = "yes" ]; then
+		# skip the first one so the make_floppy remains as the last action
+		# as it needs some considerable time
+		ACTION=-1
+	else
+		ACTION=0
+	fi
+
+	#
+	# say the world we have started our work
+	#
+	progress "$FLL_DISTRO_NAME-installer started"
+	
+	#
+	# do the main job
+	#
+	for action in ${all_actions}; do
+		[ "${ACTION}" -lt 8 ] && ACTION=$((ACTION + 1))
+		say "starting $action"
+		$action
+	done
+
+	sync
+
+	# 
+	# if user wants make a boot floppy
+	#
+	if [ "$BOOT_DISK" = "yes" ]; then
+		say "creating floppy"
+		make_floppy
+	fi
+
+	#
+	# say the world we have done our work
+	#
+	end_progress
+
+	# Success Message and end installer
+	logit "$FLL_DISTRO_NAME was successfully installed to hd."
+
+	# if needed unmount the partitions
+	#
+	# begin workaround: wait a few seconds till everything is set 
+	# so we can umount cleanly
+	#
+	j=0
+	while lsof "$TARGET_MNT_POINT" >/dev/null; do
+		sleep 5
+		[ "$j" -ge "30" ] && break
+		j=$(($j+1))
+	done
+	sync
+
+	clean_exit 0
+}
+##-------------------------------------
+

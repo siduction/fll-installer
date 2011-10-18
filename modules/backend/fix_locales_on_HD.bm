@@ -1,0 +1,71 @@
+##
+##-------------------------------------
+# Needs:
+# TARGET_MNT_POINT
+# HD_LANG
+# USER_NAME
+#
+# Calls:
+# logit
+# chroot_it
+#
+##-------------------------------------
+##
+fix_locales_on_HD ()
+{
+	[ "$HD_LANG" ] || return 0
+
+	local cur_language
+	local xorg_conf="$TARGET_MNT_POINT/etc/X11/xorg.conf"
+	local fll_locales="$TARGET_MNT_POINT/etc/default/fll-locales"
+
+	#
+	# log my call
+	#
+	logit "fix_locales_on_HD"
+	#
+
+	# localize the install if user has choosen a new language
+	
+	# get language set on boot
+	cur_language=$(sed -n 's|^LANGUAGE="\?\([^"]\+\)"\?$|\1|p' /etc/default/fll-locales)
+
+	if [ "$cur_language" ] && [ "$HD_LANG" != "$cur_language" ]; then	
+		#
+		# the system locales
+		#
+		chroot_it /usr/bin/env -i FLL_LANG=$HD_LANG /etc/init.d/fll-locales localize
+
+		. $fll_locales
+
+		#
+		# the X11 keyboard (live keys for germans)
+		#
+		if [ "$HD_LANG" = "de" ]; then
+			DEADKEYS='\n\tOption\t\t"XkbVariant"\t\t"nodeadkeys"'
+		else
+			DEADKEYS=""
+		fi
+
+		sed -i -e "/XkbVariant/d" \
+			-e "s/\(.*Option.*\"XkbLayout\"\).*$/\1\t\t\"$XKBLAYOUT\"$DEADKEYS/" $xorg_conf
+ 
+		#
+		# the user settings (KDE, and so on ...) ??
+		#
+		if [ "${KDEKEYBOARDS}" ]; then
+			#
+			# adapted from desktop-defaults-kde
+			#
+			if grep -s -q '^LayoutList=' "$TARGET_MNT_POINT/home/$USER_NAME/.kde/share/config/kxkbrc"; then
+				sed -i 's|^LayoutList=.*|LayoutList='"${KDEKEYBOARDS}"'|' \
+					"$TARGET_MNT_POINT/home/$USER_NAME/.kde/share/config/kxkbrc"
+			fi
+		fi
+	fi
+
+	return 0
+}
+#
+##-------------------------------------
+

@@ -1,0 +1,43 @@
+##
+##-------------------------------------
+# Needs:
+# FLL_DISTRO_NAME
+#
+# Calls:
+# logit
+# progress
+# update_passwd
+# copy_etc2HD
+# copy_home2HD
+# fix_home_on_HD
+# fix_etc_on_HD
+# system_create_modules
+# system_services
+#
+##-------------------------------------
+##
+convert_live2HD()
+{
+	#
+	# log my call
+	#
+	logit "convert_live2HD"
+	#
+	
+	progress "Converting $FLL_DISTRO_NAME to Multi-User-System..."
+
+	update_passwd
+
+	fix_home_on_HD
+
+	fix_etc_on_HD
+
+	fix_locales_on_HD
+
+	progress "Converting live system to Debian..."
+
+	system_services
+
+	return 0
+}
+

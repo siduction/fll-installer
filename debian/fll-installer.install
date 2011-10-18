@@ -1,0 +1,3 @@
+fll-installer	usr/sbin/
+modules		usr/share/fll-installer/
+data		usr/share/fll-installer/

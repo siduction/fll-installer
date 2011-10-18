@@ -1,0 +1,70 @@
+##
+##-------------------------------------
+# Needs:
+# TARGET_MNT_POINT
+# HD_AUTO
+# HD_COICE
+# HD_MAP
+#
+# Calls:
+# logit
+# progress
+# chroot_it
+# get_root_device
+#
+##-------------------------------------
+##
+update_fstab()
+{
+	local autohd
+	local root_partition root_device part wanted ignore_device
+	#
+	# log my call
+	#
+	logit "update_fstab"
+	#
+
+	progress "Updating /etc/fstab..."
+
+	# 0. prepare
+	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
+	root_device=$(get_root_device $root_partition)
+	wanted="--wanted ${root_device}"
+	if [ -b /dev/mapper/${FLL_DISTRO_NAME}-live ]; then
+		ignore_device="--ignore ${FLL_DISTRO_NAME}-live"
+	fi
+	
+	if [ -n "${HD_MAP}" ]; then
+		for i in "${HD_MAP}"
+		do
+			part=$(echo $i | cut -d":" -f1)
+			root_device=$(get_root_device $part)
+			wanted="${wanted} --wanted ${root_device}"
+		done
+	fi
+
+	# 1. mount /proc, /dev and /sys on chroot
+	mount --bind /proc "${TARGET_MNT_POINT}/proc"
+	mount --bind /dev  "${TARGET_MNT_POINT}/dev"
+	mount --bind /sys  "${TARGET_MNT_POINT}/sys"
+	mount --bind /run  "${TARGET_MNT_POINT}/run"
+
+	[ "${HD_AUTO}" = "yes" ] && autohd="--auto" || autohd=""
+
+	# 2. create the fstab, creating the mountpoints
+	COLUMN="| awk '{printf(\"%-45s %-20s %-12s %-45s %-4s %-4s\n\",\$1,\$2,\$3,\$4,\$5,\$6)}' > /etc/fstab"
+	chroot_it sh -c "fll_fstab_generator --uuids --mkdir \
+		${ignore_device} ${wanted} ${autohd} ${COLUMN}"
+	
+	# 3. create/fix resume configuration for initramfs-tools
+	chroot_it sh -c "awk '\$3 == \"swap\" { print \$1; exit }' \
+		/etc/fstab > /etc/initramfs-tools/conf.d/resume"
+
+	# 4. umount /proc, /dev and /sys on chroot
+	umount "${TARGET_MNT_POINT}/run"
+	umount "${TARGET_MNT_POINT}/sys"
+	umount "${TARGET_MNT_POINT}/dev"
+	umount "${TARGET_MNT_POINT}/proc"
+}
+#-----------------------------------
+

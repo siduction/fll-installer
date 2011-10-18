@@ -1,0 +1,35 @@
+##
+##-------------------------------------
+# Needs:
+# TARGET_MNT_POINT
+# floppy on fd0
+#
+# Calls:
+# logit
+#
+##-------------------------------------
+##
+make_floppy()
+{
+	local floppy="$TARGET_MNT_POINT/media/floppy0"
+
+	logit "make_floppy"
+	if fdformat /dev/fd0 & > /dev/null
+	then
+		mke2fs /dev/fd0
+
+		[ ! -d "${floppy}" ] &&
+			mount /dev/fd0 ${floppy}
+
+		grub-install --recheck --root-directory=${floppy} "(fd0)"
+		cp $TARGET_MNT_POINT/boot/grub/menu.lst ${floppy}/boot/grub/
+
+		[ -e $TARGET_MNT_POINT/boot/message ] && \
+			cp $TARGET_MNT_POINT/boot/message ${floppy}/boot/
+		umount ${floppy}
+	else
+		: # error formating floppy
+	fi
+}
+##-------------------------------------
+

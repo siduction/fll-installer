@@ -1,0 +1,40 @@
+##
+##-------------------------------------
+# Needs:
+# TARGET_MNT_POINT
+# BOOT_KERNEL
+#
+# Calls:
+# logit
+# chroot_it
+#
+##-------------------------------------
+##
+create_initrd()
+{
+	#
+	# log my call
+	#
+	logit "create_initrd"
+	#
+
+	# Check for a wanted kernel, otherwise set a default
+	[ -z "$BOOT_KERNEL" ] && BOOT_KERNEL=$(uname -r)
+
+	# Remove fll-live-initramfs rule
+	rm -f "$TARGET_MNT_POINT/etc/udev/rules.d/70-fll-live.rules"
+
+	#
+	# Make the real initrd
+	#
+	#chroot_it mount -t sysfs sysfs /sys
+	chroot_it update-initramfs -c -k "$BOOT_KERNEL" >&2
+	#chroot_it umount /sys
+ 
+	# if the file does not exist an error was there...
+	[ ! -s "$TARGET_MNT_POINT/boot/initrd.img-$BOOT_KERNEL" ] && return 2
+ 
+	# Everything seems to be ok.	
+	return 0
+}
+

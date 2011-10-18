@@ -1,0 +1,53 @@
+##
+##-------------------------------------
+# Needs:
+# TMPDIR
+# FLL_DISTRO_NAME
+#
+# Calls:
+# logit
+#
+##-------------------------------------
+##
+clean_exit()
+{
+	DURATION=$(($(date +%s) - STARTTIME))
+	say "Exiting after $((DURATION / 60)):$((DURATION % 60))." 
+	[ -n "$TMPDIR" ] && rm -rf "$TMPDIR"
+	if [ "$1" = "0" ]; then
+		logit "$FLL_DISTRO_NAME-installer terminated"
+		#
+		# copy the install log into users home
+		#
+		cp -f $LOG  "$TARGET_MNT_POINT/root"
+
+        #
+        # remove passwords from the $CONFIG file
+        #
+        [ -e "${TARGET_MNT_POINT}/${CONFIG_FILE}" ] && \
+                sed -i -e "s#\(USERPASS_CRYPT=\).*#\1''#"  \
+                        -e "s#\(ROOTPASS_CRYPT=\).*#\1''#"  \
+                        "${TARGET_MNT_POINT}/${CONFIG_FILE}"
+
+        [ -e "${TARGET_MNT_POINT}/${CONFIG_FILE}" ] && \
+                chmod 600 "${TARGET_MNT_POINT}/${CONFIG_FILE}"
+	else
+		logit "$FLL_DISTRO_NAME-installer ended abnormally"
+		abort_progress "Abort: $FLL_DISTRO_NAME-installer ended abnormally. Please check ${ERRLOG} and ${DEBUGLOG} for more information."
+	fi
+	#
+	# umount mounted filesystems
+	#
+	for i in $HD_MAP; do
+		point=$(echo $i | cut -d":" -f2)
+		umount "$TARGET_MNT_POINT$point"
+	done
+
+	# Just to be sure :-)
+	if mount | egrep -q "${TARGET_MNT_POINT}"; then
+		umount "${TARGET_MNT_POINT}"
+	fi
+
+	exit $1
+}
+

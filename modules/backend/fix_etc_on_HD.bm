@@ -1,0 +1,138 @@
+##
+##-------------------------------------
+# Needs:
+# FLL_DISTRO_NAME
+# TARGET_MNT_POINT
+# HOST_NAME
+# FLL_MOUNTPOINT
+# USER_NAME
+#
+# Calls:
+# logit
+# chroot_it
+#
+##-------------------------------------
+##
+fix_etc_on_HD () {
+	#
+	# log my call
+	#
+	logit "fix /etc on the installed system"
+	#
+
+	#
+	# hostname
+	#
+	sed -i '/localhost/!s/^\(127.0.0.1[ \t]\+\)\(.\+\)$/\1'"$HOST_NAME"'/' \
+		"${TARGET_MNT_POINT}/etc/hosts"
+	echo "${HOST_NAME}" > "${TARGET_MNT_POINT}/etc/hostname"
+	echo "${HOST_NAME}" > "${TARGET_MNT_POINT}/etc/mailname"
+
+	#
+	# regenerate default snakeoil with new hostname
+	#
+	if which make-ssl-cert >/dev/null; then
+		logit "fixing ssl-cert"
+		chroot_it make-ssl-cert generate-default-snakeoil --force-overwrite
+	fi	
+
+	#
+	# don't allow everyone to use sudo.
+	#
+	logit "fixing sudoers"
+	cat "${TARGET_MNT_POINT}/usr/share/base-files/profile" \
+		> "${TARGET_MNT_POINT}/etc/profile"
+	
+	#
+	# also fix sudoers
+	#
+	say "cleanup the sudoers conf file"
+	rm -f "${TARGET_MNT_POINT}/etc/sudoers.d/15_${FLL_DISTRO_NAME}"
+	chroot_it deluser "${USER_NAME}" sudo
+
+	#
+	# "normalize" /etc/inittab
+	#
+	cp -f	"${TARGET_MNT_POINT}/usr/share/sysvinit/inittab" \
+			"${TARGET_MNT_POINT}/etc/inittab"
+
+	sed -i	-e 's/^\([2-6]\):23:respawn/\1:2345:respawn/' \
+		-e 's/id:[0-6]:initdefault:/id:5:initdefault:/' \
+			"${TARGET_MNT_POINT}/etc/inittab"
+	
+	#
+	# normalize /etc/pam.d/login
+	#
+	if [ -f "${TARGET_MNT_POINT}/etc/pam.d/login" ]; then
+		sed -i '/^#.*pam_lastlog\.so/s/^#[ \t]\+//' "${TARGET_MNT_POINT}/etc/pam.d/login"
+	fi
+
+	#
+	# make sure that /etc/mtab is either:
+	# - an empty regular file
+	# - or a symlink pointing to /proc/mounts
+	#
+	if [ -f "${TARGET_MNT_POINT}/etc/mtab" ]; then
+		:> "${TARGET_MNT_POINT}/etc/mtab"
+	else
+		rm -f "${TARGET_MNT_POINT}/etc/mtab"
+		ln -sf /proc/mounts "${TARGET_MNT_POINT}/etc/mtab"
+	fi
+
+	#
+	# remove confusing live traces from blkid.tab
+	#
+	rm -f "${TARGET_MNT_POINT}/etc/blkid.tab*"
+
+	#
+	# Save ALSA sound volume
+	#
+	if [ -e /proc/asound/modules ] && [ -x /usr/sbin/alsactl ]; then
+		/usr/sbin/alsactl store
+		if [ -f /var/lib/alsa/asound.state ]; then
+			cp /var/lib/alsa/asound.state \
+				"${TARGET_MNT_POINT}/var/lib/alsa"
+		fi
+	fi
+
+	#
+	# revert KDM autologin
+	#
+	if [ -f  "${TARGET_MNT_POINT}/etc/default/kdm.d/autologin" ]; then
+		rm -f "${TARGET_MNT_POINT}/etc/default/kdm.d/autologin"
+	fi
+
+	#
+	# revert GDM3 autologin
+	#
+	if [ -f "${TARGET_MNT_POINT}/etc/gdm3/daemon.conf" ]; then
+		# we want the gdm-theme (set by desktop-defaults in live mode) on hd-install, 
+		# only remove autologin for gdm
+		sed -i	-e "/^AutomaticLogin\=.*/d" \
+			-e "/^AutomaticLoginEnable\=.*/d" \
+			-e "/^TimedLogin\=.*/d" \
+			-e "/^TimedLoginDelay\=.*/d" \
+			-e "/^TimedLoginEnable\=.*/d" \
+				"${TARGET_MNT_POINT}/etc/gdm3/daemon.conf"
+	fi
+
+	#
+	# revert slim autologin
+	#
+	if [ -f "${TARGET_MNT_POINT}/etc/slim.conf" ]; then
+		sed -i  -e "/^default_user.*/d" \
+			-e "/^auto_login.*/d" \
+			-e "s/^\#FLL\#//" \
+				"${TARGET_MNT_POINT}/etc/slim.conf"
+	fi
+
+	#
+	# revert lightdm autologin
+	#
+	if [ -f "${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf" ]; then
+		sed -i -e "s/^autologin-user/\#autologin-user/" \
+			"${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf"
+	fi
+
+	return 0
+}

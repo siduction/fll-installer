@@ -1,0 +1,121 @@
+##
+##-------------------------------------
+# Needs:
+# BOOT_WHERE
+# TARGET_MNT_POINT
+# BOOT_LOADER
+# HD_CHOICE
+# HD_MAP
+#
+# Calls:
+# logit
+# progress
+# create_initrd
+# stringinstring
+# install_grub
+#
+##-------------------------------------
+##
+add_bootmanager()
+{
+	local BOOT_KERNELS
+	local BOOT_KERNEL
+	local BOOT_RUNNING_KERNEL
+	local MSG1="Creating initrd for kernel $BOOT_KERNEL ..."
+	local MSG2="Installing $BOOT_LOADER to $BOOT_WHERE"
+	local root_partition
+	local root_device
+	local wanted
+
+	#
+	# log my call
+	#
+	logit "add_bootmanager"
+
+	mount --bind /proc "${TARGET_MNT_POINT}/proc"
+	mount --bind /dev  "${TARGET_MNT_POINT}/dev"
+	mount --bind /sys  "${TARGET_MNT_POINT}/sys"
+	mount --bind /run  "${TARGET_MNT_POINT}/run"
+	
+	BOOT_KERNELS=""
+	for i in $TARGET_MNT_POINT/lib/modules/?.*
+	do
+		BOOT_KERNEL=$(basename $i)
+		BOOT_KERNELS="$BOOT_KERNELS $BOOT_KERNEL"
+		progress "$MSG1"
+		create_initrd
+	done
+
+	BOOT_RUNNING_KERNEL="$(uname -r)"
+	# If the running kernel can't be found
+	# set the default to the first available
+	if ! stringinstring "$BOOT_RUNNING_KERNEL" "$BOOT_KERNELS"
+	then
+		set -- $BOOT_KERNELS
+		BOOT_RUNNING_KERNEL="$1"
+	fi
+
+	progress "$MSG2"
+
+	##
+	## workaround...start
+	##
+	# This can be probably changed later, but for now
+	# must be done as at least update-grub uses an old-style /etc/fstab
+	# so we create one for that
+
+	# 0. prepare
+	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
+	root_device=$(get_root_device $root_partition)
+	wanted="--wanted ${root_device}"
+
+	if [ -n "${HD_MAP}" ]; then
+		for i in "${HD_MAP}"
+		do
+			part=$(echo $i | cut -d":" -f1)
+			root_device=$(get_root_device $part)
+			wanted="${wanted} --wanted ${root_device}"
+		done
+	fi
+
+	chroot_it fll_fstab_generator --file /etc/fstab ${wanted}
+
+	##
+	## workaround...end
+	##
+
+	# Find efi system partition if we have booted by efi
+	efisys=""
+	if [ -d /sys/firmware/efi ]; then
+		get_efisys
+	fi
+
+	# determine if root_device is usb
+	device=$(echo $root_device|cut -d / -f3)
+	usb_dev=$(echo $(readlink -f /sys/block/${device}/device) | grep  "usb")
+
+	# do efi if grub and have efi system partition and not usb install
+	if [ "$BOOT_LOADER" = "grub" ] && [ -n "$efisys" ] && [ -z "$usb_dev" ]
+	then
+		# No bootloader unless amd64
+		[ "$(dpkg --print-architecture)" = "amd64" ] && install_grub_efi
+	elif [ "$BOOT_LOADER" = "grub" ]
+	then
+		install_grub
+	#
+	# else lilo no longer  supported
+	#
+	fi
+
+	##
+	## workaround...start
+	##
+	# umount /proc, /dev, /sys and /run on chroot
+	umount "${TARGET_MNT_POINT}/run"
+	umount "${TARGET_MNT_POINT}/sys"
+	umount "${TARGET_MNT_POINT}/dev"
+	umount "${TARGET_MNT_POINT}/proc"
+	##
+	## workaround...end
+	##
+}

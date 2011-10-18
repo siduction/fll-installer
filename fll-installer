@@ -1,0 +1,139 @@
+#!/bin/sh
+#
+# Copyright (C) 2007 Joaquim Boura <x-un-i@berlios.de>
+# heavily based on the knoppix installer from
+#         Fabian Franz <knoppix-installer@fabian-franz.de>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this package; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+#
+# On Debian GNU/Linux systems, the text of the GPL license can be
+# found in /usr/share/common-licenses/GPL.
+#
+#--------------------------------------------------------------------------
+ERRLOG=/tmp/.installer.error
+DEBUGLOG=/tmp/.installer.debug
+STARTTIME=$(date +%s)
+[ -e "$ERRLOG" ] && rm -f "$ERRLOG"
+[ -e "$DEBUGLOG" ] && rm -f "$DEBUGLOG"
+
+# redirect STDERR to debug log
+exec 2> "${DEBUGLOG}"
+
+# In case UID is not set, set and use it
+if [ -z "${UID}" ]; then
+	UID=$(id -ur)
+fi
+
+if [ -n "$INSTDBG" ]; then
+	set -x
+fi
+#--------------------------------------------------------------
+# one place to save the error code and message
+#--------------------------------------------------------------
+error () {
+	local exitval="${1}"
+	shift
+
+	# the gui should use this to proclaim success/error
+	printf "${exitval}-${@}\n" > "${ERRLOG}"
+
+	printf "E: ${@}\n"
+	clean_exit ${exitval}
+}
+#--------------------------------------------------------------
+# say
+#--------------------------------------------------------------
+say () {
+        printf "O: ${1}\n"
+}
+#--------------------------------------------------------------
+# usage
+#--------------------------------------------------------------
+usage () {
+	echo "$0 [-d|--debug] [-i|--inotify inotify_fifo] [-h] [installer inotify_fifo]"
+	exit 1
+}
+#--------------------------------------------------------------
+# preparation, process cli arguments with getopt
+#--------------------------------------------------------------
+TEMP=$(getopt -o di:h \
+        --long debug,inotify:,help \
+        -n  "$(basename ${0})" -- "${@}")
+
+if [ "${?}" -ne 0 ]; then
+        error 255 "getopt terminated abnormally"
+        # exit 255
+fi
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "${TEMP}"
+
+
+while true ; do
+	case "${1}" in
+		-d|--debug)
+			set -x
+			shift
+			;;
+		-i|--inotify)
+			INSTALLER_INOTIFY="${2}"
+			shift 2
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		*)
+			break
+			;;
+	esac
+done
+
+# also handle old installer call
+shift $((OPTIND))
+if [ "$#" -eq "2"  ]; then
+	[ "$1" = "installer" ] && INSTALLER_INOTIFY="$2"
+fi
+
+
+#--------------------------------------------------------------
+#
+# Include needed Modules
+#--------------------------------------------------------------
+# can be customized via derived env variable:
+if [ -z "$FLL_SEARCHPATH" ] ; then
+	FLL_SEARCHPATH=/usr/share/fll-installer
+fi
+say "loading modules"
+for i in $(find "${FLL_SEARCHPATH}/modules" -name '*.bm'); do
+	. "$i"
+done
+#------------------
+
+# trap clean_exit EXIT
+
+TMPDIR="$(mktemp -p /tmp -d fll-installer.XXXXXX)"
+
+#------------------
+
+main
+# we should never arrive here otherwise
+
+# something did go wrong
+error 254 "internal error"
+
+#------------------
+

@@ -1,0 +1,47 @@
+.TH FLL-ISO2DISK "8" "29th May 2008" "" ""
+.SH NAME
+\fBfll-iso2disk\fR \- installs a live-CD iso build with the
+fll\-tools as a fromiso into a preformatted partition
+.SH SYNOPSIS
+\fBfll-iso2disk\fR \fI<options>\fR \fBIsoPath\fR \fBTargetDevice\fR \fI-- <extra_options_to_boot>\fR
+.SH DESCRIPTION
+installs a \fBF.U.L.L.S.T.O.R.Y.\fR iso-image to a partition, makes 
+the partition bootable and writes the needed syslinux files.
+.PP
+\fBfll-iso2disk\fR takes an iso file (or device) and 
+creates a bootable live system using syslinux on the target device.
+Any arguments following the IsoPath and TargetDevice are appended
+to the live systems boot command line.   Target device should be an
+existing fat or ext2/3 partition.
+.PP
+.SH OPTIONS
+.TP
+\fB\-\-overlay-size-mb\fR \fI<size>\fR
+Setup the live system to use persist, and if the target device 
+is a fat partition optionally set the size of the loopback file
+used for the persistance data (default 256).
+.TP
+\fB\-\-noboot\fR
+Creates all the files on the target without any checking of boot 
+settings or installation of any bootloader.
+.TP
+\fB\-\-reset-mbr\fR
+Force putting the plain syslinux mbr on the device.
+.TP
+\fB\-\-noverify\fR
+Do not verify the integrity of the iso.
+Currently always on as no verification code written for aptosid.
+.TP
+\fB\-\-test\fR
+Do not copy the iso or create a persist file.
+.PP
+.SH EXAMPLES
+.TP
+\fBfll-iso2disk --overlay-size-mb 1024 /home/aptosid/aptosid.iso /dev/sdb1 \\\fR
+\fB            \-\- lang=ie nointro nonetwork\fR
+.PP
+installs the iso image into the device sdb1 and creates a 1GB loopback file 
+for persistance. Uses the cheatcodes on the boot command line.
+.PP
+.SH AUTHOR
+This manual page was written by Niall Walsh <niallwalsh@users.berlios.de>

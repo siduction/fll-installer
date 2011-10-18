@@ -1,0 +1,169 @@
+##
+##-------------------------------------
+# Needs:
+# TARGET_MNT_POINT
+# HD_FORMAT
+# HD_CHOICE
+# HD_FSTYPE
+# HD_MAP
+# TMPDIR
+#
+# Calls:
+# logit
+# progress
+#
+# Error Codes
+# 15 - could not format the root partition
+# 16 - Mounting of $HD_CHOICE failed. Some messages from mount follow
+# 17 - Mounting of $HD_CHOICE failed. Some messages from mount follow
+#
+# Return 0 on success 
+# on error the error code and message are in /tmp/.installer.errors
+##-------------------------------------------------------------------
+##
+prepareHD()
+{
+	local rc
+	local TMP
+	local err_msg
+	local error_messages
+
+	#
+	# log my call
+	#
+	logit "prepare disk for the installation"
+	#
+
+	# sometimes kernel has not yet loaded the partition table
+	# so ask him to do that
+	# 
+	# lines copied from fll_fstab_generator
+	#
+	if which udevadm >/dev/null; then
+		udevadm trigger --subsystem-match=block
+		udevadm settle --timeout=30
+	else
+		udevtrigger --subsystem-match=block
+		udevsettle --timeout=30
+	fi
+
+	TMP="$(mktemp)"
+
+	if [ "$HD_FORMAT" = "yes" ]; then
+
+		progress "Formatting $HD_CHOICE..."
+
+		umount "$HD_CHOICE"
+		
+		dd if=/dev/zero of=$HD_CHOICE bs=1k count=16 >/dev/null
+
+		case "$HD_FSTYPE" in
+			xfs)
+				mkfs.xfs -f "$HD_CHOICE" 2> "$TMP" 1>&2
+				;;
+			reiser*)
+				echo y | mkfs.$HD_FSTYPE  "$HD_CHOICE" 2> "$TMP" 1>&2
+				;;
+			jfs)
+				echo y | mkfs.jfs "$HD_CHOICE" 2> "$TMP" 1>&2
+				;;
+			*)
+				mkfs.$HD_FSTYPE "$HD_CHOICE" 2> "$TMP" 1>&2
+				;;
+		esac
+		
+		rc="$?"
+		if [ $rc -ne 0 ]; then
+			error_messages=$(tail -8 $TMP)
+			err_msg="Formatting of $HD_CHOICE failed. Some messages from mkfs.$HD_FSTYPE: $error_messages"
+			logit $err_msg
+			error 15 "$err_msg"
+		fi
+	fi
+
+	#
+	# Mounting $HD_CHOICE r/w...
+	#
+	mkdir -p "$TARGET_MNT_POINT"
+	mount_options=""
+	[ "$HD_FORMAT" = "yes" ] && mount_options="-t $HD_FSTYPE"
+	mount $mount_options "$HD_CHOICE" "$TARGET_MNT_POINT" > "${TMP}" 2>&1
+	if [ $? -ne 0 ]; then
+		error_messages=$(tail -8 $TMP)
+		err_msg="Mounting of $HD_CHOICE failed, trying remount. Some messages from mount: $error_messages"
+		logit $err_msg
+
+		mount -o remount,dev "$TARGET_MNT_POINT" > "${TMP}" 2>&1
+
+		if [ "$?" -ne "0" ]; then
+			error_messages=$(tail -8 $TMP)
+			err_msg="(re)Mounting of $HD_CHOICE failed. Some messages from mount: $error_messages"
+			logit $err_msg
+			error 16 "$err_msg"
+		fi
+	fi
+	#
+	# Mounting additional partitions r/w...
+	#
+	for i in $HD_MAP; do
+		part=$(echo $i | cut -d":" -f1)
+		point=$(echo $i | cut -d":" -f2)
+		mkdir -p $TARGET_MNT_POINT$point
+
+		mount $part $TARGET_MNT_POINT$point > ${TMP} 2>&1
+		if [ "$?" -ne "0" ]; then
+
+			error_messages=$(tail -8 $TMP)
+			err_msg="Mounting of $HD_CHOICE failed, trying remount. Some messages from mount: $error_messages"
+			logit $err_msg
+
+			mount -o remount,dev "$TARGET_MNT_POINT$point" > ${TMP} 2>&1
+
+			if [ "$?" -ne "0" ]; then
+				error_messages=$(tail -8 $TMP)
+				err_msg="Mounting of ${i} failed. Some messages from mount: $error_messages"
+				logit $err_msg
+				error 17 "$err_msg"
+			fi
+		fi
+	done
+
+	return 0	
+}
+##-------------------------------------
+checkHDSize () {
+	local ROOT_MIN_RAW
+	local ROOT_MIN
+	local ROOT_SIZE
+	local REST_SIZE
+	local POINT_SIZE
+	local PART_SIZE
+
+	ROOT_MIN_RAW=$(df -m "$DEFAULT_DIR" | tail -1 | awk '{print $3}')
+	
+	ROOT_MIN=$(($ROOT_MIN_RAW* 1024 * 1024 * 360/100))
+
+	ROOT_SIZE=$(blockdev --getsize64 ${HD_CHOICE} )
+	REST_SIZE=${ROOT_MIN}
+
+	for i in $HD_MAP; do
+		part=$(echo $i | cut -d":" -f1)
+		point=$(echo $i | cut -d":" -f2)
+
+		PART_SIZE=$(blockdev --getsize64 ${part})
+		POINT_SIZE=$(du -sk ${point} | cut -f 1 )
+
+		if [ ${PART_SIZE} -lt $((${POINT_SIZE} * 1024 * 120 / 100)) ]; then
+			err_msg="Not enough size on partition $part to install ${FLL_DISTRO_NAME}$point"
+			error 18 $err_msg
+			break
+		else
+			REST_SIZE=$(($REST_SIZE - $POINT_SIZE))
+		fi
+	done
+	if [ ${ROOT_SIZE} -lt $((${REST_SIZE} * 120 / 100 )) ] ; then
+		err_msg="Not enough size on partition ${HD_CHOICE} to install ${FLL_DISTRO_NAME}"
+		error 18 $err_msg
+	fi
+
+}

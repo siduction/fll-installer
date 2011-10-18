@@ -1,0 +1,25 @@
+##
+##-------------------------------------
+# Needs:
+#
+# Calls:
+# logit
+#
+##-------------------------------------
+##
+get_boot_cmdline()
+{
+	local SYSTEM_RESCUE_CMDS
+	local SYSTEM_RESCUE_CMDLINE
+
+	# do not log my call as we need the echo output
+	#
+	# logit "get_boot_cmdline"
+	#
+
+	SYSTEM_RESCUE_CMDS="acpi|noapic|nosmp|pci|pnpbios|noapm|nohlt|nolapic|irqpoll|i8042|=scsi"
+	SYSTEM_RESCUE_CMDLINE=$(cat /proc/cmdline | tr ' ' '\n' | egrep "$SYSTEM_RESCUE_CMDS" |  tr '\n' ' ')
+
+	echo "$SYSTEM_RESCUE_CMDLINE quiet"
+}
+

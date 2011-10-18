@@ -1,0 +1,73 @@
+##
+##-------------------------------------
+# Needs:
+# SERVICES_START
+# TARGET_MNT_POINT
+#
+# Calls:
+# logit
+# chroot_it
+#
+##-------------------------------------
+##
+system_services () {
+	#
+	# log my call
+	#
+	logit "configuring system services"
+
+	# remember keep service blacklists in sync with pyfll!
+	local DISABLED_SERVICES
+	local REMOVED_SERVICES
+	local SERVICE_BLACKLIST
+	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single"
+	REMOVED_SERVICES=""
+	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
+
+	# re-enable services which shouldn't start in the live system
+	for service in ${DISABLED_SERVICES}; do
+		[ -x "/etc/init.d/${service}" ] || continue
+		chroot_it update-rc.d "${service}" enable
+	done
+
+	# start removed services with defaults
+	for service in ${REMOVED_SERVICES}; do
+		[ -x "/etc/init.d/${service}" ] || continue
+		chroot_it update-rc.d "${service}" defaults
+	done
+
+	# keep blacklistsed services, predominantly network dæmons and 
+	# packages that require custom configuration, disabled
+	for service in ${SERVICE_BLACKLIST}; do
+		[ -x "/etc/init.d/${service}" ] || continue
+		chroot_it update-rc.d "${service}" disable || :
+
+		for startservice in ${SERVICES_START}; do
+			if [ "${service}" = "${startservice}" ]; then
+				chroot_it update-rc.d "${service}" enable
+				continue
+			fi
+		done
+	done
+
+	# disable all services in /etc/inetd.conf
+	say "disable all services in /etc/inetd.conf"
+	if [ -x "${TARGET_MNT_POINT}/etc/init.d/openbsd-inetd" ]; then
+		chroot_it update-inetd --multi --disable '*'
+	fi
+
+	# prepare ssh
+	if [ -x "${TARGET_MNT_POINT}/etc/init.d/ssh" ]; then
+		if [ ! -e "${TARGET_MNT_POINT}/etc/ssh/ssh_host_rsa_key" ]; then
+			ssh-keygen -q -t rsa -f "${TARGET_MNT_POINT}/etc/ssh/ssh_host_rsa_key" -C '' -N ''
+		fi
+
+		if [ ! -e "${TARGET_MNT_POINT}/etc/ssh/ssh_host_dsa_key" ]; then
+			ssh-keygen -q -t dsa -f "${TARGET_MNT_POINT}/etc/ssh/ssh_host_dsa_key" -C '' -N ''
+		fi
+
+		if [ ! -e "${TARGET_MNT_POINT}/etc/ssh/ssh_host_ecdsa_key" ]; then
+			ssh-keygen -q -t ecdsa -f "${TARGET_MNT_POINT}/etc/ssh/ssh_host_ecdsa_key" -C '' -N ''
+		fi
+	fi
+}

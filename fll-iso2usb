@@ -1,0 +1,1024 @@
+#!/bin/bash
+#
+# Copyright (C) 2007 - 2011 Joaquim Boura <x-un-i@berlios.de>
+#           (C) 2007 - 2008 Kel Modderman <kel@otaku42.de>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this package; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+#
+# On Debian GNU/Linux systems, the text of the GPL license can be
+# found in /usr/share/common-licenses/GPL.
+#-------------------------------------------------------------------
+#
+# given an usb pen, eg /dev/sdb, /dev/sdc we create ** one **  partiton on that 
+# device make it bootable, format it with ext3
+# install grub into it
+# copy the message file into the grub dirs
+# create directory for iso, kernel, initrd (eg aptosid)
+# copy the files into there.
+# create the menu.lst file on it
+#
+
+#--------------------------------------------------------------
+# remove old error file if present
+test -e /tmp/.fll-iso2usb && rm -f /tmp/.fll-iso2usb
+# debug file
+DEBUGLOG="/tmp/$(basename ${0}).debug"
+if [ -f "${DEBUGLOG}" ]; then
+	rm -f "${DEBUGLOG}"
+fi
+#--------------------------------------------------------------
+# source distro-defaults
+#--------------------------------------------------------------
+if [ -s /etc/default/distro ]; then
+	#
+	# XXX: we really want to source the defaults from the live media
+	# we are copying, and not the host system
+	#
+	. /etc/default/distro
+else
+	echo "E: requires distro-defaults"
+	exit 1
+fi
+
+#--------------------------------------------------------------
+# use variable to remember which grub version we are using
+#--------------------------------------------------------------
+if [ ! `which grub` ] && [ `which grub-setup` ]; then 
+	GRUB2="true"
+else
+	GRUB2="false"
+fi
+
+#--------------------------------------------------------------
+# functions
+#--------------------------------------------------------------
+usage()
+{
+	echo ""
+	echo "Create an fromiso (frugal) installation on a USB drive"
+	echo ""
+	echo "-d|--debug                          debug sh code execution"
+	echo "-D|--device </dev/sdX>              name of device where to install the "
+	echo "                                    \"fromiso\""
+	echo "-n|--noformat                       do not format partition"
+	echo "-f|--format vfat|ext2|ext3          format partition with given filesystem"
+	echo "-p|--persist                        use cheatcode persist"
+	echo "-P|--percent                        adjust percentage free space used for "
+	echo "                                    persist on vfat (10 - 90)"
+	echo "-h|--help                           print this help"
+	echo "-I|--iso   <iso_file>               iso file name to be installed"
+	echo "-L|--label <name>                   label name to be used for the created partition"
+	echo "-t|--test                           copy everything but do not copy the iso"
+	echo ""
+	echo "Everything after -- will be appended to the kernel cmdline of grub menu.lst"
+	echo ""
+	echo "Use it at your own risk, it comes without any warranty."
+	echo ""
+}
+#--------------------------------------------------------------
+success()
+{
+	local exitval="${1}"
+	echo "${exitval}" > /tmp/.fll-iso2usb
+	chmod 666 /tmp/.fll-iso2usb
+}
+#--------------------------------------------------------------
+error()
+{
+	local exitval="${1}"
+	shift
+
+	# the gui currently uses this
+	echo "${exitval}-${@}" > /tmp/.fll-iso2usb
+	chmod 666 /tmp/.fll-iso2usb
+	
+	echo "E: ${@}"
+}
+#--------------------------------------------------------------
+say()
+{
+	echo "O: ${1}"
+}
+#--------------------------------------------------------------
+valid_label()
+{
+	# label may contain only these characters
+	case "${1}" in
+		*[!A-Za-z0-9-_]*)
+			return 1
+			;;
+	esac
+	
+	return 0
+}
+#--------------------------------------------------------------
+refresh_block_devices()
+{
+	if which udevadm >/dev/null; then
+		udevadm trigger --subsystem-match=block
+		udevadm settle --timeout=30
+	elif which udevtrigger >/dev/null; then
+		udevtrigger --subsystem-match=block
+		udevsettle --timeout=30
+	fi
+}
+#--------------------------------------------------------------
+get_distro_name()
+{
+	local iso="${1}"
+	
+	local mounted_iso="$(mktemp -d -p /tmp/ install-usb-iso.XXXXXX)"
+
+	while :; do
+		if mount -t iso9660 -o loop,ro "${iso}" "${mounted_iso}"; then
+			break
+		elif [[ -b ${iso} ]]; then
+			echo
+			echo "Please load iso media into ${iso#/dev/} tray."
+			echo "Press Enter to continue or Ctrl+c to cancel."
+			echo
+			read x
+			continue
+		fi
+	done
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to mount ${iso} on ${mounted_iso}"
+		return 1
+	fi
+
+	local iso_initrd=$(ls  ${mounted_iso}/boot/init* |head -n 1)
+	local iso_distro=$(mktemp -p /tmp/ install-usb-iso.distro.XXXXXX)
+
+	gunzip -c ${iso_initrd} |\
+		cpio -i -H newc --to-stdout --quiet etc\/default\/distro |\
+		awk '/FLL_DISTRO_NAME=/{print $0} /FLL_MEDIA_NAME=/{print $0} /FLL_WALLPAPER=/{print $0}' >${iso_distro}
+	
+	umount $mounted_iso 
+
+	if test -s ${iso_distro} ; then
+	    source ${iso_distro}
+	    rm -f ${iso_distro}
+	else
+	    error "${ev}" "failed to read distro-defaults in initramfs"
+	    rm -f ${iso_distro}
+	    return 1
+	fi
+	
+}
+#--------------------------------------------------------------
+prepare_partition()
+{
+	local device="${1}"
+	local fs="${2:-"ext3"}"
+	local label="${3:-${FLL_DISTRO_NAME}USB}"
+	shift 4
+
+	local ev
+	local is_bootable part_id
+	local fs_prog part_type
+
+	say "preparing bootable partition on device: ${device}"
+
+	case "${fs}" in
+		vfat)
+			fs_prog="mkfs.vfat -n ${label}"
+			part_type=6
+			;;
+		ext2)
+			fs_prog="mkfs.ext2 -q -m 1 -L ${label}"
+			part_type=83
+			;;
+		ext3)
+			fs_prog="mkfs.ext3 -q -m 1 -L ${label}"
+			part_type=83
+			;;
+		*)
+			usage
+			exit 253
+			;;
+	esac
+	# clear the partition table
+	dd if=/dev/zero of=${device} bs=1M count=16
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to zero ${device}"
+		return 1
+	fi
+	# reread partition table
+	/sbin/partprobe "${device}"
+	sleep 1
+	
+	# create partition
+	fdisk "${device}" \
+<<EOF
+
+n
+p
+1
+
+
+t
+${part_type}
+a
+1
+p
+w
+EOF
+	
+	ev="${?}" ; echo ${ev}
+	if [ "${ev}" -eq 0 ]; then
+		PARTITION="${DEVICE}1"
+		if [ ! -b "${PARTITION}" ]; then
+			PARTITION="${DEVICE}p1"
+			if [ -b "${PARTITION}" ];then
+				say "using partition ${PARTITION}"
+			else
+				error "${ev}" "failed to create partition on device: ${device}"
+			fi
+		else
+			say "using partition ${PARTITION}"
+		fi
+	else
+		error "${ev}" "failed to create partition on device: ${device}"
+	fi
+	
+#	refresh_block_devices
+
+	is_bootable=$(LC_ALL=C fdisk -l ${device} | awk -v part=${PARTITION} '
+		{
+			if($1 == part && $2 == "*") {
+				print 1
+				exit
+			}
+		}
+	')
+
+	if [ "${is_bootable:-0}" -ne 1 ]; then
+		# set boot flag
+		fdisk "${device}" \
+<<EOF
+a
+1
+p
+w
+EOF
+
+		ev="${?}"
+		if [ "${ev}" -ne 0 ]; then
+			error "${ev}" "fdisk stuffed up while setting device as bootable"
+			return 1
+		fi
+	
+#		refresh_block_devices
+
+		is_bootable=$(LC_ALL=C fdisk -l ${device} | awk -v part=${PARTITION} '
+			{
+				if($1 == part && $2 == "*") {
+					print 1
+					exit
+				}
+			}
+		')
+
+		if [ "${is_bootable:-0}" -ne 1 ]; then
+			error 1 "could not make USB device bootable"
+			return 1
+		fi
+	fi
+
+	part_id=$(LC_ALL=C fdisk -l ${device}  | awk -v fs_type=${part_type} -v part=${PARTITION} '
+		{
+			if($1 == part && $6 == fs_type) {
+				print $6
+				exit
+			}
+		}
+	')
+	
+	if [ "${part_id:-0}" -ne "${part_type}" ]; then
+		# set partition type
+		fdisk "${device}" \
+<<EOF
+t
+${part_type}
+p
+w
+EOF
+		
+		ev="${?}"
+		if [ "${ev}" -ne 0 ]; then
+			error "${ev}" "fdisk failed when setting partition type \"${part_fs}\""
+			return 1
+		fi
+		
+#		refresh_block_devices
+
+		part_id=$(LC_ALL=C fdisk -l ${device}  | awk -v fs_type=${part_type} -v part=${PARTITION} '
+			{
+				if($1 == part && $6 == fs_type) {
+					print $6
+					exit
+				}
+			}
+		')
+
+		if [ "${part_id:-0}" -ne "${part_type}" ]; then
+			error 1 "failed to set partition type 83 or 6 on ${device}"
+			return 1
+		fi	
+	fi	
+
+	${fs_prog} "${PARTITION}"
+	
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to format ${PARTITION}"
+		return 1
+	fi
+
+	say "prepared bootable partition: ${PARTITION} label: ${label}"
+}
+#--------------------------------------------------------------
+mount_partition()
+{
+	local partition="${1}"
+	local mountpoint="${2}"
+	shift 2
+	
+	if [ -n "${DEBUG}" ]; then
+		fdisk -l >&2
+	fi
+
+	local ev
+
+	say "mounting ${partition} on ${mountpoint}"
+	
+	sleep 1
+	mount -o rw "${partition}" "${mountpoint}"
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to mount ${partition} on ${mountpoint}"
+		return 1
+	fi
+
+	say "mount point ready: ${mountpoint}"
+}
+#--------------------------------------------------------------
+umount_partition()
+{
+	local partition="${1}"
+	local mountpoint="${2}"
+	shift 2
+
+	local ev
+
+	say "umounting ${partition} from ${mountpoint}"
+
+	umount "${partition}"
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to umount ${partition} from ${mountpoint}"
+		return 1
+	fi
+
+	rmdir "${mountpoint}"
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to remove mount point: ${mountpoint}"
+		return 1
+	fi
+
+	say "mount point destroyed: ${mountpoint}"
+}
+#--------------------------------------------------------------
+install_grub()
+{
+	local device="${1}"
+	local mountpoint="${2}"
+	shift 2
+	
+	local ev
+	local device_map disk
+
+	say "installing grub on ${device}"
+
+	grub-install --no-floppy --root-directory="${mountpoint}" "${device}"
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "grub-install failed, root-directory=${mountpoint}, device=${device}"
+		return 1
+	fi
+
+	device_map="${mountpoint}/boot/grub/device.map"
+	disk=$(echo ${device} |cut -d '/' -f 3)
+
+	old_hdmap=$(grep ${disk} ${device_map}| awk '{print $1}' | sed -e "s/[\(,\)]//g")
+
+	# fix the device.map file
+	sed -i -e "s|(hd0)|(hdX)|" -e "s|(${old_hdmap})|(hd0)|" \
+		-e "s|(hdX)|(${old_hdmap})|" "${device_map}"
+	
+	say "grub successfully installed to ${device}"
+}
+#--------------------------------------------------------------
+copy_files()
+{
+	local source_dir="${1}"
+	local mountpoint="${2}"
+
+	say "copying files to ${mountpoint}"
+
+	for i in initrd vmlinuz; do
+		cp -v	${source_dir}/boot/${i}* \
+			${mountpoint}/boot
+	
+		ev="${?}"
+		if [ "${ev}" -ne 0 ]; then
+			error "${ev}" "failed to copy files ${source_dir}/boot/${i} to ${mountpoint}/boot"
+			return 1
+		fi
+	done
+	
+	if [ "${GRUB2}" = "false" ]; then
+		if [ -e ${source_dir}/boot/message ] ; then
+			cp -v	${source_dir}/boot/message \
+				${mountpoint}/boot
+		fi
+	else
+		mkdir -p ${mountpoint}/boot/graphics
+		if [ -e "/usr/share/grub/unicode.pf2" ];then
+			cp -v /usr/share/grub/unicode.pf2 ${mountpoint}/boot/graphics
+		fi
+		if [ "${FLL_DISTRO_MODE}" = "live" ];then
+			if [ -e "${FLL_WALLPAPER}/contents/images/1024x768.png" ];then
+				cp -v ${FLL_WALLPAPER}/contents/images/1024x768.png \
+					${mountpoint}/boot/graphics
+			fi
+		fi
+	fi
+	if [ -e ${source_dir}/boot/memtest86+.bin ] ; then
+		cp -v	${source_dir}/boot/memtest86+.bin \
+			${mountpoint}/boot
+	
+		ev="${?}"
+		if [ "${ev}" -ne 0 ]; then
+			error "${ev}" "failed to copy files memtest to ${mountpoint}/boot"
+			return 1
+		fi
+	fi
+	say "files copied to ${mountpoint}"
+	return 0
+}
+#--------------------------------------------------------------
+copy_files_from_dev()
+{
+	local name="${1}"
+	local mountpoint="${2}"
+	local nocopy="${3}"
+	shift 3
+	
+	local ev
+	local booted_device fll_booted_dir
+	
+	FLL_BASE_DIR_AWK=$(echo $FLL_BASE_DIR | sed -e 's|\/|\\\/|g')
+	booted_device=$(LC_ALL=C mount | awk '
+		{
+			if(/iso9660/ && /'${FLL_BASE_DIR_AWK}'/ && /\/dev\//)
+				print $1
+		}
+	')
+	fll_booted_dir=$(LC_ALL=C mount | awk '
+		{
+			if(/iso9660/ && /'${FLL_BASE_DIR_AWK}'/ && /\/dev\//)
+				print $3
+		}
+	')
+
+
+	copy_files "${fll_booted_dir}" "${mountpoint}"
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to copy files to ${mountpoint}/boot"
+		return 1
+	fi
+
+	if [ "${nocopy}" = "yes" ]; then
+ 		return 0
+	fi
+
+	say "copying files the iso to the ${mountpoint}"
+	dd if="${booted_device}" of="${mountpoint}/${name}"
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "dd failed to clone ${booted_device} to ${mountpoint}/${name}"
+		return 1
+	fi
+
+	say "all files successfully copied to ${mountpoint}"
+}
+#--------------------------------------------------------------
+copy_files_from_local_iso()
+{
+	local iso="${1}"
+	local name="${2}"
+	local mountpoint="${3}"
+	local nocopy="${4}"
+	shift 4
+
+	local ev
+	local mounted_iso 
+	
+	say "mounting iso: ${iso}"
+	
+	mounted_iso="$(mktemp -d -p /tmp/ install-usb-iso.XXXXXX)"
+
+	while :; do
+		if mount -t iso9660 -o loop,ro "${iso}" "${mounted_iso}"; then
+			break
+		elif [[ -b ${iso} ]]; then
+			echo
+			echo "Please load iso media into ${iso#/dev/} tray."
+			echo "Press Enter to continue or Ctrl+c to cancel."
+			echo
+			read x
+			continue
+		fi
+	done
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to mount ${iso} on ${mounted_iso}"
+		return 1
+	fi
+
+	say "iso mounted on ${mounted_iso}"
+
+	copy_files "${mounted_iso}" "${mountpoint}"
+	
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to copy files to ${mountpoint}/boot"
+		return 1
+	fi
+
+	umount ${mounted_iso}
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to umount ${mounted_iso}"
+		return 1
+	fi
+
+	rmdir ${mounted_iso}
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to remove ${mounted_iso}"
+		return 1
+	fi
+
+	if [ "${nocopy}" = "yes" ]; then
+ 		return 0
+	fi
+
+	say "copying files the iso to the ${mountpoint}"
+	cp -v "${iso}" "${mountpoint}/${name}"
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		error "${ev}" "failed to cp ${iso} to ${mountpoint}/${name}"
+		return 1
+	fi
+
+	say "iso successfully copied to ${mountpoint}"
+}
+#--------------------------------------------------------------
+prepare_persist()
+{
+	local mountpoint="${1}"
+	local fs
+
+	if [ "${PERSIST}" != "persist" ]; then
+		return 0
+	fi
+
+	say "Initializing persistent overlay"
+
+	fs=$(/sbin/blkid -p -o value -s TYPE ${PARTITION})
+
+	case ${fs} in
+		vfat)
+			local avail use perc
+
+			avail=$(df -k | awk -v p="${PARTITION}" '$1 == p { printf "%d\n", $4 }')
+
+			if [ -z "${avail}" ] || [ "${avail}" -lt 204800 ]; then
+				say "persistency requires >=200M free space on ${mountpoint}"
+				return 1
+			else
+				say "${avail}k free space on ${mountpoint}"
+			fi
+
+			if [ "${PERCENT}" ]; then
+				say "using ${perc}% of free space for persistent loopback file"
+				perc="${PERCENT}"
+			else
+				# Default to 50%
+				perc="50"
+			fi
+
+			use=$(awk -v a="${avail}" -v p="${perc}" 'BEGIN{ printf "%d\n", a * p / 100 }')
+
+			if [ "${use}" -gt 2097152 ]; then
+				# Maximum filesize limited to a bit less than 2G on vfat
+				use=2048000
+			fi
+
+			say "creating persistent loopback file, count=${use}"
+
+			mkdir -p "${mountpoint}/${FLL_DISTRO_NAME}"
+                	dd if=/dev/zero of="${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" count="${use}" bs=1k || return 1
+                	echo 'y' | LANG=C /sbin/mkfs.ext2 "${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" || return 1
+			tune2fs -c 0 "${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" || return 1
+
+			# Update the PERSIST variable with location to loopback filesystem
+			PERSIST="${PERSIST}=/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw"
+			;;
+		ext2|ext3|ext4)
+			;;
+		*)
+			return 1
+			;;
+	esac
+
+	return 0
+}
+#--------------------------------------------------------------
+grubcfg()
+{
+	local partition="${1}"
+	local mountpoint="${2}"
+	local name="${3}"
+	shift 3
+	local Parameters="${@}"
+
+	local ev
+	local initrd vmlinuz uuid
+
+	uuid=$(blkid -o value -s UUID ${partition})
+
+	cat > ${mountpoint}/boot/grub/grub.cfg <<EOF \
+
+search --no-floppy --fs-uuid --set ${uuid}
+
+insmod video
+insmod font
+insmod vbe
+insmod png
+insmod gfxterm
+
+set gfxmode="1024x768x32;800x600x32;640x480x32;1024x768;800x600;640x480"
+
+loadfont /boot/graphics/unicode.pf2
+
+terminal_output gfxterm
+set gfxpayload=1024x768x32
+
+if  background_image /boot/graphics/1024x768.png ; then
+   set color_normal=white/black
+   set color_highlight=magenta/black
+else
+   set color_normal=green/black
+   set color_highlight=cyan/black
+fi
+
+EOF
+
+	say "creating ${mountpoint}/boot/grub/grub.cfg"
+	kernels=$(find ${mountpoint}/boot/ -maxdepth 1 -type f -name 'vmlinuz*' -printf '%P\n' )
+
+	for kernel in ${kernels}; do
+		cat >> ${mountpoint}/boot/grub/grub.cfg <<EOF \
+
+menuentry "${name} from iso (${kernel##vmlinuz??})" {
+  loopback loop /${FLL_MEDIA_NAME}
+  linux (loop)/boot/${kernel} boot=fll fromhd=UUID=${uuid} fromiso=/${name}.iso nointro quiet ${PERSIST} ${Parameters}
+  initrd (loop)/boot/initrd${kernel##vmlinuz}
+}
+ 
+EOF
+
+	done
+	
+	if [ -e ${mountpoint}/boot/memtest86+.bin ]; then
+		cat >> ${mountpoint}/boot/grub/grub.cfg <<EOF \
+
+menuentry  "Memory Test (memtest86+)" {
+	linux16 /boot/memtest86+.bin
+}
+
+menuentry  "Memory Test (memtest86+, serial console 1152000)" {
+	linux16 /boot/memtest86+.bin console=ttyS0,115200n8
+}
+EOF
+	fi
+}
+#--------------------------------------------------------------
+menulst()
+{
+	local partition="${1}"
+	local mountpoint="${2}"
+	local name="${3}"
+	shift 3
+
+	local ev
+	local initrd vmlinuz uuid
+
+	say "creating ${mountpoint}/boot/grub/menu.lst"
+
+	# if more than one kernel on &{mountpoint}/boot then we have multiarch
+	kernels=$(find ${mountpoint}/boot/ -maxdepth 1 -type f -name 'vmlinuz*' -printf '%P\n')
+	uuid=$(blkid -o value -s UUID ${partition})
+
+	cat > ${mountpoint}/boot/grub/menu.lst \
+<<EOF
+default 0
+timeout 10
+color red/black light-red/black
+foreground EE0000
+background 400000
+gfxmenu /boot/message
+
+EOF
+
+	case "${@}" in
+		*vga=*)
+			Parameters="${@}";;
+		*) Parameters="${@} vga=791";;
+	esac
+
+	for kernel in ${kernels}; do
+		cat >> ${mountpoint}/boot/grub/menu.lst \
+<<EOF
+##ISO boot
+title ${name} (USB) (${kernel##vmlinuz??}
+kernel (hd0,0)/boot/${kernel} boot=fll fromhd=UUID=${uuid} fromiso nointro quiet  ${PERSIST} ${Parameters}
+initrd (hd0,0)/boot/initrd${kernel##vmlinuz}
+
+EOF
+	done
+
+	if [ -e ${mountpoint}/boot/memtest86+.bin ]; then
+		cat >> ${mountpoint}/boot/grub/menu.lst \
+<<EOF
+title memtest86+
+kernel /boot/memtest86+.bin
+
+EOF
+	fi
+}
+
+#--------------------------------------------------------------
+# cleanup for trap
+#--------------------------------------------------------------
+cleanup () {
+	[ -d "${USBTMPDIR}" ] && umount_partition "${PARTITION}" "${USBTMPDIR}"
+	if [ -n "${DEBUG}" ]; then
+		echo >&2 "Last syslog entries:"
+		dmesg | tail -n 30 >&2
+		echo "DEBUG: Logfile in ${DEBUGLOG}."
+	fi
+}
+
+#--------------------------------------------------------------
+# preparation, process cli arguments with getopt
+#--------------------------------------------------------------
+noformat=false
+
+TEMP=$(getopt -o dD:f:hI:L:npP:t \
+        --long debug,device:,format:,help,iso:,label:,noformat,persist,percent:,test \
+        -n  "$(basename ${0})" -- "${@}")
+
+if [ "${?}" -ne 0 ]; then
+	error 255 "getopt terminated abnormally"
+	exit 255
+fi
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "${TEMP}"
+
+while true ; do
+	case "${1}" in
+		-d|--debug)
+			DEBUG=1
+			set -x
+			exec 2>"${DEBUGLOG}"
+			shift
+			;;
+		-D|--device)
+			DEVICE="${2}"
+			shift 2
+			;;
+		-f|--format)
+			if [ "${noformat}" = "true" ];then
+				usage
+				exit 254
+			fi
+			PART_FS="${2}"
+			case "${PART_FS}" in
+				none)
+					noformat=true
+					unset PART_FS
+					;;
+				vfat|ext2|ext3)
+					;;
+				*)
+					usage
+					exit 253
+				;;
+			esac
+			shift 2
+			;;
+		-I|--iso)
+			ISO="${2}"
+			shift 2
+			;;
+		-n|--noformat)
+			if [ -z "${PART_FS}" ]; then
+				noformat=true
+				shift 
+			else
+				usage
+				exit 254
+			fi
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-L|--label)
+			valid_label "${2}" && LABEL="${2}"
+			shift 2
+			;;
+		-p|--persist)
+			PERSIST="persist"
+			shift 
+			;;
+		-P|--percent)
+			case "${2}" in
+				*[!0-9]*)
+					error 1 "${1} option requires a percentile as argument, given: ${2}"
+					exit 1
+					;;
+			esac
+
+			if [ "${2}" -le 90 ] && [ "${2}" -ge 10 ]; then
+				PERCENT="${2}"
+				shift 2
+			else
+				error 1 "${1} option requires a percentile value > 10 and < 90"
+				exit 1
+			fi
+			;;
+		-t|--test)
+			NOCOPY="yes"
+			shift
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			error 255 "getopt internal error"
+			exit 255
+			;;
+	esac
+done
+
+#--------------------------------------------------------------
+# sanity checking and argument post-processing
+#--------------------------------------------------------------
+if [ -z "${DEVICE}" ]; then 
+	error 2 "requires -D|--drive option"
+	exit 2
+fi
+
+if [ ! -b "${DEVICE}" ]; then 
+	error 3 "device not found: ${DEVICE}"
+	exit 3
+fi
+
+if [ -z "${ISO}" ] && [ "${FLL_DISTRO_MODE}" = "live" ] && \
+	FLL_BASE_DIR=$(dirname ${FLL_MOUNTPOINT})
+	grep -s -q -w fromiso /proc/cmdline; then
+	# system booted fromiso, reuse the iso
+	ISO_T=$(grep -E -o 'fromiso=[^[:space:]]+' /proc/cmdline | sed 's/^fromiso=//')
+	# don't waste heaps of time for this, maxdepth of 3 for custom dir
+	if [ "${ISO_T}" ]; then
+		ISO=$(find ${FLL_BASE_DIR} -maxdepth 3 -type f -print0 | grep -FzZ ${ISO_T})
+	else
+		ISO=$(find ${FLL_BASE_DIR} -maxdepth 2 -type f -name ${FLL_MEDIA_NAME})
+	fi
+fi
+
+if [ "${FLL_DISTRO_MODE}" = "installed" ] || \
+	grep -s -q -w toram /proc/cmdline; then
+	# installed system or system booted with "toram"
+	# must supply iso media
+	if [ -z "${ISO}" ] || [ ! -r "${ISO}" ]; then
+		error 4 "host/toram mode requires -I|--iso option"
+		exit 4
+	fi
+	FORCE_LOCAL_ISO="1"
+fi
+
+#--------------------------------------------------------------
+# main()
+#--------------------------------------------------------------
+USBTMPDIR="$(mktemp -d -p /tmp/ install-usb.XXXXXX)"
+
+trap cleanup exit
+
+if [ -n "${ISO}" ]; then
+	get_distro_name "${ISO}"				|| exit 5
+fi
+
+if [ "${noformat}" = "false" ] ; then
+	if [ -z "${PART_FS}" ]; then
+		PART_FS="ext3"
+	fi
+	prepare_partition "${DEVICE}"  "${PART_FS}" "${LABEL}"		|| exit 6
+fi
+
+if [ -z "${PARTITION}" ]; then
+	PARTITION="${DEVICE}1"
+	if [ ! -b "${PARTITION}" ]; then
+		PARTITION="${DEVICE}p1"
+		if [ -b "${PARTITION}" ];then
+			say "using partition ${PARTITION}"
+		else
+			error "7" "E: no suitable partition found on device: ${device}"
+		fi
+	else
+		say "using partition ${PARTITION}"
+	fi
+fi
+mount_partition "${PARTITION}" "${USBTMPDIR}"			|| exit 7
+echo ${USBTMPDIR}
+
+install_grub "${DEVICE}" "${USBTMPDIR}"				|| exit 8
+
+if [ "${FORCE_LOCAL_ISO}" ]; then
+	copy_files_from_local_iso "${ISO}" \
+		"${FLL_MEDIA_NAME}" "${USBTMPDIR}" "${NOCOPY}"	|| exit 9
+else
+	copy_files_from_dev \
+		"${FLL_MEDIA_NAME}" "${USBTMPDIR}" "${NOCOPY}"	|| exit 10
+fi
+
+if [ "${PERSIST}" = "persist" ];then
+	prepare_persist "${USBTMPDIR}"
+
+	ev="${?}"
+	if [ "${ev}" -ne 0 ]; then
+		say "failed to prepare persistency overlay"
+		unset PERSIST
+	else
+		say "persistency overlay prepared"
+	fi
+else
+	say "persist mode not chosen"
+	unset PERSIST
+fi
+
+if [ "${GRUB2}" = "true" ]; then 
+	grubcfg "${PARTITION}" "${USBTMPDIR}" "${FLL_DISTRO_NAME}" ${@}	|| exit 11
+else
+	menulst "${PARTITION}" "${USBTMPDIR}" "${FLL_DISTRO_NAME}" ${@}	|| exit 12
+fi
+
+
+success "0"
+exit 0

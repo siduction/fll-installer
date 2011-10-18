@@ -1,0 +1,85 @@
+##
+##-------------------------------------
+# Needs:
+# TARGET_MNT_POINT
+# USER_NAME
+# DEFAULT_USER
+#
+# Calls:
+# logit
+# progress
+#
+##-------------------------------------
+##
+fix_home_on_HD()
+{
+	# home of user on installed system
+	local INSTHOME="/home/${USER_NAME}"
+	# home of user on live media
+	local LIVEHOME="/home/${DEFAULT_USER}"
+
+	#
+	# log my call
+	#
+	logit "fix_home_on_installed system"
+
+	if [ "${USER_NAME}" != "${DEFAULT_USER}" ];	then
+		if [ -d "${TARGET_MNT_POINT}${LIVEHOME}" ] && \
+			[ ! -d "${TARGET_MNT_POINT}${INSTHOME}" ]; then
+			mv "${TARGET_MNT_POINT}${LIVEHOME}" "${TARGET_MNT_POINT}${INSTHOME}"
+			
+			# fix /home/user paths in various config files
+			find "${TARGET_MNT_POINT}${INSTHOME}" \
+				-type f \
+				-exec sed -i "s|${LIVEHOME}|${INSTHOME}|g" {} \;
+		fi
+	fi
+
+	#
+	# purge unwanted files
+	#
+	for file in	"${TARGET_MNT_POINT}${INSTHOME}/.kde/Autostart/${FLL_DISTRO_NAME}.desktop" \
+			"${TARGET_MNT_POINT}${INSTHOME}/Desktop/${FLL_DISTRO_NAME}.desktop" \
+			"${TARGET_MNT_POINT}${INSTHOME}/Desktop/install-gui.desktop" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.config/autostart/${FLL_DISTRO_NAME}.desktop" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.hushlogin" \
+			"${TARGET_MNT_POINT}/root/.hushlogin"; do
+		[ -f "${file}" ] && rm -f "${file}"
+	done
+
+	#
+	# revert sudo workarounds
+	#
+	for file in	"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/config/kdesurc" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/apps/konsole/sumc.desktop" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/apps/konsole/su.desktop" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.gconf/apps/gksu/%gconf.xml" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.su-to-rootrc"; do
+		grep -s -q sudo "$file" && rm -f "$file"
+	done
+
+	#
+	# revert gksu sudo mode hack
+	#
+	logit "revert gksu sudo mode hack"
+	chroot "${TARGET_MNT_POINT}" \
+		sudo -u "${FLL_LIVE_USER}" gconftool-2 -s -t bool /apps/gksu/sudo-mode false
+	chroot "${TARGET_MNT_POINT}" \
+		sudo -u "${FLL_LIVE_USER}" gconftool-2 -s -t bool /apps/gksu/display-no-pass-info true
+	
+	#
+	# remove installer from fluxbox menu
+	#
+	if grep -s -q sudo "${TARGET_MNT_POINT}${INSTHOME}"/.fluxbox/fll-flux-*; then
+		sed -i '/Installer/d' "${TARGET_MNT_POINT}${INSTHOME}"/.fluxbox/fll-flux-*
+	fi
+
+	#
+	# make sudo alias's vanish
+	#
+	if grep -s -q sudo "${TARGET_MNT_POINT}${INSTHOME}/.bashrc"; then
+		sed -i 's|\(.*sudo.*\)||' "${TARGET_MNT_POINT}${INSTHOME}/.bashrc"
+	fi
+}
+##-------------------------------------
+#

@@ -1,0 +1,107 @@
+##
+##-------------------------------------
+# Needs:
+# DEFAULT_DIR
+# TARGET_MNT_POINT
+# SEARCHPATH
+# DEFAULT_USER
+#
+# Calls:
+# logit
+# module_hd_progressbar
+#
+# Error Codes
+# 20 - error copying iso to harddisk
+#
+# Return 0 on success 
+# on error the error code and message are in /tmp/.installer.errors
+##-------------------------------------------------------------------
+##
+copy2HD()
+{
+	local ERR_COPY="/tmp/.err_copy"
+	#
+	# log my call
+	#
+	logit "copy the CD into the harddisk"
+	#
+
+	if [ -e "${ERR_COPY}" ]; then
+		rm -f "${ERR_COPY}"
+	fi
+
+	#
+	# experimental copy2HD loop adapted from fll-live-initramfs
+	#
+	# /selinux is not shipped in base-files, make the damn dir now
+
+	progress "Copying files. This can take a while. Please be patient."
+
+	[ -d "${TARGET_MNT_POINT}/selinux" ] || mkdir "${TARGET_MNT_POINT}/selinux"
+		for dir in ${DEFAULT_DIR}/*; do
+		[ -d "${dir}" ] || continue
+		
+		if [ -L "${dir}" ]; then
+			#
+			# /lib64 -> /lib symlink handling
+			#
+			ln -sf "$(readlink -f ${dir})" "${TARGET_MNT_POINT}/${dir##*/}"
+		else
+			case "${dir##*/}" in
+				dev)
+					# copy the static dev from ${DEFAULT_DIR}
+					;;
+				home)
+					# don't clobber an existing /home/${DEFAULT_USER}
+					[ -d "${TARGET_MNT_POINT}/home/${DEFAULT_USER}" ] && continue
+					
+					# don't copy if /home/${USER_NAME} exists
+					# we could not move /home/${DEFAULT_USER}
+					[ -d "${TARGET_MNT_POINT}/home/${USER_NAME}" ] && continue
+
+					# substitute variable to point to dir on live fs
+					dir="/${dir##*/}"
+					;;
+				*)
+					# substitute variable to point to dir on live fs
+					dir="/${dir##*/}"
+					;;
+			esac
+			
+			#
+			# do the copy
+			#
+			rsync	--archive --quiet \
+				--exclude-from="${SEARCHPATH}/data/exclusion_list" \
+				"${dir}" "${TARGET_MNT_POINT}"
+			if [ $? -ne 0 ] ; then
+				touch ${ERR_COPY}
+				# echo 20 "Error copying iso to harddisk" 
+				break
+			fi
+			sync
+		fi
+	done
+
+	# when the file /tmp/.installer.errors exist and the first field is 20
+	# then we must stop installation as an error has happened
+	
+	# if [ -s $ERRLOG ]; then
+	if [ -e ${ERR_COPY} ]; then
+		rm -f ${ERR_COPY}
+		error 20 "Error copying iso to harddisk" 
+	fi
+
+	#
+	# two beeps
+	if [ -z "$DISPLAY" ]; then
+		printf "\a"
+	fi
+	sleep 0.5
+	if [ -z "$DISPLAY" ]; then
+		printf "\a"
+	fi
+	sleep 0.5
+	return 0
+}
+

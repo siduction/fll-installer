@@ -1,0 +1,100 @@
+#-------------------------
+# Global Variables
+# ------------------------
+CONFIG_FILE="$HOME/.sidconf"
+LOG="$HOME/.sidlog"
+
+#
+###-------------------------------------
+#
+logit () {
+	local TIME
+	say "$@"
+	TIME=$(date)
+	[ -n "$*" ] && printf "$TIME: $@\n" >> "$LOG" || echo >> "$LOG"
+}
+
+#
+###-------------------------------------
+#
+get_efisys () {
+	efisys=""
+	# This is derived from the install-gui disk code
+	disks=`LANG=C fdisk -l | grep "Disk /dev" | cut -d: -f1 | cut -d" " -f2`
+	for disk in ${disks}
+	do
+		# next disk if usb
+		[ -n "$(echo $(readlink -f /sys/block/${disk##*/}/device) | grep 'usb')" ] && continue
+		# GPT disks appear in fdisk as a single partition of System GPT
+		parts=$(fdisk -l $disk | grep -v "Extended" | \
+		        grep '^/dev/' | cut -d " " -f1 | cut -d "/" -f 3)
+		if [ "/dev/${parts}" = "${disk}1" ] && \
+		   [ -n "$(fdisk -l $disk | awk '/^\/dev\//{if($6 == "GPT"){print "GPT"}}')" ]
+		then
+			# use gdisk to check for efi system partition
+			efis="$(gdisk -l ${disk} | \
+			        awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'"$1}}')"
+			# stop on the first vfat partition found setting efisys
+			for efi in $efis ; do
+				[ "$(blkid -s TYPE -o value ${efi})" = "vfat" ] && \
+				    efisys="${efi}" && break 2
+			done
+		fi
+	done
+}
+
+#
+###-------------------------------------
+#
+TARGET_MNT_POINT="/fll/hdinstall" 
+TARGET_MNT_NAME="hdinstall" 
+
+
+#
+###-------------------------------------
+# make use of distro-defaults
+###-------------------------------------
+#
+FLL_DISTRO_NAME="aptosid"
+FLL_LIVE_USER="aptosid"
+FLL_MOUNTPOINT="/fll/aptosid"
+
+[ -r /etc/default/distro ] && . /etc/default/distro
+
+DEFAULT_USER="$FLL_LIVE_USER"
+DEFAULT_DIR="$FLL_MOUNTPOINT"
+
+#
+###-------------------------------------
+# The default user
+###-------------------------------------
+#
+DEFAULT_NAME=$(getent passwd "$DEFAULT_USER" | cut -f5 -d: | cut -f1 -d,)
+
+# 
+###-------------------------------------
+# make sure proc is mounted
+###-------------------------------------
+#
+[ -r /proc/cmdline ] || logit "/proc/cmdline not readable (procfs not mounted?)!"
+CMDLINE=$(cat /proc/cmdline)
+
+#
+###-------------------------------------
+# Localisation  ** still needed ?? **
+###-------------------------------------
+#
+export TEXTDOMAINDIR="/usr/share/locale"
+export TEXTDOMAIN=fll-installer
+
+
+#
+###-------------------------------------
+# log my call
+###-------------------------------------
+#
+logit "Initialisation done"
+#
+#
+###-------------------------------------
+

@@ -1,0 +1,65 @@
+##
+##-------------------------------------
+# Needs:
+# FLL_DISTRO_MODE
+# TARGET_MNT_POINT
+#
+# Calls:
+# logit
+# chroot_it
+#
+##-------------------------------------
+##
+purge_live_only_stuff()
+{
+	#
+	# log my call
+	#
+	logit "purge_live_only_stuff"
+	#
+	local installed_packages
+
+	# divert /usr/sbin/policy-rc.d temporarily to protect
+	# the chroot from invoke-rc.d calls
+	chroot_it dpkg-divert --divert /usr/sbin/policy-rc.d.REAL \
+		--local --rename --add /usr/sbin/policy-rc.d
+	printf '#!/bin/sh\nexit 101\n' > "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+	chmod +x "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+
+	# purge live-specific packages
+
+	chroot_it dpkg --purge	fll-live-initramfs \
+				fll-live-initscripts \
+				fll-live-utils \
+				fll-live-xorgconfig \
+				desktop-defaults-common \
+				desktop-defaults-kde \
+				desktop-defaults-lxde \
+				desktop-defaults-gnome \
+				desktop-defaults-xfce \
+				install-gui \
+				cliinstaller \
+				fll-installer \
+				fll-installer-common \
+				nbd-client \
+				setpassword \
+				sshstart >&2
+
+	# remove virtualisation helpers on non-emulated hardware
+	if [ -z "$(lspci -d 80ee:beef)" ]; then
+		installed_packages=$(dpkg -l |awk '/virtualbox\-ose\-guest\-modules/{print $2}')
+		if [ -n "${installed_packages}" ]; then
+		   chroot_it dpkg --purge ${installed_packages} >&2
+		fi
+	fi
+
+	# remove divert
+	rm -f "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+	chroot_it dpkg-divert --rename --remove /usr/sbin/policy-rc.d
+
+	#  disable live config
+	if [ -f "${TARGET_MNT_POINT}/etc/default/distro" ]; then
+		sed -i "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" \
+			"${TARGET_MNT_POINT}/etc/default/distro"
+	fi
+}
