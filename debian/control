@@ -1,13 +1,14 @@
 Source: fll-installer
 Section: admin
 Priority: optional
-Maintainer: Joaquim Boura <x-un-i@berlios.de>
-Uploaders: Stefan Lippers-Hollmann <s.l-h@gmx.de>,
- Kel Modderman <kel@otaku42.de>
+Maintainer: Ferdinand Thommes <devil@siduction.org>
+XSBC-Maintainer: Joaquim Boura <x-un-i@berlios.de>
+
 Build-Depends: debhelper (>= 8)
 Standards-Version: 3.9.2
-Vcs-Svn: svn://svn.berlios.de/fullstory/fll-installer/trunk
-Vcs-Browser: http://svn.berlios.de/wsvn/fullstory/fll-installer/trunk/
+Vcs-Git: git://git.siduction.org/packages/siduction-repository/fll-installer.git
+Vcs-Browser: http://git.siduction.org/?p=packages/siduction-repository/fll-installer.git
+Homepage: http://aptosid.com/debian/pool/main/f/fll-installer/
 
 Package: fll-installer
 Architecture: all
@@ -18,7 +19,7 @@ Depends: ${misc:Depends},
  grub-pc | grub-efi,
  lsof,
  procps,
- udev-config-aptosid,
+ udev-config-siduction,
  whois,
  os-prober,
  rsync,
@@ -26,7 +27,7 @@ Depends: ${misc:Depends},
 Recommends: install-gui
 Suggests: gparted,
  distro-defaults
-Description: backend scripts to install aptosid to hdd
+Description: backend scripts to install siduction to hdd
  fll-installer provides a framework for installing FULLSTORY Live Linux
  to hard disk drives.
  .
@@ -43,8 +44,7 @@ Recommends: install-usb-gui
 Suggests: fuseiso
 Enhances: qt-fll-iso2usb-gui,
  install-usb-gui
-Description: backend scripts to install aptosid to an usb hdd
- fll-iso2usb provides the backend for installing FULLSTORY Live Linux aptosid to
- removable storage, usb disk drives.
+Description: backend scripts to install siduction to an usb hdd
+ fll-iso2usb provides the backend for installing FULLSTORY Live Linux siduction to removable storage, usb disk drives.
  .
  This preserves a hardware agnostic live system on removable storage.

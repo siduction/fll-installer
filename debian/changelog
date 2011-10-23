@@ -1,8 +1,14 @@
 fll-installer (0.9.11) UNRELEASED; urgency=low
 
+  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 09 Oct 2011 16:52:30 +0200
+  [ Ferdinand Thommes ]
+  * fixed copyright
+  * fixed debian/control
+  * added debian/source/options
+
+ -- Ferdinand Thommes <devil@siduction.org>  Sun, 23 Oct 2011 10:10:20 +0200
 
 fll-installer (0.9.10) unstable; urgency=low
 
