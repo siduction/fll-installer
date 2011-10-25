@@ -1,3 +1,12 @@
+fll-installer (0.9.11+nmu1) UNRELEASED; urgency=low
+
+  * Non-maintainer upload.
+  * FTBFS fixed
+  * removed fullstory from debian/control
+  * fixed debian/source/options
+
+ -- Dinko Sabo <vibora@siduction.org>  Tue, 25 Oct 2011 23:11:54 +0200
+
 fll-installer (0.9.11) UNRELEASED; urgency=low
 
   [ Stefan Lippers-Hollmann ]

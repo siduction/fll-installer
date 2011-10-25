@@ -3,12 +3,10 @@ Section: admin
 Priority: optional
 Maintainer: Ferdinand Thommes <devil@siduction.org>
 XSBC-Maintainer: Joaquim Boura <x-un-i@berlios.de>
-
 Build-Depends: debhelper (>= 8)
 Standards-Version: 3.9.2
 Vcs-Git: git://git.siduction.org/packages/siduction-repository/fll-installer.git
 Vcs-Browser: http://git.siduction.org/?p=packages/siduction-repository/fll-installer.git
-Homepage: http://aptosid.com/debian/pool/main/f/fll-installer/
 
 Package: fll-installer
 Architecture: all
@@ -28,10 +26,10 @@ Recommends: install-gui
 Suggests: gparted,
  distro-defaults
 Description: backend scripts to install siduction to hdd
- fll-installer provides a framework for installing FULLSTORY Live Linux
+ fll-installer provides a framework for installing siduction Live Linux
  to hard disk drives.
  .
- This is a FULLSTORY live-only package and should not be installed to an
+ This is a siduction live-only package and should not be installed to an
  ordinary system.
 
 Package: fll-iso2usb
@@ -45,6 +43,6 @@ Suggests: fuseiso
 Enhances: qt-fll-iso2usb-gui,
  install-usb-gui
 Description: backend scripts to install siduction to an usb hdd
- fll-iso2usb provides the backend for installing FULLSTORY Live Linux siduction to removable storage, usb disk drives.
+ fll-iso2usb provides the backend for installing siduction Live Linux to removable storage, usb disk drives.
  .
  This preserves a hardware agnostic live system on removable storage.
