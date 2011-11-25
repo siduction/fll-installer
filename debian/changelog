@@ -1,4 +1,12 @@
-fll-installer (0.9.11+nmu1) UNRELEASED; urgency=low
+fll-installer (0.9.12) unstable; urgency=low
+
+  * Check  Commit a6ae1039e9e340fa5465fe507427a846af67f03e
+    2011-11-02
+  * Me as Maintainer
+
+ -- Alf Gaida <agaida@siduction.org>  Fri, 25 Nov 2011 21:47:53 +0100
+
+fll-installer (0.9.11+nmu1) unstable; urgency=low
 
   * Non-maintainer upload.
   * FTBFS fixed
@@ -14,6 +22,10 @@ fll-installer (0.9.11) UNRELEASED; urgency=low
 
   [ Ferdinand Thommes ]
   * fixed copyright
+
+  [ Joaquim Boura ]
+  * fix fluxbox menu after install.
+
   * fixed debian/control
   * added debian/source/options
 
@@ -28,7 +40,7 @@ fll-installer (0.9.10) unstable; urgency=low
 fll-installer (0.9.9) unstable; urgency=low
 
   * fix /etc/mtab handling to be either an empty regular file or a symlink to
-    /proc/mounts.
+	/proc/mounts.
   * drop useless local variable for inittab location.
   * drop useless local variable for sudoers location.
 
@@ -63,15 +75,15 @@ fll-installer (0.9.5) unstable; urgency=low
 fll-installer (0.9.4) unstable; urgency=low
 
   * use install_grub_efi to install and configure grub_efi in efi system part
-    when system is booted with efi and has a non usb efi system partition and
-    install target root partition is not on usb.
+	when system is booted with efi and has a non usb efi system partition and
+	install target root partition is not on usb.
 
  -- Niall Walsh <niallwalsh@users.berlios.de>  Tue, 05 Jul 2011 19:22:22 +0100
 
 fll-installer (0.9.3) unstable; urgency=low
 
   * don't write /etc/kernel-img.conf anymore, it's usage is deprecated and
-    discouraged.
+	discouraged.
   * allow grub-pc | grub-efi as alternative dependency for fll-installer.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 05 Jul 2011 03:19:25 +0200
@@ -79,7 +91,7 @@ fll-installer (0.9.3) unstable; urgency=low
 fll-installer (0.9.2) unstable; urgency=low
 
   * depend on base-files (>= 6.4), we need it for /run/ (this implicitly
-    ensures a new enough initscripts package as well).
+	ensures a new enough initscripts package as well).
   * clarify previously log message about missing procfs a bit.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 29 May 2011 04:12:06 +0200
@@ -87,11 +99,11 @@ fll-installer (0.9.2) unstable; urgency=low
 fll-installer (0.9.1) unstable; urgency=low
 
   * add /run/ to the list of virtual filesystems to be bind-{,u}mounted as
-    needed.
+	needed.
   * don't try to mount procfs on the host from within the installer, we
-    have bigger problems if /proc isn't accessible on the host.
+	have bigger problems if /proc isn't accessible on the host.
   * avoid $BOOTMANAGER_PROC trickery, the virtual filesystems are needed for
-    all steps during the bootloader configuration.
+	all steps during the bootloader configuration.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 29 May 2011 02:56:14 +0200
 
@@ -146,7 +158,7 @@ fll-installer (0.8.7) unstable; urgency=low
 fll-installer (0.8.6) unstable; urgency=low
 
   * partial re-introduction of svnr 28269:28396:
-    - gdm3 revert.
+	- gdm3 revert.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 20 Jan 2011 02:19:06 +0100
 
@@ -154,16 +166,16 @@ fll-installer (0.8.5) unstable; urgency=low
 
   [ Joaquim Boura ]
   * Patch for an aptosid-gnome from Angelescu Ovidiu <mrhsaacdoh@gmail.com> aka
-    convbsd and William J. Henderson <tornado@tjtag.com> aka tjtag
+	convbsd and William J. Henderson <tornado@tjtag.com> aka tjtag
   * changed install mountpoint from /media to /mnt. This allow us to get rid
-    from the automount_popup ugliness in the install-gui. Suggested by convbsd.
+	from the automount_popup ugliness in the install-gui. Suggested by convbsd.
   * install mountpoint moved to /fll
   * fll_iso2usb only copy the background wallpaper for grub2 when running live.
 
   [ Stefan Lippers-Hollmann ]
   * fix variable typo.
   * partial revert for svnr 28269:28396, as the corresponding setup code has
-    already been reverted before.
+	already been reverted before.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 20 Jan 2011 01:20:18 +0100
 
@@ -221,7 +233,7 @@ fll-installer (0.7.3) unstable; urgency=low
 fll-installer (0.7.2) unstable; urgency=low
 
   * use installed wallpaper if the user has it or if we are running live
-    otherwise no background is used.
+	otherwise no background is used.
 
  -- Joaquim Boura <x-un-i@berlios.de>  Thu, 30 Sep 2010 23:12:38 +0200
 
@@ -246,7 +258,7 @@ fll-installer (0.6.5) unstable; urgency=low
 fll-installer (0.6.4) unstable; urgency=low
 
   * purge nbd-client while installing, it's used in a live-only context
-    within a default sidux install.
+	within a default sidux install.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 03 Aug 2010 18:31:58 +0200
 
@@ -257,7 +269,7 @@ fll-installer (0.6.3) unstable; urgency=low
   * elaborate long description a bit further, to make lintian happy.
   * prefer grub2 as bootloader for fll-iso2usb.
   * declare enhancement of qt-fll-iso2usb-gui and install-usb-gui to
-    fll-iso2usb.
+	fll-iso2usb.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 03 Aug 2010 18:18:06 +0200
 
@@ -282,7 +294,7 @@ fll-installer (0.6.0) unstable; urgency=low
 fll-installer (0.5.19) unstable; urgency=low
 
   * update_fstab: replace fll_resume_validate with a simple parsing of
-    fstab after it has been updated.
+	fstab after it has been updated.
 
  -- Kel Modderman <kel@otaku42.de>  Thu, 22 Apr 2010 19:34:33 +1000
 
@@ -295,14 +307,14 @@ fll-installer (0.5.18) unstable; urgency=low
 fll-installer (0.5.17) unstable; urgency=low
 
   * system_services.bm: sync service whitelist with pyfll. Add desktop
-    managers.
+	managers.
 
  -- Kel Modderman <kel@otaku42.de>  Wed, 14 Apr 2010 21:26:35 +1000
 
 fll-installer (0.5.16) unstable; urgency=low
 
   * add fll-installer-common and cliinstaller to the list of packages
-    to be purged on installed system
+	to be purged on installed system
   * minor typo fix
   * removed check for cliinstaller's existance. no need for it
 
@@ -318,9 +330,9 @@ fll-installer (0.5.14) unstable; urgency=low
 
   [ Nikolas Poniros ]
   * fix fll-iso2usb to be able to use the long label option
-    (missing ":" in getopt list)
+	(missing ":" in getopt list)
   * add :-0 to some variables to make sure those have some
-    default value before those get compared
+	default value before those get compared
 
   [ Stefan Lippers-Hollmann ]
   * Switch to dpkg-source 3.0 (native) format.
@@ -430,7 +442,7 @@ fll-installer (0.5.0) unstable; urgency=low
 
   * now can also be used when grub2 is installed
   * added some fancy entry screen it will need a 1024x768 png file named
-    ${distro-name}-1024x768.png in /usr/share/wallpapers
+	${distro-name}-1024x768.png in /usr/share/wallpapers
 
  -- Joaquim Boura <x-un-i@berlios.de>  Sun, 06 Sep 2009 18:01:00 +0200
 
@@ -444,7 +456,7 @@ fll-installer (0.4.59) unstable; urgency=low
 
   [ Joaquim Boura ]
   * write exit code always in /tmp/.fll-iso2usb and make it world writable
-    so the gui called by the user can delete old ones
+	so the gui called by the user can delete old ones
 
   [ Stefan Lippers-Hollmann ]
   * replace vol_id by blkid, as it has been dropped in udev 0.146-1.
@@ -467,9 +479,9 @@ fll-installer (0.4.57) unstable; urgency=low
 fll-installer (0.4.56) unstable; urgency=low
 
   * when -d was use the debug file would got a bad name and so never created.
-    (thks edhunter for noticing)
+	(thks edhunter for noticing)
   * when installing fromiso on sd-ram the device/partiotion naming is a bit
-    different from normal one.( thks rieper|net for testing)
+	different from normal one.( thks rieper|net for testing)
 
  -- Joaquim Boura <x-un-i@berlios.de>  Sun, 19 Jul 2009 22:16:13 +0200
 
@@ -500,7 +512,7 @@ fll-installer (0.4.52) unstable; urgency=low
 fll-installer (0.4.51) unstable; urgency=low
 
   * test for TARGET_MNT_POINT in gdm reversion, thanks to edhunter for
-    noticing.
+	noticing.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 08 Jul 2009 21:27:34 +0200
 
@@ -523,44 +535,44 @@ fll-installer (0.4.49) unstable; urgency=low
 fll-installer (0.4.48) unstable; urgency=low
 
   * increase number of random characters for mktemp, required since mktemp
-    >= 1.6-2.
+	>= 1.6-2.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 27 Mar 2009 01:14:40 +0100
 
 fll-installer (0.4.47) unstable; urgency=low
 
   * modules/backend/system_services.bm:
-    - Replace initscript search loop by one call of dpkg. This is much faster.
-    - If kelmo's python-lsbscript package is installed, use output of
-      lsb_scripts -t to sort the scripts in the whitelist according to
-      dependencies.
-    - Remove useless whitespace removing.
-    - Do not ignore previously set entries in SERVICES_WHITELIST.
+	- Replace initscript search loop by one call of dpkg. This is much faster.
+	- If kelmo's python-lsbscript package is installed, use output of
+	  lsb_scripts -t to sort the scripts in the whitelist according to
+	  dependencies.
+	- Remove useless whitespace removing.
+	- Do not ignore previously set entries in SERVICES_WHITELIST.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Wed, 04 Mar 2009 19:19:11 +0100
 
 fll-installer (0.4.46) unstable; urgency=low
 
   * fll-installer:
-    - Remove one superfluous error redirection.
-    - Measure duration of fll-installer running and write it to STDOUT.
-    - Fix buggy "find" call to search .bm files.
+	- Remove one superfluous error redirection.
+	- Measure duration of fll-installer running and write it to STDOUT.
+	- Fix buggy "find" call to search .bm files.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Tue, 17 Feb 2009 01:27:12 +0100
 
 fll-installer (0.4.45) unstable; urgency=low
 
   * fll-installer/purge_live_only_stuff:
-    - Forbid invoke-rc.d calls in chroot while purging packages by temporarily
-      diverting /usr/sbin/policy-rc.d.
-    - Fix typo in local variable installed_packages.
+	- Forbid invoke-rc.d calls in chroot while purging packages by temporarily
+	  diverting /usr/sbin/policy-rc.d.
+	- Fix typo in local variable installed_packages.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Wed, 11 Feb 2009 01:57:26 +0100
 
 fll-installer (0.4.44) unstable; urgency=low
 
   * fll-iso2usb:
-    - Sleep a second before mounting the partition.
+	- Sleep a second before mounting the partition.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 09 Feb 2009 19:54:03 +0100
 
@@ -568,10 +580,10 @@ fll-installer (0.4.43) unstable; urgency=low
 
   * fll-iso2usb: Create partition before mounting it.
   * fll-iso2usb:
-    - Use partprobe to reread partition table after dd Boot Sector.
-    - Add parted (for partprobe) to dependencies.
-    - (fdisk lets the kernel reread the partition table after changing its
-      entries.)
+	- Use partprobe to reread partition table after dd Boot Sector.
+	- Add parted (for partprobe) to dependencies.
+	- (fdisk lets the kernel reread the partition table after changing its
+	  entries.)
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Sat, 07 Feb 2009 19:40:43 +0100
 
@@ -584,7 +596,7 @@ fll-installer (0.4.42) unstable; urgency=low
 fll-installer (0.4.41) unstable; urgency=low
 
   * removed --recheck option on grub-install call for fll-iso2usb it seems that
-    failed tries are much lesser without that option; device boots correctly.
+	failed tries are much lesser without that option; device boots correctly.
 
  -- Joaquim Boura <x-un-i@berlios.de>  Tue, 13 Jan 2009 22:31:00 +0100
 
@@ -603,15 +615,15 @@ fll-installer (0.4.39) unstable; urgency=low
 fll-installer (0.4.38) unstable; urgency=low
 
   * modules/backend/system_services.bm: indenting totally whacked;
-    reindent.
+	reindent.
 
  -- Kel Modderman <kel@otaku42.de>  Sun, 04 Jan 2009 20:36:24 +1000
 
 fll-installer (0.4.37) unstable; urgency=medium
 
   * configure services hwlock checkroof and checkfs at the beginning of the list"
-    Fixed bad re-string that was preventing umount to do his job with the root
-    partition
+	Fixed bad re-string that was preventing umount to do his job with the root
+	partition
 
  -- Joaquim Boura <x-un-i@berlios.de>  Thu, 01 Jan 2009 16:35:54 +0100
 
@@ -643,17 +655,17 @@ fll-installer (0.4.33) unstable; urgency=low
 fll-installer (0.4.32) unstable; urgency=low
 
   * fll-installer:
-    - Redirect STDERR to $DEBUGLOG.
-    - Redirect STDOUT of many script commands to STDERR.
+	- Redirect STDERR to $DEBUGLOG.
+	- Redirect STDOUT of many script commands to STDERR.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 17 Nov 2008 23:13:12 +0100
 
 fll-installer (0.4.31) unstable; urgency=low
 
   * copy2HD.bm:
-    - Remove module_hd_progressbar calling. Never used.
+	- Remove module_hd_progressbar calling. Never used.
   * progress.bm:
-    - Remove function module_hd_progressbar.
+	- Remove function module_hd_progressbar.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 17 Nov 2008 20:44:42 +0100
 
@@ -691,7 +703,7 @@ fll-installer (0.4.26) unstable; urgency=low
 fll-installer (0.4.25) unstable; urgency=low
 
   * system_services.bm:
-    - Change SERVICE_WHITELIST 'sed'ing to a more efficient way.
+	- Change SERVICE_WHITELIST 'sed'ing to a more efficient way.
   * Define UID by id -ur if not yet defined and use UID afterwards.
   * Change #!/bin/bash to #!/bin/sh.
 
@@ -700,10 +712,10 @@ fll-installer (0.4.25) unstable; urgency=low
 fll-installer (0.4.24) unstable; urgency=low
 
   * POSIX shell, Part III:
-    - Remove bash array constructs in system_services.bm.
-    - More quoting.
+	- Remove bash array constructs in system_services.bm.
+	- More quoting.
   * fix_usb_install.bm:
-    - Always define device_map.
+	- Always define device_map.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Sun, 16 Nov 2008 01:47:30 +0100
 
@@ -717,40 +729,40 @@ fll-installer (0.4.23) unstable; urgency=low
 fll-installer (0.4.22) unstable; urgency=low
 
   * On the way to POSIX shell, Part II:
-    - Remove files modules/common/check_params.bm and
-      add_and_register_vars.bm. Their functions are never used anymore.
-    - Remove all $" strings for formatting. There are no translations, yet.
-    - Use printf instead of echo -e and $".
-    - Make some bash arrays normal list of strings. system_services.bm is
-      still in bash form.
-    - Replace (( )) constructs.
-    - Minor clean-up and quoting.
+	- Remove files modules/common/check_params.bm and
+	  add_and_register_vars.bm. Their functions are never used anymore.
+	- Remove all $" strings for formatting. There are no translations, yet.
+	- Use printf instead of echo -e and $".
+	- Make some bash arrays normal list of strings. system_services.bm is
+	  still in bash form.
+	- Replace (( )) constructs.
+	- Minor clean-up and quoting.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Fri, 14 Nov 2008 04:15:59 +0100
 
 fll-installer (0.4.21) unstable; urgency=low
 
   * On the way to POSIX shell. Remove many bashisms and deprecated bash
-    constructs, and clean up the code to look more consistent. This is a bunch
-    of rather trivial changes that should not break anything.
-    - Remove "function" declarations for functions.
-    - Replace "source" by ".".
-    - Replace $[ by $((.
-    - Replace all [[ ]] by [ ] with correct quoting.
-    - Remove all -a and -o test constructs.
-    - Replace $UID by $(id -ur).
-    - Replace substring expansion by #??? stripping.
-    - Replace $(<file) by $(cat file).
-    - Always use [ ] for test.
+	constructs, and clean up the code to look more consistent. This is a bunch
+	of rather trivial changes that should not break anything.
+	- Remove "function" declarations for functions.
+	- Replace "source" by ".".
+	- Replace $[ by $((.
+	- Replace all [[ ]] by [ ] with correct quoting.
+	- Remove all -a and -o test constructs.
+	- Replace $UID by $(id -ur).
+	- Replace substring expansion by #??? stripping.
+	- Replace $(<file) by $(cat file).
+	- Always use [ ] for test.
 
  -- Michael Deelwater <michael.deelwater@googlemail.com>  Thu, 13 Nov 2008 04:54:01 +0100
 
 fll-installer (0.4.20) unstable; urgency=low
 
   * No need to change owner of files under the home. Everything that we copy
-    into there gets the default uid/gid. Probably this is also what causes
-    troubles when user wants to install over an existing home ( even though
-    we do no recommend it)
+	into there gets the default uid/gid. Probably this is also what causes
+	troubles when user wants to install over an existing home ( even though
+	we do no recommend it)
 
  -- Joaquim Boura <x-un-i@berlios.de>  Sat, 08 Nov 2008 12:43:39 +0100
 
@@ -793,7 +805,7 @@ fll-installer (0.4.14) unstable; urgency=low
 fll-installer (0.4.13) unstable; urgency=low
 
   * somehow the variable device_map was undefined so grub entries for win
-    got disrupted :(
+	got disrupted :(
 
  -- Joaquim Boura <x-un-i@berlios.de>  Sun, 21 Sep 2008 22:17:59 +0200
 
@@ -818,12 +830,12 @@ fll-installer (0.4.10) unstable; urgency=low
 
   [ Kel Modderman ]
   * modules/backend/fix_home_on_HD.bm:
-    - only clean ownership when creating a new home
-    - remove installer from fluxbox menu
+	- only clean ownership when creating a new home
+	- remove installer from fluxbox menu
 
   [ Joaquim Boura ]
   * when creating a fromiso using a real iso get the distro-defaults from the
-    iso.
+	iso.
 
   [ Stefan Lippers-Hollmann ]
   * startsyslog isn't installed anymore, no need to purge it.
@@ -834,19 +846,19 @@ fll-installer (0.4.9) unstable; urgency=low
 
   * Only append an entry for metest86+ once, not once for each kernel.
   * Add a note to point out that we should really be sourcing distro-defaults
-    config of the system we are installaing to usb and not the host system.
-    They are not guarenteed to be the same.
+	config of the system we are installaing to usb and not the host system.
+	They are not guarenteed to be the same.
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 01 Sep 2008 09:36:25 +1000
 
 fll-installer (0.4.8) unstable; urgency=low
 
   * Fix modules/backend/update_fstab.bm for removal of
-    /etc/init.d/fll-resume.
+	/etc/init.d/fll-resume.
   * Remove /etc/udev/rules.d/70-fll-live.rules before creating initramfs
-    on target system.
+	on target system.
   * Do not route output of update-initramfs into /dev/null or run it in
-    a subshell.
+	a subshell.
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 01 Sep 2008 07:11:00 +1000
 
@@ -865,7 +877,7 @@ fll-installer (0.4.6) unstable; urgency=low
 fll-installer (0.4.5) unstable; urgency=low
 
   * remove initial ext4 support again, even 2.6.27 won't be able to read
-    partitions formatted explicitly as "ext4" (in contrast to "ext4dev") yet.
+	partitions formatted explicitly as "ext4" (in contrast to "ext4dev") yet.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 20 Jul 2008 02:28:34 +0200
 
@@ -880,20 +892,20 @@ fll-installer (0.4.4) unstable; urgency=low
 fll-installer (0.4.3) unstable; urgency=low
 
   * Apply patch from ModestUser to correct behaviour when installing with an
-    existing /home mapped.
+	existing /home mapped.
   * modules/backend/copy2HD.bm:
-    - do no copy live user's home, if there is an existing home for $USER_NAME
+	- do no copy live user's home, if there is an existing home for $USER_NAME
   * modules/backend/fix_home_on_HD.bm:
-    - only do LIVEHOME to INSTHOME fixing if live user has actually been moved
-      (there is nothing to fix on an old home)
+	- only do LIVEHOME to INSTHOME fixing if live user has actually been moved
+	  (there is nothing to fix on an old home)
 
  -- Kel Modderman <kel@otaku42.de>  Sat, 12 Jul 2008 11:36:56 +1000
 
 fll-installer (0.4.2) unstable; urgency=low
 
   * modules/backend/install_grub.bm:
-    - fix path to target grub legacy|gfxboot menu.lst
-    - remove extra braces from mount | grep command
+	- fix path to target grub legacy|gfxboot menu.lst
+	- remove extra braces from mount | grep command
 
  -- Kel Modderman <kel@otaku42.de>  Wed, 09 Jul 2008 18:42:51 +1000
 
@@ -912,7 +924,7 @@ fll-installer (0.4.0) unstable; urgency=low
   * don't hide grub-install/ update-grub output.
   * remove duplicate proc mounting again.
   * only save the first 446 byte of a block device, we only want the MBR and
-    not clobber the partition table on restore.
+	not clobber the partition table on restore.
   * fix sed calls and make regexp more robust.
   * fix test for grub-gfxboot.
   * stop groot and root mangling, new update-grub detects UUIDs on its own.
@@ -920,7 +932,7 @@ fll-installer (0.4.0) unstable; urgency=low
   * refactor grub charset.
   * merge sed calls.
   * not perfect or even tested in all possible combinations, but good enough
-    to get started and polish it until Ωυρέα.
+	to get started and polish it until Ωυρέα.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 07 Jul 2008 01:20:03 +0200
 
@@ -951,27 +963,27 @@ fll-installer (0.3.19) unstable; urgency=low
 fll-installer (0.3.18) unstable; urgency=low
 
   * fll-iso2usb:
-    - fix avail -> use typo
-    - remove use of undocumented 4th argument to menulst function for persist
+	- fix avail -> use typo
+	- remove use of undocumented 4th argument to menulst function for persist
 
  -- Kel Modderman <kel@otaku42.de>  Wed, 18 Jun 2008 08:33:33 +1000
 
 fll-installer (0.3.17) unstable; urgency=low
 
   * fll-iso2usb:
-    - overhaul of persistency creation function
-    - add -P|--percent cli option to allow configurable use of free space for
-      persist overlay file, falling back to 50%. It mus be > 10 and < 90
-      percent of free space, no less, no more.
-    - just format loopback file on vfat with ext2
-    - update copyright timestamps
+	- overhaul of persistency creation function
+	- add -P|--percent cli option to allow configurable use of free space for
+	  persist overlay file, falling back to 50%. It mus be > 10 and < 90
+	  percent of free space, no less, no more.
+	- just format loopback file on vfat with ext2
+	- update copyright timestamps
 
  -- Kel Modderman <kel@otaku42.de>  Tue, 17 Jun 2008 21:53:04 +1000
 
 fll-installer (0.3.16) unstable; urgency=low
 
   * now allow to choose the filesystem for the created partition (vfat, ext2
-    or ext3).
+	or ext3).
 
  -- Joaquim Boura <x-un-i@berlios.de>  Tue, 10 Jun 2008 20:58:24 +0200
 
@@ -984,8 +996,8 @@ fll-installer (0.3.15) unstable; urgency=low
 fll-installer (0.3.14) unstable; urgency=low
 
   * modules/backend/system_services.bm:
-    - revert changes from 0.3.12, do not use --force option when managing
-      initscript runlevel config of installed chroot
+	- revert changes from 0.3.12, do not use --force option when managing
+	  initscript runlevel config of installed chroot
 
  -- Kel Modderman <kel@otaku42.de>  Tue, 03 Jun 2008 20:16:55 +1000
 
@@ -999,15 +1011,15 @@ fll-installer (0.3.13) unstable; urgency=low
 fll-installer (0.3.12) unstable; urgency=low
 
   * modules/backend/system_services.bm:
-    - use --force option when computing update-rc.d/insserv command to insert
-      critical init services into install chroot
+	- use --force option when computing update-rc.d/insserv command to insert
+	  critical init services into install chroot
 
  -- Kel Modderman <kel@otaku42.de>  Sun, 01 Jun 2008 16:50:52 +1000
 
 fll-installer (0.3.11) unstable; urgency=low
 
   * fixed some typos. for the moment do not check available size against
-    needed size
+	needed size
 
  -- Joaquim Boura <x-un-i@berlios.de>  Thu, 29 May 2008 22:29:23 +0200
 
@@ -1044,7 +1056,7 @@ fll-installer (0.3.7) unstable; urgency=low
 fll-installer (0.3.6) unstable; urgency=low
 
   * Send abort message to the gui when an error occur. Check size of the
-    partition where user wants to install against size of the uncompressed iso
+	partition where user wants to install against size of the uncompressed iso
 
  -- Joaquim Boura <x-un-i@berlios.de>  Sun, 25 May 2008 21:51:19 +0200
 
@@ -1063,32 +1075,32 @@ fll-installer (0.3.4) unstable; urgency=low
 fll-installer (0.3.3) unstable; urgency=low
 
   * before add the bootmanager create an fstab "old style" but include alwayas
-    the root device.
+	the root device.
 
  -- Joaquim Boura <x-un-i@berlios.de>  Tue, 20 May 2008 19:56:01 +0200
 
 fll-installer (0.3.2) unstable; urgency=low
 
   * modules/backend/create_initrd.bm:
-    - revert changes of 0.3.1
+	- revert changes of 0.3.1
   * modules/backend/fix_etc_on_HD.bm:
-    - reinstate saving of alsa sound state, it is indeed useful
+	- reinstate saving of alsa sound state, it is indeed useful
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 19 May 2008 23:24:01 +1000
 
 fll-installer (0.3.1) unstable; urgency=low
 
   * modules/backend/add_bootmanager.bm:
-    - use fll_fstab_generator and not fll_fshelper
+	- use fll_fstab_generator and not fll_fshelper
   * modules/backend/update_fstab.bm:
-    - use fll_fstab_generator and not fll_fshelper
+	- use fll_fstab_generator and not fll_fshelper
   * modules/backend/fix_etc_on_HD.bm:
-    - do not bother saving alsa state here
+	- do not bother saving alsa state here
   * modules/backend/update_resume_conf.bm:
-    - purged, obsolete. Remove call to function from main.bm
+	- purged, obsolete. Remove call to function from main.bm
   * modules/backend/create_initrd.bm:
-    - run /etc/init.d/fll-resume to correct any change to initramfs
-      configuration
+	- run /etc/init.d/fll-resume to correct any change to initramfs
+	  configuration
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 19 May 2008 20:23:45 +1000
 
@@ -1096,7 +1108,7 @@ fll-installer (0.3.0) unstable; urgency=low
 
   * Add myself to uploaders.
   * Integrate fll-iso2usb script, a direct rename of install_fromiso_in_USB
-    from the install-usb-gui package.
+	from the install-usb-gui package.
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 12 May 2008 20:36:20 +1000
 
@@ -1115,14 +1127,14 @@ fll-installer (0.2.22) unstable; urgency=low
 fll-installer (0.2.21) unstable; urgency=low
 
   * modules/backend/fix_etc_on_HD.bm:
-    - regenerate ssl-cert snakeoil with installed chroots hostname
+	- regenerate ssl-cert snakeoil with installed chroots hostname
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 24 Mar 2008 23:44:11 +1000
 
 fll-installer (0.2.20) unstable; urgency=low
 
   * remove packages for virtual-box-guest when this are not needed on the
-    installed system
+	installed system
 
  -- Joaquim Boura <x-un-i@berlios.de>  Sat, 15 Mar 2008 16:52:45 +0100
 
@@ -1141,23 +1153,23 @@ fll-installer (0.2.18) unstable; urgency=low
 fll-installer (0.2.17) unstable; urgency=low
 
   * modules/backend/system_services.bm:
-    - don't check that first argument returned by fll_analyze_initscripts is
-    update-rc.d, just check it was returned. The system may be using insserv.
+	- don't check that first argument returned by fll_analyze_initscripts is
+	update-rc.d, just check it was returned. The system may be using insserv.
   * if you have a .sidconf in /root dir then calling fll-installer will do
-    a partially silent installation. There are some options [-d|--debug] will
-    output  the commands called in /tmp/.install.debug. The fifo used for
-    the progressbar can be passed using [-i|--inotify <filename>] or using the
-    old way: installer inotify_fifo. An -h option is also provided
-    Errors ( not yet all are logged in the file /tmp/.installer.error
-    Verbosity should/will be enhanced
-    remove encrypted passwords from the config file
+	a partially silent installation. There are some options [-d|--debug] will
+	output  the commands called in /tmp/.install.debug. The fifo used for
+	the progressbar can be passed using [-i|--inotify <filename>] or using the
+	old way: installer inotify_fifo. An -h option is also provided
+	Errors ( not yet all are logged in the file /tmp/.installer.error
+	Verbosity should/will be enhanced
+	remove encrypted passwords from the config file
 
  -- Joaquim Boura <x-un-i@berlios.de>  Wed, 05 Mar 2008 00:14:28 +0100
 
 fll-installer (0.2.16) unstable; urgency=low
 
   * copy2hd.bm:
-    - make sure /selinux is created on target root filesystem.
+	- make sure /selinux is created on target root filesystem.
 
  -- Kel Modderman <kel@otaku42.de>  Fri, 29 Feb 2008 13:46:27 +1000
 
@@ -1200,7 +1212,7 @@ fll-installer (0.2.10) unstable; urgency=low
 fll-installer (0.2.9) unstable; urgency=low
 
   * the problems with grub have been identified, remove uneccessary noise
-    again (plain revert to r14315).
+	again (plain revert to r14315).
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 29 Jan 2008 21:10:19 +0100
 
@@ -1219,7 +1231,7 @@ fll-installer (0.2.7) unstable; urgency=low
 fll-installer (0.2.6) unstable; urgency=low
 
   * revert usless su-to-rootrc removal, the bug is in gksu, so we don't need
-    to preseed su-to-rootrc in the first place.
+	to preseed su-to-rootrc in the first place.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 17 Jan 2008 03:02:16 +0100
 
@@ -1244,7 +1256,7 @@ fll-installer (0.2.3) unstable; urgency=low
 fll-installer (0.2.2) unstable; urgency=low
 
   * for jfs/xfs set grub to MBR on the install disk unless already an MBR
-    location is given.
+	location is given.
 
  -- Joaquim Boura <x-un-i@berlios.de>  Fri, 07 Dec 2007 21:13:56 +0100
 
@@ -1258,13 +1270,13 @@ fll-installer (0.2.0) unstable; urgency=low
 
   [ Joaquim Boura ]
   * Allowing the grub's installation over a choosen MBR or over the root
-    partition. No changes for USB installs.
+	partition. No changes for USB installs.
   * Ignore install Grub on MBR of a USB device, use the old way for it.
-    Accept "mbr", "partition" and "/dev/[hs}d[a-z]" as valid places for the Grub.
+	Accept "mbr", "partition" and "/dev/[hs}d[a-z]" as valid places for the Grub.
 
   [ Kel Modderman ]
   * Fix syntax error in modules/backend/install_grub.bm introduced by above
-    changes (r13094).
+	changes (r13094).
 
   [ Stefan Lippers-Hollmann ]
   * Breaks: install-gui (<< 0.5)
@@ -1274,8 +1286,8 @@ fll-installer (0.2.0) unstable; urgency=low
 fll-installer (0.1.15) unstable; urgency=low
 
   * modules/backend/update_fstab.bm:
-    - hijack this module to execute new fll-resume initscript to validate
-      installed systems resume configuration
+	- hijack this module to execute new fll-resume initscript to validate
+	  installed systems resume configuration
 
  -- Kel Modderman <kel@otaku42.de>  Tue, 04 Dec 2007 16:56:12 +1000
 
@@ -1299,7 +1311,7 @@ fll-installer (0.1.12) unstable; urgency=low
 
   [ Joaquim Boura ]
   * use new option from fll_fshelper to include in fstab all partitions of the
-    currently used drives.
+	currently used drives.
 
   [ Stefan Lippers-Hollmann ]
   * bump fll-live-initscriüpts dependency to >= 2.0.70.
@@ -1315,7 +1327,7 @@ fll-installer (0.1.11) unstable; urgency=low
 fll-installer (0.1.10) unstable; urgency=low
 
   * switch fallback defaults to FLL_LIVE_USER="sidux" and
-    FLL_MOUNTPOINT="/fll/sidux", simplify variable seeding.
+	FLL_MOUNTPOINT="/fll/sidux", simplify variable seeding.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 29 Nov 2007 21:33:16 +0100
 
@@ -1344,21 +1356,21 @@ fll-installer (0.1.7) unstable; urgency=low
 fll-installer (0.1.6) unstable; urgency=low
 
   * modules/backend/purge_live_only_stuff.bm:
-    - fll-xorgconfig replaced xorgconfig-sidux and hwsetup-ng
+	- fll-xorgconfig replaced xorgconfig-sidux and hwsetup-ng
 
  -- Kel Modderman <kel@otaku42.de>  Thu, 27 Sep 2007 22:50:57 +1000
 
 fll-installer (0.1.5) unstable; urgency=low
 
   * revert XFCE shutdown and reboot button, allow the xfce default_user
-    to shutdown
+	to shutdown
 
  -- Horst Tritremmel <hjt@users.berlios.de>  Wed, 19 Sep 2007 22:23:12 +0200
 
 fll-installer (0.1.4) unstable; urgency=low
 
   * We want the gdm-theme (set by desktop-defaults in live mode) on hd-
-    install, only remove autologin for gdm. Fixed in fix_etc_on_HD.bm
+	install, only remove autologin for gdm. Fixed in fix_etc_on_HD.bm
 
  -- Horst Tritremmel <hjt@users.berlios.de>  Wed, 19 Sep 2007 12:59:07 +0200
 
@@ -1369,7 +1381,7 @@ fll-installer (0.1.3) unstable; urgency=low
 
   [ Horst Tritremmel ]
   * printf for new install-gui choice "install with terminal output, debug
-    modus" in prgressbar.bm
+	modus" in prgressbar.bm
 
  -- Horst Tritremmel <hjt@users.berlios.de>  Thu, 13 Sep 2007 11:08:09 +0200
 
@@ -1382,7 +1394,7 @@ fll-installer (0.1.2) unstable; urgency=low
 fll-installer (0.1.1) unstable; urgency=low
 
   * fll-fsprober is no more, fll-live-initscripts will provide required
-    script.
+	script.
 
  -- Kel Modderman <kel@otaku42.de>  Fri, 24 Aug 2007 10:53:31 +1000
 
@@ -1407,16 +1419,16 @@ fll-installer (0.0.34) unstable; urgency=low
 fll-installer (0.0.33) unstable; urgency=low
 
   * modules/backend/copy2HD.bm: don't test for /home/${USER_NAME} on target.
-    Just skip rsync'ing /home if home/${DEFAULT_USER} exists on target.
+	Just skip rsync'ing /home if home/${DEFAULT_USER} exists on target.
   * modules/backend/fix_home_on_HD.bm:
-    - NEWHOME -> INSTHOME, OLDHOME -> LIVEHOME variable distinction, with
-      comments
-    - don't mv LIVEHOME to INSTHOME unless the former exists, and the latter
-      does not exist
-    - remove fugly for $(find...); do loop, replace with a more well thought
-      out find piped through a perl one liner
-    - remove KDE cleanup via self-destructing script, who really cares...
-    - add curly brackets around variable names for consistency
+	- NEWHOME -> INSTHOME, OLDHOME -> LIVEHOME variable distinction, with
+	  comments
+	- don't mv LIVEHOME to INSTHOME unless the former exists, and the latter
+	  does not exist
+	- remove fugly for $(find...); do loop, replace with a more well thought
+	  out find piped through a perl one liner
+	- remove KDE cleanup via self-destructing script, who really cares...
+	- add curly brackets around variable names for consistency
 
  -- Kel Modderman <kel@otaku42.de>  Wed, 01 Aug 2007 14:51:31 +1000
 
@@ -1430,24 +1442,24 @@ fll-installer (0.0.31) unstable; urgency=low
 
   * modules/backend/system_services.bm: improve regexp.
   * modules/backend/system_services.bm: use sed to print out group match, and
-    test for executable bit before processing each file starting with
-    "/etc/init.d/".
+	test for executable bit before processing each file starting with
+	"/etc/init.d/".
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 30 Jul 2007 17:11:59 +1000
 
 fll-installer (0.0.30) unstable; urgency=low
 
   * modules/backend/system_services.bm: base runlevel configuration on a
-    package whitelist. Don't bother scanning through installed initscripts,
-    formulate a initscript-list from a list of package names with dpkg-query.
+	package whitelist. Don't bother scanning through installed initscripts,
+	formulate a initscript-list from a list of package names with dpkg-query.
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 30 Jul 2007 00:43:18 +1000
 
 fll-installer (0.0.29) unstable; urgency=low
 
   * modules/backend/fix_etc_on_HD.bm:
-    - remove floundered attempt at managing ntpdate
-    - revert possible hack to /etc/pam.d/login by fll-live-initscripts
+	- remove floundered attempt at managing ntpdate
+	- revert possible hack to /etc/pam.d/login by fll-live-initscripts
 
  -- Kel Modderman <kel@otaku42.de>  Fri, 27 Jul 2007 08:26:53 +1000
 
@@ -1460,7 +1472,7 @@ fll-installer (0.0.28) unstable; urgency=low
 fll-installer (0.0.27) unstable; urgency=low
 
   * modules/backend/fix_home_on_HD.bm: really revert gksu sudo workaround
-    by removing .gconf/apps/gksu/%gconf.xml.
+	by removing .gconf/apps/gksu/%gconf.xml.
   * modules/backend/system_services.bm: sytactical cleanup.
 
  -- Kel Modderman <kel@otaku42.de>  Thu, 12 Jul 2007 14:19:42 +1000
@@ -1474,7 +1486,7 @@ fll-installer (0.0.26) unstable; urgency=low
 fll-installer (0.0.25) unstable; urgency=low
 
   * modules/backend/fix_etc_on_HD.bm: reverse ntpdate hack made by
-    fll-network.
+	fll-network.
 
  -- Kel Modderman <kel@otaku42.de>  Wed, 27 Jun 2007 08:19:40 +1000
 
@@ -1487,7 +1499,7 @@ fll-installer (0.0.24) unstable; urgency=low
 fll-installer (0.0.23) unstable; urgency=low
 
   * modules/backend/update_resume_conf.bm: new function module to fix resume
-    partition on installed system.
+	partition on installed system.
 
  -- Kel Modderman <kel@otaku42.de>  Fri, 22 Jun 2007 19:17:30 +1000
 
@@ -1500,12 +1512,12 @@ fll-installer (0.0.22) unstable; urgency=low
 fll-installer (0.0.21) unstable; urgency=low
 
   * modules/backend/system_services.bm: use full path on
-    fll_analyze_initscripts command, or else it seems like a function that
-    has been defined within the installer backend modules.
+	fll_analyze_initscripts command, or else it seems like a function that
+	has been defined within the installer backend modules.
   * modules/backend/system_services.bm: remove useless "continue" in
-    update-rc.d loop.
+	update-rc.d loop.
   * modules/backend/system_services.bm: add comment above magical loop that
-    sets up the runlevel configuration of the installed chroot.
+	sets up the runlevel configuration of the installed chroot.
 
  -- Kel Modderman <kel@otaku42.de>  Thu, 21 Jun 2007 20:00:57 +1000
 
@@ -1523,11 +1535,11 @@ fll-installer (0.0.19) unstable; urgency=low
 
   [ Kel Modderman ]
   * modules/backend/copy2HD.bm: use some shell variable substitution logic to
-    allow choice between rsyncing from DEFAULT_DIR or the live filesystem. For
-    /dev, do just that. This ensures we have a minimal static /dev at all
-    times.
+	allow choice between rsyncing from DEFAULT_DIR or the live filesystem. For
+	/dev, do just that. This ensures we have a minimal static /dev at all
+	times.
   * data/exclusion_list: don't exclude /dev/*, we want to copy the static
-    device nodes from the squashfs.
+	device nodes from the squashfs.
 
  -- Joaquim Boura <x-un-i@berlios.de>  Wed, 20 Jun 2007 00:50:15 +0200
 
@@ -1538,7 +1550,7 @@ fll-installer (0.0.18) unstable; urgency=low
 
   [ Kel Modderman ]
   * modules/backend/main.bm: sync after doing the work.Fix a typo in comment
-    while there.
+	while there.
   * modules/backend/purge_live_only_stuff.bm: get rid of redirection.
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 18 Jun 2007 21:57:07 +1000
@@ -1546,7 +1558,7 @@ fll-installer (0.0.18) unstable; urgency=low
 fll-installer (0.0.17) unstable; urgency=low
 
   * modules/backend/main.bm: make_floppy doesn't exist, nor can we really
-    provide it. Purge any reference to it.
+	provide it. Purge any reference to it.
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 18 Jun 2007 21:24:40 +1000
 
@@ -1559,25 +1571,25 @@ fll-installer (0.0.16) unstable; urgency=low
 fll-installer (0.0.15) unstable; urgency=low
 
   * modules/backend/fix_home_on_HD.bm: sort KDE desktop icons once on first
-    login with self destructing script that calls `kfmclient sortDesktop'.
+	login with self destructing script that calls `kfmclient sortDesktop'.
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 18 Jun 2007 12:04:23 +1000
 
 fll-installer (0.0.14) unstable; urgency=low
 
   * modules/backend/system_services.bm: complete logic rewrite due to last
-    changes. Runlevel configurations are no longer fully preserved as we did
-    not copy the read only mount to the hdd, but the live system. SCan the
-    installed init scripts, (re)configure them if they are in the service
-    whitelist. We look up required update-rc.d command by analyzing the read
-    only mount point runlevel configuration with fll_analyze_initscripts.
+	changes. Runlevel configurations are no longer fully preserved as we did
+	not copy the read only mount to the hdd, but the live system. SCan the
+	installed init scripts, (re)configure them if they are in the service
+	whitelist. We look up required update-rc.d command by analyzing the read
+	only mount point runlevel configuration with fll_analyze_initscripts.
   * modules/backend/system_services.bm: no longer need to detect if various
-    services were started, if they were started by fll-live-initscripts they
-    were also configured/preserved wrt to sysvinit.
+	services were started, if they were started by fll-live-initscripts they
+	were also configured/preserved wrt to sysvinit.
   * modules/backend/system_services.bm: remove aumix and modutils from service
-    whitelist array.
+	whitelist array.
   * modules/backend/system_services.bm: fix test to see if ssh requires
-    preconfiguration.
+	preconfiguration.
   * Depend on rsync and fll-live-initscripts.
 
  -- Kel Modderman <kel@otaku42.de>  Mon, 18 Jun 2007 02:34:45 +1000
@@ -1586,32 +1598,32 @@ fll-installer (0.0.13) unstable; urgency=low
 
   [ Kel Modderman ]
   * modules/backend/copy2HD.bm: rewrite the function that does the live -> hd
-    copy. Use rsync with an exclude file. Copy the live filesystem, not just
-    the read only mount point.
+	copy. Use rsync with an exclude file. Copy the live filesystem, not just
+	the read only mount point.
   * data/exclusion_list: add this list for input to rsync in copy2HD.
   * modules/backend/fix_etc_on_HD.bm: no longer special handle /tmp
   * modules/backend/convert_live2HD.bm: no longer call functions copy_etc2HD,
-    copy_home2HD or system_create_modules.
+	copy_home2HD or system_create_modules.
   * modules/backend/system_findchanged.bm: removed
   * modules/backend/system_create_modules.bm: removed
   * modules/backend/copy_etc2HD.bm: removed
   * modules/backend/copy_home2HD.bm: removed
   * modules/backend/fix_home_on_HD.bm:
-    - mv $live_user $new_user on target filesystem
-    - no longer manually rm user tmp files, they are excluded at rsync time
+	- mv $live_user $new_user on target filesystem
+	- no longer manually rm user tmp files, they are excluded at rsync time
   * modules/backend/fix_locales_on_HD.bm: cleanups
-    - update Needs: header for TARGET_MNT_POINT and USER_NAME
-    - use /usr/bin/env -i to ensure clean environment apart from FLL_LANG when
-      calling /etc/init.d/fll-locales with argument of "localize".
-    - update .kde/share/config/kxkbrc for installed user based on new
-      KDEKEYBOARDS.
-    - fix typo, s/fll_locales/fll-locales/
+	- update Needs: header for TARGET_MNT_POINT and USER_NAME
+	- use /usr/bin/env -i to ensure clean environment apart from FLL_LANG when
+	  calling /etc/init.d/fll-locales with argument of "localize".
+	- update .kde/share/config/kxkbrc for installed user based on new
+	  KDEKEYBOARDS.
+	- fix typo, s/fll_locales/fll-locales/
   * modules/backend/fix_home_on_HD.bm: many cleanups
-    - remove /root/.hushlogin that may have been put there by fll-rootsh
-    - same for /home/$user/.hushlogin
-    - put all file removals in a for loop
-    - put all sudo removals in a for loop
-    - don't clobber ~/.bashrc, just use sed to make sudo vanish
+	- remove /root/.hushlogin that may have been put there by fll-rootsh
+	- same for /home/$user/.hushlogin
+	- put all file removals in a for loop
+	- put all sudo removals in a for loop
+	- don't clobber ~/.bashrc, just use sed to make sudo vanish
 
   [ Joaquim Boura ]
   * modules/backend/progress.bm: code it's already in the initialization
@@ -1630,7 +1642,7 @@ fll-installer (0.0.11) unstable; urgency=low
 
   [ Kel Modderman ]
   * Update purge_live_only_stuff() for changes during transition from
-    knx-installer.
+	knx-installer.
 
   [ Joaquim Boura ]
   * first steps to enhance locale support.
@@ -1646,16 +1658,16 @@ fll-installer (0.0.10) unstable; urgency=low
 fll-installer (0.0.9) unstable; urgency=low
 
   * cleanup modules/backend/fix_home_on_HD.bm:
-    - remove obsolete .mozilla hack
-    - no longer make ~/Desktop/sidux.desktop
-    - put sudo hacked files in a for loop for removal
+	- remove obsolete .mozilla hack
+	- no longer make ~/Desktop/sidux.desktop
+	- put sudo hacked files in a for loop for removal
 
  -- Kel Modderman <kel@otaku42.de>  Sat, 16 Jun 2007 10:34:45 +1000
 
 fll-installer (0.0.8) unstable; urgency=low
 
   * add hdparm to service white list, this allows the powermanagement to kick
-    in.
+	in.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 16 Jun 2007 01:30:51 +0200
 

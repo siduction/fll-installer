@@ -27,7 +27,7 @@ fix_home_on_HD()
 		if [ -d "${TARGET_MNT_POINT}${LIVEHOME}" ] && \
 			[ ! -d "${TARGET_MNT_POINT}${INSTHOME}" ]; then
 			mv "${TARGET_MNT_POINT}${LIVEHOME}" "${TARGET_MNT_POINT}${INSTHOME}"
-			
+
 			# fix /home/user paths in various config files
 			find "${TARGET_MNT_POINT}${INSTHOME}" \
 				-type f \
@@ -66,11 +66,11 @@ fix_home_on_HD()
 		sudo -u "${FLL_LIVE_USER}" gconftool-2 -s -t bool /apps/gksu/sudo-mode false
 	chroot "${TARGET_MNT_POINT}" \
 		sudo -u "${FLL_LIVE_USER}" gconftool-2 -s -t bool /apps/gksu/display-no-pass-info true
-	
+
 	#
 	# remove installer from fluxbox menu
 	#
-	if grep -s -q sudo "${TARGET_MNT_POINT}${INSTHOME}"/.fluxbox/fll-flux-*; then
+	if grep -s -q Installer "${TARGET_MNT_POINT}${INSTHOME}"/.fluxbox/fll-flux-*; then
 		sed -i '/Installer/d' "${TARGET_MNT_POINT}${INSTHOME}"/.fluxbox/fll-flux-*
 	fi
 
