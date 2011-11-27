@@ -1,3 +1,10 @@
+fll-installer (0.9.12+nmu1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * exclusion_list (copying to hd): sidu-installer.desktop added
+
+ -- J. Hamatoma <hamatoma@gmx.de>  Sun, 27 Nov 2011 10:38:08 +0100
+
 fll-installer (0.9.12) unstable; urgency=low
 
   * 
