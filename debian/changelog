@@ -1,16 +1,17 @@
+fll-installer (0.9.13) unstable; urgency=low
+
+  * debian/control homepage added
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 28 Nov 2011 02:06:32 +0100
+
 fll-installer (0.9.12+nmu1) unstable; urgency=low
 
+  [ J. Hamatoma ]
   * Non-maintainer upload.
   * exclusion_list (copying to hd): sidu-installer.desktop added
 
- -- J. Hamatoma <hamatoma@gmx.de>  Sun, 27 Nov 2011 10:38:08 +0100
+ -- Alf Gaida <agaida@siduction.org>  Mon, 28 Nov 2011 02:06:01 +0100
 
-fll-installer (0.9.12) unstable; urgency=low
-
-  * 
-  * 
-
- -- Alf Gaida <info@g-com.eu>  Fri, 25 Nov 2011 22:13:24 +0100
 
 fll-installer (0.9.12) unstable; urgency=low
 
