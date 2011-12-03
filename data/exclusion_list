@@ -5,7 +5,7 @@
 /home/*/.kde/socket-*
 /home/*/.kde/tmp-*
 /home/*/.*uthority
-/home/*/Desktop/.sidu-installer.desktop
+/home/*/Desktop/sidu-installer.desktop
 /home/*/.kaxtv*
 /lib/init/rw/*
 /media/*
