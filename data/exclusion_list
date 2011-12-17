@@ -1,6 +1,7 @@
 /proc/*
 /etc/network/run/*
 /home/*/.DCOPserver_*
+/home/*/.gvfs*
 /home/*/.kde/cache-*
 /home/*/.kde/socket-*
 /home/*/.kde/tmp-*
