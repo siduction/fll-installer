@@ -1,3 +1,11 @@
+fll-installer (0.9.14+nmu1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Don't reply runtime of installer to frontend
+  * Change standard variables to siduction style
+
+ -- Zeppo <zeppo@gmx.net>  Thu, 22 Dec 2011 23:58:43 +0100
+
 fll-installer (0.9.14) unstable; urgency=low
 
   * bump to 0.9.14
