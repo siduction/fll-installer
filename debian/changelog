@@ -1,14 +1,13 @@
 fll-installer (0.9.15) unstable; urgency=low
 
   [ Zeppo ]
-  * Non-maintainer upload.
   * Don't reply runtime of installer to frontend
   * Change standard variables to siduction style
 
   [ Alf Gaida ]
-  * bump version 
+  * bump version  
 
- -- Alf Gaida <agaida@siduction.org>  Fri, 23 Dec 2011 00:43:07 +0100
+ -- Alf Gaida <agaida@siduction.org>  Fri, 23 Dec 2011 00:44:59 +0100
 
 fll-installer (0.9.14) unstable; urgency=low
 
