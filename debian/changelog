@@ -1,4 +1,4 @@
-fll-installer (0.9.15) unstable; urgency=low
+fll-installer (0.9.16) unstable; urgency=low
 
   [ Zeppo ]
   * Don't reply runtime of installer to frontend
@@ -9,6 +9,13 @@ fll-installer (0.9.15) unstable; urgency=low
 
  -- Alf Gaida <agaida@siduction.org>  Fri, 23 Dec 2011 00:44:59 +0100
 
+fll-installer (0.9.15) unstable; urgency=low
+
+  * edited data/exclusion_list: added .gvfs dir to enable installation 
+    using lxde (thx to hama for solving) refs #428
+
+ -- Alf Gaida <agaida@siduction.org>  Sat, 17 Dec 2011 22:19:34 +0100
+ 
 fll-installer (0.9.14) unstable; urgency=low
 
   * bump to 0.9.14
