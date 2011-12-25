@@ -8,6 +8,7 @@
 /home/*/.*uthority
 /home/*/Desktop/sidu-installer.desktop
 /home/*/.kaxtv*
+/home/*/.mozilla
 /lib/init/rw/*
 /media/*
 /mnt/*
@@ -17,3 +18,4 @@
 /tmp/*
 /var/cache/gdm/*
 /var/tmp/*
+
