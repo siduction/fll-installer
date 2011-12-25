@@ -4,7 +4,6 @@ Priority: optional
 Maintainer: Alf Gaida <agaida@siduction.org>
 XSBC-Original-Maintainer: Joaquim Boura <x-un-i@berlios.de>
 Uploaders: J. Hamatoma <hamatoma@gmx.de>
-
 Build-Depends: debhelper (>= 8)
 Standards-Version: 3.9.2
 Vcs-Git: git://git.siduction.org/packages/siduction-repository/fll-installer

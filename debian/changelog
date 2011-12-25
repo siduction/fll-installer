@@ -1,10 +1,15 @@
 fll-installer (0.9.17) unstable; urgency=low
 
+  [ J. Hamatoma ]
   * Exclusion list: .mozilla
   * hamatoma is uploader
   * recommands: sidu-installer
 
- -- J. Hamatoma <hamatoma@gmx.de>  Sun, 25 Dec 2011 13:10:32 +0100
+  [ Alf Gaida ]
+  * fixes empty line issue in debian/control, no empty lines in
+    package blocks please 
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 25 Dec 2011 13:23:44 +0100
 
 fll-installer (0.9.16) unstable; urgency=low
 
