@@ -1,9 +1,12 @@
-fll-installer (0.9.17+nmu1) unstable; urgency=low
+fll-installer (0.9.18) unstable; urgency=low
 
-  * Non-maintainer upload.
+  [ zeppo ]
   * ignore /dev/loop2 for creating /etc/fstab at installation 
 
- -- root <root@zeppo-laptop>  Tue, 27 Dec 2011 23:26:15 +0100
+  [ Alf Gaida ]
+  * bump version, fixes #504
+
+ -- Alf Gaida <agaida@siduction.org>  Tue, 27 Dec 2011 23:58:24 +0100
 
 fll-installer (0.9.17) unstable; urgency=low
 
