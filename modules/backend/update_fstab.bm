@@ -30,8 +30,9 @@ update_fstab()
 	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
 	root_device=$(get_root_device $root_partition)
 	wanted="--wanted ${root_device}"
+	# ignore live iso and wrong loopback device (loop2)
 	if [ -b /dev/mapper/${FLL_DISTRO_NAME}-live ]; then
-		ignore_device="--ignore ${FLL_DISTRO_NAME}-live"
+		ignore_device="--ignore ${FLL_DISTRO_NAME}-live --ignore /dev/loop2"
 	fi
 	
 	if [ -n "${HD_MAP}" ]; then
