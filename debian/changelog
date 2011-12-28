@@ -1,3 +1,10 @@
+fll-installer (0.9.18+nmu1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * purge sidu-installer, pywwetha and siguibui, fixes #514
+
+ -- Sebastian Görgen <zeppo@gmx.net>  Wed, 28 Dec 2011 20:26:06 +0100
+
 fll-installer (0.9.18) unstable; urgency=low
 
   [ zeppo ]
