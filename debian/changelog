@@ -1,9 +1,13 @@
-fll-installer (0.9.19+nmu2) unstable; urgency=low
+fll-installer (0.9.20) unstable; urgency=low
 
+  [ Sebastian Görgen ]
   * Non-maintainer upload.
   * Also create cow file if using ext2,ext3 and ext4 
 
- -- Sebastian Görgen <zeppo@gmx.net>  Wed, 08 Feb 2012 00:01:16 +0100
+  [ Alf Gaida ]
+  * rebuild fix #596 
+
+ -- Alf Gaida <agaida@siduction.org>  Wed, 08 Feb 2012 00:41:28 +0100
 
 fll-installer (0.9.19+nmu1) unstable; urgency=low
 
