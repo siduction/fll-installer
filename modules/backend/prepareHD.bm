@@ -37,15 +37,7 @@ prepareHD()
 	# sometimes kernel has not yet loaded the partition table
 	# so ask him to do that
 	# 
-	# lines copied from fll_fstab_generator
-	#
-	if which udevadm >/dev/null; then
-		udevadm trigger --subsystem-match=block
-		udevadm settle --timeout=30
-	else
-		udevtrigger --subsystem-match=block
-		udevsettle --timeout=30
-	fi
+	/sbin/partprobe 
 
 	TMP="$(mktemp)"
 

@@ -629,7 +629,7 @@ prepare_persist()
 	fs=$(/sbin/blkid -p -o value -s TYPE ${PARTITION})
 
 	case ${fs} in
-		vfat)
+		vfat|ext2|ext3|ext4)
 			local avail use perc
 
 			avail=$(df -k | awk -v p="${PARTITION}" '$1 == p { printf "%d\n", $4 }')
@@ -665,8 +665,6 @@ prepare_persist()
 
 			# Update the PERSIST variable with location to loopback filesystem
 			PERSIST="${PERSIST}=/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw"
-			;;
-		ext2|ext3|ext4)
 			;;
 		*)
 			return 1

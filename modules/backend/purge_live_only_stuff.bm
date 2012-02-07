@@ -28,8 +28,7 @@ purge_live_only_stuff()
 
 	# purge live-specific packages
 
-	chroot_it dpkg --purge	fll-live-initramfs \
-				fll-live-initscripts \
+	chroot_it dpkg --purge	fll-live-initscripts \
 				fll-live-utils \
 				fll-live-xorgconfig \
 				desktop-defaults-common \
@@ -37,8 +36,6 @@ purge_live_only_stuff()
 				desktop-defaults-lxde \
 				desktop-defaults-gnome \
 				desktop-defaults-xfce \
-				install-gui \
-				cliinstaller \
 				fll-installer \
 				fll-installer-common \
 				nbd-client \

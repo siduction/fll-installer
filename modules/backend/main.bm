@@ -49,13 +49,7 @@ main()
 	fi
 	
 	# initialize the ACTION variable for progress()
-	if [ "$BOOT_DISK" = "yes" ]; then
-		# skip the first one so the make_floppy remains as the last action
-		# as it needs some considerable time
-		ACTION=-1
-	else
-		ACTION=0
-	fi
+	ACTION=0
 
 	#
 	# say the world we have started our work
@@ -73,13 +67,6 @@ main()
 
 	sync
 
-	# 
-	# if user wants make a boot floppy
-	#
-	if [ "$BOOT_DISK" = "yes" ]; then
-		say "creating floppy"
-		make_floppy
-	fi
 
 	#
 	# say the world we have done our work

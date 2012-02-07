@@ -1,3 +1,19 @@
+fll-installer (0.9.19+nmu2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Also create cow file if using ext2,ext3 and ext4 
+
+ -- Sebastian Görgen <zeppo@gmx.net>  Wed, 08 Feb 2012 00:01:16 +0100
+
+fll-installer (0.9.19+nmu1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * throw away code to create boot_floppy, fixes #534
+  * don't deinstall packages that siduction don't use
+  * use partprobe to tell kernel to reload partition table
+
+ -- Sebastian Görgen <zeppo@gmx.net>  Sun, 01 Jan 2012 16:12:08 +0100
+
 fll-installer (0.9.19) unstable; urgency=low
 
   [ Sebastian Görgen ]
