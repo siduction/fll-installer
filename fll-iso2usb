@@ -649,17 +649,17 @@ prepare_persist()
 				perc="50"
 			fi
 
-			use=$(awk -v a="${avail}" -v p="${perc}" 'BEGIN{ printf "%d\n", a * p / 100 }')
-
-			if [ "${use}" -gt 2097152 ]; then
-				# Maximum filesize limited to a bit less than 2G on vfat
-				use=2048000
-			fi
-
+			use=$(awk -v a="${avail}" -v p="${perc}" 'BEGIN{ printf "%d\n", (a * p / 100)/4096 }')
+                        if [ "${fs}" == "vfat" ]; then
+			  if [ "${use}" -gt 2097152 ]; then
+			  	# Maximum filesize limited to a bit less than 2G on vfat
+			 	use=2048000
+			  fi
+                        fi
 			say "creating persistent loopback file, count=${use}"
 
 			mkdir -p "${mountpoint}/${FLL_DISTRO_NAME}"
-                	dd if=/dev/zero of="${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" count="${use}" bs=1k || return 1
+                	dd if=/dev/zero of="${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" count="${use}" bs=4M || return 1
                 	echo 'y' | LANG=C /sbin/mkfs.ext2 "${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" || return 1
 			tune2fs -c 0 "${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" || return 1
 
