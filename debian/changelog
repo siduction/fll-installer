@@ -1,9 +1,13 @@
-fll-installer (0.9.20+nmu1) unstable; urgency=low
+fll-installer (0.9.21) unstable; urgency=low
 
+  [ Sebastian Görgen ]
   * Non-maintainer upload.
   * Max cow file size for non vfat file systems, set bs to 4M 
 
- -- root <zeppo@gmx.net>  Mon, 05 Mar 2012 23:17:58 +0100
+  [ Alf Gaida ]
+  * rebuild fixes #612, #604, #607
+
+ -- Alf Gaida <agaida@siduction.org>  Tue, 06 Mar 2012 21:36:26 +0100
 
 fll-installer (0.9.20) unstable; urgency=low
 
