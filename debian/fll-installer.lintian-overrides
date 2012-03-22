@@ -1,0 +1,4 @@
+# stop lintian complaining about a missing manpage. This
+# manpage never will be written
+fll-installer: binary-without-manpage usr/sbin/fll-installer
+

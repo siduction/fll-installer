@@ -1,3 +1,15 @@
+fll-installer (0.9.23) unstable; urgency=low
+
+  * changelog lin 281 fixed.   fll-iso2usb: syntax-error-in-debian-changelog
+    line 281 "Fehlerhaft formatierter Header"
+  * fll-iso2usb override to stop lintian complaining about a missing
+    manpage
+  * fll-installer override to stoplintina complaining about a missing
+    manpage 
+  * fixes #641 
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 22 Mar 2012 14:02:28 +0100
+
 fll-installer (0.9.22) unstable; urgency=low
 
   * bump standards to 3.9.3
@@ -277,8 +289,7 @@ fll-installer (0.8.7) unstable; urgency=low
 
 fll-installer (0.8.6) unstable; urgency=low
 
-  * partial re-introduction of svnr 28269:28396:
-- gdm3 revert.
+  * partial re-introduction of svnr 28269:28396: - gdm3 revert.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 20 Jan 2011 02:19:06 +0100
 
