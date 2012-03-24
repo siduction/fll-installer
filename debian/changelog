@@ -1,3 +1,12 @@
+fll-installer (0.9.24) unstable; urgency=low
+
+  * rewrote debian/copyright to match dep5. A few clarification bits:
+    A copyright file is a place for copyrights. A copyright file is no
+    place for novels like a 'grammy awards thank you speech' 
+  * fixes #332
+
+ -- Alf Gaida <agaida@siduction.org>  Sat, 24 Mar 2012 13:17:45 +0100
+
 fll-installer (0.9.23) unstable; urgency=low
 
   * changelog lin 281 fixed.   fll-iso2usb: syntax-error-in-debian-changelog
