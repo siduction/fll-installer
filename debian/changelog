@@ -1,3 +1,9 @@
+fll-installer (0.9.25) unstable; urgency=low
+
+  * rebuild closes #699 
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 13 May 2012 20:18:27 +0200
+
 fll-installer (0.9.24) unstable; urgency=low
 
   * rewrote debian/copyright to match dep5. A few clarification bits:
