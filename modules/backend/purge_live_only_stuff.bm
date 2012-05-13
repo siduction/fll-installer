@@ -40,8 +40,6 @@ purge_live_only_stuff()
 				fll-installer-common \
 				nbd-client \
 				setpassword \
-				pywwetha \
-				siguibui \
 				sidu-installer \
 				sshstart >&2
 
