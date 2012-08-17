@@ -36,6 +36,7 @@ purge_live_only_stuff()
 				desktop-defaults-lxde \
 				desktop-defaults-gnome \
 				desktop-defaults-xfce \
+				desktop-defaults-rqt \
 				fll-installer \
 				fll-installer-common \
 				nbd-client \
