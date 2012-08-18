@@ -1,9 +1,14 @@
-fll-installer (0.9.25+nmu1) UNRELEASED; urgency=low
+fll-installer (0.9.26) UNRELEASED; urgency=low
 
+  [ Ferdinand Thommes ]
   * Non-maintainer upload.
   * added desktop-defaults-rqt to fll-
     installer/modules/backend/purge_live_only_stuff.bm as its a live-
     only package [thxx convbsd] fixes
+
+  [ Alf Gaida ]
+  * added devil as uploader
+  * bump version to 0.9.26
 
  -- Ferdinand Thommes <devil@siduction.org>  Fri, 17 Aug 2012 23:56:04 +0200
 
