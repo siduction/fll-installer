@@ -1,4 +1,4 @@
-fll-installer (0.9.26) UNRELEASED; urgency=low
+fll-installer (0.9.26) unstable; urgency=low
 
   [ Ferdinand Thommes ]
   * Non-maintainer upload.
@@ -10,7 +10,7 @@ fll-installer (0.9.26) UNRELEASED; urgency=low
   * added devil as uploader
   * bump version to 0.9.26
 
- -- Ferdinand Thommes <devil@siduction.org>  Fri, 17 Aug 2012 23:56:04 +0200
+ -- Alf Gaida <agaida@siduction.org>  Sat, 18 Aug 2012 13:39:37 +0200
 
 fll-installer (0.9.25) unstable; urgency=low
 
