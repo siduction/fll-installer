@@ -38,7 +38,6 @@ purge_live_only_stuff()
 				desktop-defaults-xfce \
 				desktop-defaults-rqt \
 				fll-installer \
-				fll-installer-common \
 				nbd-client \
 				setpassword \
 				sidu-installer \
