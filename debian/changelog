@@ -1,3 +1,10 @@
+fll-installer (0.9.28) UNRELEASED; urgency=low
+
+  * changed install target for gnome to /mnt/hdinstall 
+    to avoid automount of target partition
+
+ -- Ovidiu Angelescu <convbsd@siduction.net>  Tue, 9 Oct 2012 18:35:37 +0300
+
 fll-installer (0.9.27) UNRELEASED; urgency=low
 
   * removed fll-installer-common from fll-
