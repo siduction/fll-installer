@@ -37,6 +37,7 @@ purge_live_only_stuff()
 				desktop-defaults-gnome \
 				desktop-defaults-xfce \
 				desktop-defaults-rqt \
+				cli-installer \
 				fll-installer \
 				nbd-client \
 				setpassword \

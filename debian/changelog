@@ -1,3 +1,11 @@
+fll-installer (0.9.29) UNRELEASED; urgency=low
+
+  * added cli-installer to fll-
+    installer/modules/backend/purge_live_only_stuff.bm as its a live-
+    only package.
+
+ -- Ovidiu Angelescu <convbsd@siduction.net>  Sat, 13 Oct 2012 22:47:37 +0300
+
 fll-installer (0.9.28) unstable; urgency=low
 
   [ Ovidiu Angelescu ]
