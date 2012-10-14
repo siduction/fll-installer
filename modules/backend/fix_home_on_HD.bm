@@ -80,6 +80,15 @@ fix_home_on_HD()
 	if grep -s -q sudo "${TARGET_MNT_POINT}${INSTHOME}/.bashrc"; then
 		sed -i 's|\(.*sudo.*\)||' "${TARGET_MNT_POINT}${INSTHOME}/.bashrc"
 	fi
+
+	#
+	# recreate for kde .Xauthority file
+	#
+	if [ -f /etc/default/fll-kde-desktop ]; then
+		rm -f ${TARGET_MOUNT_POINT}/root/.Xauthority
+		chroot "${TARGET_MOUNT_POINT}" \
+		ln -sf ${INSTHOME}/.Xauthority /root/.Xauthority 
+	fi
 }
 ##-------------------------------------
 #
