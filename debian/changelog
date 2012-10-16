@@ -1,4 +1,4 @@
-fll-installer (0.9.31) UNRELEASED; urgency=low
+fll-installer (0.9.31) unstable; urgency=low
 
   [ Ovidiu Angelescu ]
   * fixed two typo's in fix_home_on_HD.bm
@@ -6,7 +6,7 @@ fll-installer (0.9.31) UNRELEASED; urgency=low
   [ Alf Gaida ]
   * rebuild fixes #914 
 
- -- Ovidiu Angelescu <convbsd@siduction.net>  Wed, 17 Oct 2012 00:48:37 +0300
+ -- Alf Gaida <agaida@siduction.org>  Wed, 17 Oct 2012 01:47:56 +0200
 
 fll-installer (0.9.30) UNRELEASED; urgency=low
 
