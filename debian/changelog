@@ -1,10 +1,14 @@
 fll-installer (0.9.30) UNRELEASED; urgency=low
 
+  [ Ovidiu Angelescu ]
   * fixed gparted start issue from menus for kde in installed mode
+
+  [ Alf Gaida ]
+  * rebuild fixes #912
 
  -- Ovidiu Angelescu <convbsd@siduction.net>  Sun, 14 Oct 2012 18:47:37 +0300
 
-fll-installer (0.9.29) UNRELEASED; urgency=low
+fll-installer (0.9.29) unstable; urgency=low
 
   * added cli-installer to fll-
     installer/modules/backend/purge_live_only_stuff.bm as its a live-
