@@ -85,8 +85,8 @@ fix_home_on_HD()
 	# recreate for kde .Xauthority file
 	#
 	if [ -f /etc/default/fll-kde-desktop ]; then
-		rm -f ${TARGET_MOUNT_POINT}/root/.Xauthority
-		chroot "${TARGET_MOUNT_POINT}" \
+		rm -f ${TARGET_MNT_POINT}/root/.Xauthority
+		chroot "${TARGET_MNT_POINT}" \
 		ln -sf ${INSTHOME}/.Xauthority /root/.Xauthority 
 	fi
 }
