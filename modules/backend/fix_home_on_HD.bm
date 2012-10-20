@@ -89,6 +89,27 @@ fix_home_on_HD()
 		chroot "${TARGET_MNT_POINT}" \
 		ln -sf ${INSTHOME}/.Xauthority /root/.Xauthority 
 	fi
+
+	#
+	# enable automount-open for gnome in install mode
+	#
+	if [ -f /etc/default/fll-gnome-desktop ]; then
+	cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-gnome/automount-open" <<EOF
+#!/bin/sh
+
+if [ ! -d /usr/share/fll-installer ]; then
+gsettings set org.gnome.desktop.media-handling automount-open true
+rm ${INSTHOME}/.config/autostart/automount-open.desktop
+fi
+EOF
+	chmod +x ${TARGET_MNT_POINT}/usr/share/siduction-settings-gnome/automount-open
+	chroot "${TARGET_MNT_POINT}" \
+	chown ${USER_NAME} /usr/share/siduction-settings-gnome/automount-open
+	chroot "${TARGET_MNT_POINT}" \
+	ln -sf /usr/share/siduction-settings-gnome/automount-open.desktop ${INSTHOME}/.config/autostart/automount-open.desktop
+	chroot "${TARGET_MNT_POINT}" \
+	chown ${USER_NAME} /usr/share/siduction-settings-gnome/automount-open.desktop
+	fi
 }
 ##-------------------------------------
 #

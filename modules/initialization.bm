@@ -47,12 +47,7 @@ get_efisys () {
 ###-------------------------------------
 #
 
-if [ -f /etc/default/fll-gnome-desktop ]; then
-	TARGET_MNT_POINT="/mnt/hdinstall" 
-else 
-	TARGET_MNT_POINT="/fll/hdinstall" 
-fi 
-
+TARGET_MNT_POINT="/fll/hdinstall" 
 TARGET_MNT_NAME="hdinstall" 
 
 
