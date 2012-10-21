@@ -1,10 +1,14 @@
-fll-installer (0.9.32) UNRELEASED; urgency=low
+fll-installer (0.9.32) unstable; urgency=low
 
+  [ Ovidiu Angelescu ]
   * code for reenable for gnome automount-open in installed mode 
   * reverted mountpoint change for gnome from /mnt/hdinstall to /fll/hdinstall
     since we use a more reliable way to prevent automount-open when installing
  
- -- Ovidiu Angelescu <convbsd@siduction.net>  Sat, 20 Oct 2012 21:51:37 +0300
+  [ Alf Gaida ]
+  * rebuild closes #918 
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 21 Oct 2012 17:28:22 +0200
 
 fll-installer (0.9.31) unstable; urgency=low
 
