@@ -1,3 +1,9 @@
+fll-installer (0.9.34) UNRELEASED; urgency=low
+
+  * fixed a typo in fll-installer/modules/backend/fix_etc_on_HD.bm
+
+ -- Ovidiu Angelescu <convbsd@siduction.net>  Sat, 10 Nov 2012 16:12:37 +0200
+
 fll-installer (0.9.33) UNRELEASED; urgency=low
 
   * changed fll-installer/modules/backend/fix_etc_on_HD.bm to be able to

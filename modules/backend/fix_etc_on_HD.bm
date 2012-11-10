@@ -53,7 +53,7 @@ fix_etc_on_HD () {
 	#
 	# "normalize" /etc/inittab
 	#
-	sed -i	-e 's@/sbin/getty -n -i -l /usr/bin/fll-login@/sbin/getty@'\
+	sed -i -e 's@/sbin/getty -n -i -l /usr/bin/fll_login@/sbin/getty@' \
 			"${TARGET_MNT_POINT}/etc/inittab"
 	
 	#
