@@ -1,3 +1,10 @@
+fll-installer (0.9.33) UNRELEASED; urgency=low
+
+  * changed fll-installer/modules/backend/fix_etc_on_HD.bm to be able to
+    preserve liveiso runlevel also in installed mode
+
+ -- Ovidiu Angelescu <convbsd@siduction.net>  Sat, 10 Nov 2012 08:30:37 +0200
+
 fll-installer (0.9.32) unstable; urgency=low
 
   [ Ovidiu Angelescu ]
