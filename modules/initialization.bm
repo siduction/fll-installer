@@ -64,6 +64,7 @@ FLL_MOUNTPOINT="/fll/siduction"
 
 DEFAULT_USER="$FLL_LIVE_USER"
 DEFAULT_DIR="$FLL_MOUNTPOINT"
+THEME=$(echo ${FLL_WALLPAPER} | cut -d / -f5)
 
 #
 ###-------------------------------------

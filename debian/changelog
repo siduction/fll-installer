@@ -1,3 +1,11 @@
+fll-installer (0.9.35) UNRELEASED; urgency=low
+
+  * changed fll-installer/modules/backend/fix_etc_on_HD.bm and 
+    initialization.bm to be able to write needed settings for 
+    grub-theme-siduction-$RELEASE if it's installed when installing
+
+ -- Ovidiu Angelescu <convbsd@siduction.net>  Sun, 35 Nov 2012 21:38:37 +0200
+
 fll-installer (0.9.34) unstable; urgency=low
 
   [ Ovidiu Angelescu ]

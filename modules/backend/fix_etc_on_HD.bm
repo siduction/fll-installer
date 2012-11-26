@@ -6,6 +6,8 @@
 # HOST_NAME
 # FLL_MOUNTPOINT
 # USER_NAME
+# DEFAULT_USER
+# THEME
 #
 # Calls:
 # logit
@@ -128,6 +130,28 @@ fix_etc_on_HD () {
 	if [ -f "${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf" ]; then
 		sed -i -e "s/^autologin-user/\#autologin-user/" \
 			"${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf"
+	fi
+
+	#
+	# prepares grub-theme-siduction-$RELEASE settings
+	# 
+	det_res=$(su ${DEFAULT_USER} -c xrandr | head -n 1 | awk '{print $8.$9.$10}'| cut -d , -f1 )
+	grub_res=$(hwinfo --framebuffer | grep $det_res | head -n1| awk '{print $3}')
+	if  [ -f "$(find ${TARGET_MNT_POINT}/usr/share/grub/themes/${THEME} -type f -name  theme-${grub_res}.txt)" ];then
+		if [ "$det_res" = "$grub_res" ]; then
+			sed -i "s@#GRUB_GFXMODE=.*@GRUB_GFXMODE=${grub_res}@" ${TARGET_MNT_POINT}/etc/default/grub 
+			if ! grep -q 'GRUB_GFXPAYLOAD_LINUX' ${TARGET_MNT_POINT}/etc/default/grub ; then
+				sed -i "/GRUB_GFXMODE=.*/i\GRUB_GFXPAYLOAD_LINUX=${grub_res}" ${TARGET_MNT_POINT}/etc/default/grub
+			else
+				sed -i "s@GRUB_GFXPAYLOAD_LINUX=.*@GRUB_GFXPAYLOAD_LINUX=${grub_res}@" ${TARGET_MNT_POINT}/etc/default/grub
+			fi
+			GRUB_THEME="$(find /usr/share/grub/themes/${THEME} -type f -name  theme-${grub_res}.txt)"
+			if ! grep -q 'GRUB_THEME' ${TARGET_MNT_POINT}/etc/default/grub ; then
+				sed -i "/GRUB_GFXMODE=.*/i\GRUB_THEME=\"${GRUB_THEME}\"" ${TARGET_MNT_POINT}/etc/default/grub 
+			else
+				sed -i "s@GRUB_THEME=.*@GRUB_THEME=\"${GRUB_THEME}\"@"
+			fi
+		fi
 	fi
 
 	return 0
