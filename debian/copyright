@@ -3,7 +3,8 @@ Upstream-Name: fll-installer
 Source: <http://svn.berlios.de/svnroot/repos/fullstory/fll-installer/trunk/>
 
 Files: *
-Copyright: 2007-2011 Joaquim Boura <x-un-i@berlios.de>
+Copyright: 2012      Ovidiu Angelescu <convbsd@siduction.net>
+           2007-2011 Joaquim Boura <x-un-i@berlios.de>
            2006-2008 Red Hat, Inc.
            2008-2010 Niall Walsh <niallwalsh@users.berlios.de>
            2004-2011 Stefan Lippers-Hollmann <s.l-h@gmx.de>.

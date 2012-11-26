@@ -2,9 +2,9 @@ Source: fll-installer
 Section: admin
 Priority: optional
 Maintainer: Alf Gaida <agaida@siduction.org>
-XSBC-Original-Maintainer: Joaquim Boura <x-un-i@berlios.de>
 Uploaders: J. Hamatoma <hamatoma@gmx.de>,
- Ferdinand Thommes <devil@siduction.org>
+ Ferdinand Thommes <devil@siduction.org>,
+ Ovidiu Angelescu <convbsd@siduction.net>,
 Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.3
 Vcs-Git: git://git.siduction.org/code/fll-installer

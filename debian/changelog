@@ -1,9 +1,14 @@
-fll-installer (0.9.36) UNRELEASED; urgency=low
+fll-installer (0.9.36) unstable; urgency=low
 
+  [ Ovidiu Angelescu ]
   * added hwinfo missed dependency in fll-installer control and
     fixed date in previous commit
 
- -- Ovidiu Angelescu <convbsd@siduction.net>  Mon, 26 Nov 2012 12:18:37 +0200
+  [ Alf Gaida ]
+  * removed slh as original-maintainer as we dont follow aptosid anymore
+  * rebuild closes #987
+
+ -- Alf Gaida <agaida@siduction.org>  Tue, 27 Nov 2012 00:06:49 +0100
 
 fll-installer (0.9.35) UNRELEASED; urgency=low
 
