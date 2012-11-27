@@ -1,9 +1,13 @@
-fll-installer (0.9.38) UNRELEASED; urgency=low
+fll-installer (0.9.38) unstable; urgency=low
 
+  [ Ovidiu Angelescu ]
   * changed  /etc/default/grub to  ${TARGET_MNT_POINT}/etc/default/grub
     when deleting GRUB_THEME in sed statement
 
- -- Ovidiu Angelescu <convbsd@siduction.net>  Tue, 27 Nov 2012 18:21:37 +0200
+  [ Alf Gaida ]
+  * rebuild closes #911
+
+ -- Alf Gaida <agaida@siduction.org>  Tue, 27 Nov 2012 20:21:39 +0100
 
 fll-installer (0.9.37) UNRELEASED; urgency=low
 
@@ -19,7 +23,7 @@ fll-installer (0.9.36) unstable; urgency=low
     fixed date in previous commit
 
   [ Alf Gaida ]
-  * removed slh as original-maintainer as we dont follow aptosid anymore
+  * removed slh as original-maintainer as we don't follow aptosid anymore
   * rebuild closes #987
 
  -- Alf Gaida <agaida@siduction.org>  Tue, 27 Nov 2012 00:06:49 +0100
