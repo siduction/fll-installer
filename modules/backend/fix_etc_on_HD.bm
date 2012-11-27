@@ -135,24 +135,18 @@ fix_etc_on_HD () {
 	#
 	# prepares grub-theme-siduction-$RELEASE settings
 	# 
-	det_res=$(su ${DEFAULT_USER} -c xrandr | head -n 1 | awk '{print $8.$9.$10}'| cut -d , -f1 )
-	grub_res=$(hwinfo --framebuffer | grep $det_res | head -n1| awk '{print $3}')
-	if  [ -f "$(find ${TARGET_MNT_POINT}/usr/share/grub/themes/${THEME} -type f -name  theme-${grub_res}.txt)" ];then
-		if [ "$det_res" = "$grub_res" ]; then
-			sed -i "s@#GRUB_GFXMODE=.*@GRUB_GFXMODE=${grub_res}@" ${TARGET_MNT_POINT}/etc/default/grub 
-			if ! grep -q 'GRUB_GFXPAYLOAD_LINUX' ${TARGET_MNT_POINT}/etc/default/grub ; then
-				sed -i "/GRUB_GFXMODE=.*/i\GRUB_GFXPAYLOAD_LINUX=${grub_res}" ${TARGET_MNT_POINT}/etc/default/grub
-			else
-				sed -i "s@GRUB_GFXPAYLOAD_LINUX=.*@GRUB_GFXPAYLOAD_LINUX=${grub_res}@" ${TARGET_MNT_POINT}/etc/default/grub
-			fi
-			GRUB_THEME="$(find /usr/share/grub/themes/${THEME} -type f -name  theme-${grub_res}.txt)"
-			if ! grep -q 'GRUB_THEME' ${TARGET_MNT_POINT}/etc/default/grub ; then
-				sed -i "/GRUB_GFXMODE=.*/i\GRUB_THEME=\"${GRUB_THEME}\"" ${TARGET_MNT_POINT}/etc/default/grub 
-			else
-				sed -i "s@GRUB_THEME=.*@GRUB_THEME=\"${GRUB_THEME}\"@"
-			fi
-		fi
-	fi
+	DET_RES=$(su ${DEFAULT_USER} -c xrandr | head -n 1 | awk '{print $8.$9.$10}'| cut -d , -f1 )
+	GRUB_RES=$(hwinfo --framebuffer | grep $DET_RES | head -n 1| awk '{print $3}')
+	GRUBTHEME="/usr/share/grub/themes/${THEME}/theme-${GRUB_RES}.txt"
+	if  [ -f "${GRUBTHEME}" ] && [ "x$GRUB_RES" != "x" ]; then
+		sed -i '/GRUB_THEME=.*/d' /etc/default/grub
+		sed -i '/GRUB_GFXPAYLOAD_LINUX=.*/d' "${TARGET_MNT_POINT}/etc/default/grub"
+ 
+		sed -i "s#\#GRUB_GFXMODE=.*#GRUB_GFXMODE=${GRUB_RES} \
+		\nGRUB_GFXPAYLOAD_LINUX=${GRUB_RES} \
+		\nGRUB_THEME=\"$GRUBTHEME\"#"  "${TARGET_MNT_POINT}/etc/default/grub"
+       fi
 
 	return 0
 }
+ 

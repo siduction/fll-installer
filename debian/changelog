@@ -1,3 +1,10 @@
+fll-installer (0.9.37) UNRELEASED; urgency=low
+
+  * cleanup code at agaida's sugestion for writing siduction grub theme 
+    settings to /etc/default/grub when installing
+
+ -- Ovidiu Angelescu <convbsd@siduction.net>  Tue, 27 Nov 2012 18:05:37 +0200
+
 fll-installer (0.9.36) unstable; urgency=low
 
   [ Ovidiu Angelescu ]
