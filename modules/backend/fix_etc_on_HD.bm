@@ -139,7 +139,7 @@ fix_etc_on_HD () {
 	GRUB_RES=$(hwinfo --framebuffer | grep $DET_RES | head -n 1| awk '{print $3}')
 	GRUBTHEME="/usr/share/grub/themes/${THEME}/theme-${GRUB_RES}.txt"
 	if  [ -f "${GRUBTHEME}" ] && [ "x$GRUB_RES" != "x" ]; then
-		sed -i '/GRUB_THEME=.*/d' /etc/default/grub
+		sed -i '/GRUB_THEME=.*/d' "${TARGET_MNT_POINT}/etc/default/grub"
 		sed -i '/GRUB_GFXPAYLOAD_LINUX=.*/d' "${TARGET_MNT_POINT}/etc/default/grub"
  
 		sed -i "s#\#GRUB_GFXMODE=.*#GRUB_GFXMODE=${GRUB_RES} \

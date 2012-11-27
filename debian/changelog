@@ -1,3 +1,10 @@
+fll-installer (0.9.38) UNRELEASED; urgency=low
+
+  * changed  /etc/default/grub to  ${TARGET_MNT_POINT}/etc/default/grub
+    when deleting GRUB_THEME in sed statement
+
+ -- Ovidiu Angelescu <convbsd@siduction.net>  Tue, 27 Nov 2012 18:21:37 +0200
+
 fll-installer (0.9.37) UNRELEASED; urgency=low
 
   * cleanup code at agaida's sugestion for writing siduction grub theme 
