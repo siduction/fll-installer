@@ -10,6 +10,9 @@ Copyright: 2012      Ovidiu Angelescu <convbsd@siduction.net>
            2004-2011 Stefan Lippers-Hollmann <s.l-h@gmx.de>.
 License: GPL-2.0+
 
+Files: modules/backend/fix_boot_on_HD.bm
+Copyright: 2012      J. Hamatoma <hama@siduction.net>
+
 Files: debian/*
 Copyright: 2011-2012 Alf Gaida <agaida@siduction.org>
            2007-2011 Joaquim Boura <x-un-i@berlios.de>
