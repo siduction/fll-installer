@@ -1,10 +1,10 @@
-fll-installer (0.9.38+nmu1) UNRELEASED; urgency=low
+fll-installer (0.9.38+nmu2) UNRELEASED; urgency=low
 
   * Non-maintainer upload.
   * removing Chromium lock file at boot time
   * closes #1020
 
- -- J. Hamatoma <hama@siduction.net>  Tue, 04 Dec 2012 21:31:53 +0100
+ -- J. Hamatoma <hama@siduction.net>  Wed, 05 Dec 2012 23:37:24 +0100
 
 fll-installer (0.9.38) unstable; urgency=low
 

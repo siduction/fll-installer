@@ -15,6 +15,6 @@ fix_boot_on_HD()
 	local INSTHOME="${TARGET_MNT_POINT}/home/${USER_NAME}"
 	cat >>${TARGET_MNT_POINT}/etc/init.d/bootmisc.sh <<EOS
 FN=${INSTHOME}/.config/chromium/SingletonLock
-test "$1" = "start" && test -e \$FN || rm \$FN
+test "\$1" = "start" && test -e \$FN || rm \$FN
 EOS
 }
