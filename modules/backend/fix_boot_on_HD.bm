@@ -11,10 +11,88 @@
 fix_boot_on_HD()
 {
 	logit "fix_boot_on_installed system"
-	# home of user on installed system
-	local INSTHOME="${TARGET_MNT_POINT}/home/${USER_NAME}"
-	cat >>${TARGET_MNT_POINT}/etc/init.d/bootmisc.sh <<EOS
-FN=${INSTHOME}/.config/chromium/SingletonLock
-test "\$1" = "start" && test -e \$FN || rm \$FN
+	FN=${TARGET_MNT_POINT}/etc/init.d/sidu-boot
+    cat >$FN <<'EOS'
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          sidu-boot
+# Required-Start:    $remote_fs
+# Required-Stop:
+# Should-Start:      udev
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: siduction specific things during bootup
+# Description:       Some cleanup.  Note, it need to run after mountnfs-bootclean.sh.
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+[ "$DELAYLOGIN" ] || DELAYLOGIN=yes
+. /lib/init/vars.sh
+
+do_start () {
+	#
+	for dir in /home/* ; do
+		FN=/home/${dir}/.config/chromium/SingletonLock
+		if [ -f $FN ] ; then
+			echo "deleting $FN..."
+			rm $FN
+		fi
+	done
+}
+
+case "$1" in
+  start|"")
+	do_start
+	;;
+  restart|reload|force-reload)
+	do_start
+	;;
+  stop)
+	# No-op
+	;;
+  *)
+	echo "Usage: sidu-boot.sh [start|restart|stop]" >&2
+	exit 3
+	;;
+esac
+
+:
 EOS
+	chmod 754 $FN
+	
+	FN=${TARGET_MNT_POINT}/etc/init.d/sidu-boot-one-time
+    cat >$FN <<'EOS'
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          sidu-boot-one-time
+# Required-Start:    $remote_fs
+# Required-Stop:
+# Should-Start:      udev
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: siduction specific things during the FIRST bootup
+# Description:       Some cleanup.
+### END INIT INFO
+
+# Clear all the caches:
+for dir in /home/* ; do
+	subdir = /home/$dir/.cache
+	if [ -d $subdir ] ; then
+		rm -Rf $subdir
+	fi
+done
+
+/etc/init.d/sidu-boot
+echo "installing sidu-boot..."
+insserv sidu-boot
+
+# Prevent from second execution
+perl -ni -e 'print unless /sidu-boot-one-time/;' /etc/init.d/bootmisc.sh
+rm -rf /etc/init.d/sidu-boot-one-time
+:
+EOS
+	chmod 754 $FN
+	
+	FN=${TARGET_MNT_POINT}/etc/init.d/bootmisc.sh
+	echo >>$FN "/etc/init.d/sidu-boot-one-time"
 }

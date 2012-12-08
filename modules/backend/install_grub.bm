@@ -48,29 +48,31 @@ install_grub()
 
 	device=$(echo $root_device|cut -d / -f3)
 	
-	usb_dev=$(echo $(readlink -f /sys/block/${device}/device) | grep  "usb")
-
+	
+	usb_dev=$(echo $(readlink -f /sys/block/${device}/device) | grep usb)
 	# if the user chooses an USB device for the Grub installation we ignore
 	# that ( at least till further investigation) and set it to "partition"
-        case $BOOT_WHERE in
-                mbr)
-			 bootfrom="(hd0)"
-                        ;;
-                partition)
-                        bootfrom="${root_partition}"
-                        ;;
-                /dev/[hsv]d[a-z]) 
-			device="$(echo ${BOOT_WHERE}|cut -d / -f3)"
-                        if [ -n "$(echo $(readlink -f /sys/block/${device}/device) | \
-                                grep  "usb")" ]; then
-                                bootfrom="${root_partition}"
-                        else
-                                bootfrom="${BOOT_WHERE}"
-                        fi
-                        ;;
+	case $BOOT_WHERE in
+		mbr)
+			bootfrom="(hd0)"
+            ;;
+		partition)
+			bootfrom="${root_partition}"
+			;;
+		/dev/[hsv]d[a-z]) 
+			device=$(echo ${BOOT_WHERE}|cut -d / -f3)
+			if [ -n "$usb_dev" ]; then
+				bootfrom="${root_partition}"
+			else
+				bootfrom="${BOOT_WHERE}"
+			fi
+		;;
+		"")
+			bootfrom="(hd0)"
+			;;
 		*) 
-                                bootfrom="${root_partition}"
-        esac
+			bootfrom="${root_partition}"
+	esac
 
 	if [ -n "${usb_dev}" ]; then
 		# USB install must have first Grub on partition
@@ -84,7 +86,6 @@ install_grub()
 			esac
 		fi
 	fi
-
 	# installing on MBR 
 	if [ "$bootfrom" = "$(get_root_device ${bootfrom})" ]
 	then
@@ -96,6 +97,7 @@ install_grub()
 	#
 	# install grub
 	#
+	say "GRUB target: $bootfrom"
 	if [ "${bootfrom}" = "$(get_root_device ${bootfrom})" ]
 	then # install on MBR
 		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >&2

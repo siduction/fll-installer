@@ -1,7 +1,10 @@
 fll-installer (0.9.38+nmu2) UNRELEASED; urgency=low
 
   * Non-maintainer upload.
-  * removing Chromium lock file at boot time
+  * new: /etc/init.d/sidu-boot: removing Chromium lock file at boot time
+  * new /etc/init.d/sidu-boot-one-time: installing sidu-boot, deleting /home/*/.cache
+  * fix: install_grub.bm: stacked "" avoid installing in explicite given disks
+  * fix: prepareHD.bm: unmounting mounted root-partition prevents from error exit 
   * closes #1020
 
  -- J. Hamatoma <hama@siduction.net>  Wed, 05 Dec 2012 23:37:24 +0100
