@@ -1,4 +1,4 @@
-fll-installer (0.9.38+nmu2) unstable; urgency=low
+fll-installer (0.9.39) unstable; urgency=low
 
   [ J. Hamatoma ]
   * Non-maintainer upload.
@@ -7,11 +7,11 @@ fll-installer (0.9.38+nmu2) unstable; urgency=low
   * closes #1020
   * fix: install_grub.bm: stacked "" avoid installing into explicite given disks
   * closes #1019
-  * fix: prepareHD.bm: unmounting mounted root-partition protects from error exit 
-  * 
+  * fix: prepareHD.bm: unmounting mounted root-partition protects from error exit
 
   [ Alf Gaida ]
-  * rebuild closes #1026  
+  * rebuild closes #1026
+  * rebuild closes #1034
 
  -- Alf Gaida <agaida@siduction.org>  Thu, 06 Dec 2012 00:34:51 +0100
 
@@ -28,7 +28,7 @@ fll-installer (0.9.38) unstable; urgency=low
 
 fll-installer (0.9.37) UNRELEASED; urgency=low
 
-  * cleanup code at agaida's sugestion for writing siduction grub theme 
+  * cleanup code at agaida's sugestion for writing siduction grub theme
     settings to /etc/default/grub when installing
 
  -- Ovidiu Angelescu <convbsd@siduction.net>  Tue, 27 Nov 2012 18:05:37 +0200
@@ -47,8 +47,8 @@ fll-installer (0.9.36) unstable; urgency=low
 
 fll-installer (0.9.35) UNRELEASED; urgency=low
 
-  * changed fll-installer/modules/backend/fix_etc_on_HD.bm and 
-    initialization.bm to be able to write needed settings for 
+  * changed fll-installer/modules/backend/fix_etc_on_HD.bm and
+    initialization.bm to be able to write needed settings for
     grub-theme-siduction-$RELEASE if it's installed when installing
 
  -- Ovidiu Angelescu <convbsd@siduction.net>  Sun, 25 Nov 2012 21:38:37 +0200
@@ -59,7 +59,7 @@ fll-installer (0.9.34) unstable; urgency=low
   * fixed a typo in fll-installer/modules/backend/fix_etc_on_HD.bm
 
   [ Alf Gaida ]
-  * rebuild 
+  * rebuild
 
  -- Alf Gaida <agaida@siduction.org>  Sat, 10 Nov 2012 15:24:46 +0100
 
@@ -73,12 +73,12 @@ fll-installer (0.9.33) UNRELEASED; urgency=low
 fll-installer (0.9.32) unstable; urgency=low
 
   [ Ovidiu Angelescu ]
-  * code for reenable for gnome automount-open in installed mode 
+  * code for reenable for gnome automount-open in installed mode
   * reverted mountpoint change for gnome from /mnt/hdinstall to /fll/hdinstall
     since we use a more reliable way to prevent automount-open when installing
- 
+
   [ Alf Gaida ]
-  * rebuild closes #918 
+  * rebuild closes #918
 
  -- Alf Gaida <agaida@siduction.org>  Sun, 21 Oct 2012 17:28:22 +0200
 
@@ -88,7 +88,7 @@ fll-installer (0.9.31) unstable; urgency=low
   * fixed two typo's in fix_home_on_HD.bm
 
   [ Alf Gaida ]
-  * rebuild fixes #914 
+  * rebuild fixes #914
 
  -- Alf Gaida <agaida@siduction.org>  Wed, 17 Oct 2012 01:47:56 +0200
 
@@ -113,18 +113,18 @@ fll-installer (0.9.29) unstable; urgency=low
 fll-installer (0.9.28) unstable; urgency=low
 
   [ Ovidiu Angelescu ]
-  * changed install target for gnome to /mnt/hdinstall 
+  * changed install target for gnome to /mnt/hdinstall
     to avoid automount of target partition
 
   [ Alf Gaida ]
-  * rebuild closes #903 
+  * rebuild closes #903
 
  -- Alf Gaida <agaida@siduction.org>  Tue, 09 Oct 2012 18:11:12 +0200
 
 fll-installer (0.9.27) UNRELEASED; urgency=low
 
   * removed fll-installer-common from fll-
-    installer/modules/backend/purge_live_only_stuff.bm as 
+    installer/modules/backend/purge_live_only_stuff.bm as
     we don't have such a package
 
  -- Ovidiu Angelescu <convbsd@siduction.net>  Tue, 18 Sep 2012 20:11:37 +0300
@@ -145,7 +145,7 @@ fll-installer (0.9.26) unstable; urgency=low
 
 fll-installer (0.9.25) unstable; urgency=low
 
-  * rebuild closes #699 
+  * rebuild closes #699
 
  -- Alf Gaida <agaida@siduction.org>  Sun, 13 May 2012 20:18:27 +0200
 
@@ -153,7 +153,7 @@ fll-installer (0.9.24) unstable; urgency=low
 
   * rewrote debian/copyright to match dep5. A few clarification bits:
     A copyright file is a place for copyrights. A copyright file is no
-    place for novels like a 'grammy awards thank you speech' 
+    place for novels like a 'grammy awards thank you speech'
   * fixes #332
 
  -- Alf Gaida <agaida@siduction.org>  Sat, 24 Mar 2012 13:17:45 +0100
@@ -165,8 +165,8 @@ fll-installer (0.9.23) unstable; urgency=low
   * fll-iso2usb override to stop lintian complaining about a missing
     manpage
   * fll-installer override to stoplintina complaining about a missing
-    manpage 
-  * fixes #641 
+    manpage
+  * fixes #641
 
  -- Alf Gaida <agaida@siduction.org>  Thu, 22 Mar 2012 14:02:28 +0100
 
@@ -174,7 +174,7 @@ fll-installer (0.9.22) unstable; urgency=low
 
   * bump standards to 3.9.3
   * debhelper (>=9)
-  * .gitignore added 
+  * .gitignore added
 
  -- Alf Gaida <agaida@siduction.org>  Wed, 21 Mar 2012 11:19:07 +0100
 
@@ -182,7 +182,7 @@ fll-installer (0.9.21) unstable; urgency=low
 
   [ Sebastian Görgen ]
   * Non-maintainer upload.
-  * Max cow file size for non vfat file systems, set bs to 4M 
+  * Max cow file size for non vfat file systems, set bs to 4M
 
   [ Alf Gaida ]
   * rebuild fixes #612, #604, #607
@@ -193,10 +193,10 @@ fll-installer (0.9.20) unstable; urgency=low
 
   [ Sebastian Görgen ]
   * Non-maintainer upload.
-  * Also create cow file if using ext2,ext3 and ext4 
+  * Also create cow file if using ext2,ext3 and ext4
 
   [ Alf Gaida ]
-  * rebuild fix #596 
+  * rebuild fix #596
 
  -- Alf Gaida <agaida@siduction.org>  Wed, 08 Feb 2012 00:41:28 +0100
 
@@ -224,7 +224,7 @@ fll-installer (0.9.19) unstable; urgency=low
 fll-installer (0.9.18) unstable; urgency=low
 
   [ zeppo ]
-  * ignore /dev/loop2 for creating /etc/fstab at installation 
+  * ignore /dev/loop2 for creating /etc/fstab at installation
 
   [ Alf Gaida ]
   * bump version, fixes #504
@@ -240,7 +240,7 @@ fll-installer (0.9.17) unstable; urgency=low
 
   [ Alf Gaida ]
   * fixes empty line issue in debian/control, no empty lines in
-    package blocks please 
+    package blocks please
 
  -- Alf Gaida <agaida@siduction.org>  Sun, 25 Dec 2011 13:23:44 +0100
 
@@ -251,17 +251,17 @@ fll-installer (0.9.16) unstable; urgency=low
   * Change standard variables to siduction style
 
   [ Alf Gaida ]
-  * bump version  
+  * bump version
 
  -- Alf Gaida <agaida@siduction.org>  Fri, 23 Dec 2011 00:44:59 +0100
 
 fll-installer (0.9.15) unstable; urgency=low
 
-  * edited data/exclusion_list: added .gvfs dir to enable installation 
+  * edited data/exclusion_list: added .gvfs dir to enable installation
     using lxde (thx to hama for solving) refs #428
 
  -- Alf Gaida <agaida@siduction.org>  Sat, 17 Dec 2011 22:19:34 +0100
- 
+
 fll-installer (0.9.14) unstable; urgency=low
 
   * bump to 0.9.14
