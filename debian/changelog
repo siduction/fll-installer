@@ -1,3 +1,10 @@
+fll-installer (0.9.40) UNRELEASED; urgency=low
+
+  * removed code for gparted start issue from kde menu in installed mode
+    since it was a policykit-1 bug and now it's fixed in debian
+
+ -- Ovidiu Angelescu <convbsd@siduction.net>  Wed, 06 Feb 2013 10:04:51 +0200
+
 fll-installer (0.9.39) unstable; urgency=low
 
   [ J. Hamatoma ]

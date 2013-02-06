@@ -82,15 +82,6 @@ fix_home_on_HD()
 	fi
 
 	#
-	# recreate for kde .Xauthority file
-	#
-	if [ -f /etc/default/fll-kde-desktop ]; then
-		rm -f ${TARGET_MNT_POINT}/root/.Xauthority
-		chroot "${TARGET_MNT_POINT}" \
-		ln -sf ${INSTHOME}/.Xauthority /root/.Xauthority 
-	fi
-
-	#
 	# enable automount-open for gnome in install mode
 	#
 	if [ -f /etc/default/fll-gnome-desktop ]; then
