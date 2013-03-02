@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Copyright (C) 2007 - 2011 Joaquim Boura <x-un-i@berlios.de>
+# Copyright (C) 2011 - 2013 Alf Gaida <agaida@siduction.org>
+#           (C) 2007 - 2011 Joaquim Boura <x-un-i@berlios.de>
 #           (C) 2007 - 2008 Kel Modderman <kel@otaku42.de>
 #
 # This program is free software; you can redistribute it and/or
@@ -22,13 +23,13 @@
 # found in /usr/share/common-licenses/GPL.
 #-------------------------------------------------------------------
 #
-# given an usb pen, eg /dev/sdb, /dev/sdc we create ** one **  partiton on that 
-# device make it bootable, format it with ext3
+# given an usb pen, eg /dev/sdb, /dev/sdc we create ** one **  partiton on that
+# device make it bootable, format it with ext2/3/4
 # install grub into it
 # copy the message file into the grub dirs
-# create directory for iso, kernel, initrd (eg aptosid)
+# create directory for iso, kernel, initrd (eg siduction)
 # copy the files into there.
-# create the menu.lst file on it
+# create the grub configuration file on it
 #
 
 #--------------------------------------------------------------
@@ -53,14 +54,16 @@ else
 	exit 1
 fi
 
-#--------------------------------------------------------------
-# use variable to remember which grub version we are using
-#--------------------------------------------------------------
-if [ ! `which grub` ] && [ `which grub-setup` ]; then 
-	GRUB2="true"
-else
-	GRUB2="false"
-fi
+GRUBVER=`grub-install --version | sed  -r 's/[a-z]|[A-Z]|\-|\+|\~|\(|\)| //g' | sed -e 's/\.[0-9]*//'`
+
+case "${GRUBVER}" in
+  0) GRUB2="false"
+     ;;
+  [1-2]) GRUB2="true"
+     ;;
+esac
+
+echo "Grubversion: $GRUBVER - Grub2: $GRUB2"
 
 #--------------------------------------------------------------
 # functions
@@ -74,7 +77,7 @@ usage()
 	echo "-D|--device </dev/sdX>              name of device where to install the "
 	echo "                                    \"fromiso\""
 	echo "-n|--noformat                       do not format partition"
-	echo "-f|--format vfat|ext2|ext3          format partition with given filesystem"
+	echo "-f|--format vfat|ext2|ext3|ext4     format partition with given filesystem"
 	echo "-p|--persist                        use cheatcode persist"
 	echo "-P|--percent                        adjust percentage free space used for "
 	echo "                                    persist on vfat (10 - 90)"
@@ -83,7 +86,7 @@ usage()
 	echo "-L|--label <name>                   label name to be used for the created partition"
 	echo "-t|--test                           copy everything but do not copy the iso"
 	echo ""
-	echo "Everything after -- will be appended to the kernel cmdline of grub menu.lst"
+	echo "Everything after -- will be appended to the kernel cmdline of grub configuration file"
 	echo ""
 	echo "Use it at your own risk, it comes without any warranty."
 	echo ""
@@ -104,7 +107,7 @@ error()
 	# the gui currently uses this
 	echo "${exitval}-${@}" > /tmp/.fll-iso2usb
 	chmod 666 /tmp/.fll-iso2usb
-	
+
 	echo "E: ${@}"
 }
 #--------------------------------------------------------------
@@ -121,7 +124,7 @@ valid_label()
 			return 1
 			;;
 	esac
-	
+
 	return 0
 }
 #--------------------------------------------------------------
@@ -139,7 +142,7 @@ refresh_block_devices()
 get_distro_name()
 {
 	local iso="${1}"
-	
+
 	local mounted_iso="$(mktemp -d -p /tmp/ install-usb-iso.XXXXXX)"
 
 	while :; do
@@ -167,8 +170,8 @@ get_distro_name()
 	gunzip -c ${iso_initrd} |\
 		cpio -i -H newc --to-stdout --quiet etc\/default\/distro |\
 		awk '/FLL_DISTRO_NAME=/{print $0} /FLL_MEDIA_NAME=/{print $0} /FLL_WALLPAPER=/{print $0}' >${iso_distro}
-	
-	umount $mounted_iso 
+
+	umount $mounted_iso
 
 	if test -s ${iso_distro} ; then
 	    source ${iso_distro}
@@ -178,7 +181,7 @@ get_distro_name()
 	    rm -f ${iso_distro}
 	    return 1
 	fi
-	
+
 }
 #--------------------------------------------------------------
 prepare_partition()
@@ -207,6 +210,10 @@ prepare_partition()
 			fs_prog="mkfs.ext3 -q -m 1 -L ${label}"
 			part_type=83
 			;;
+                ext4)
+                        fs_prog="mkfs.ext4 -q -m 1 -L ${label}"
+                        part_type=83
+                        ;;
 		*)
 			usage
 			exit 253
@@ -223,7 +230,7 @@ prepare_partition()
 	# reread partition table
 	/sbin/partprobe "${device}"
 	sleep 1
-	
+
 	# create partition
 	fdisk "${device}" \
 <<EOF
@@ -240,7 +247,7 @@ a
 p
 w
 EOF
-	
+
 	ev="${?}" ; echo ${ev}
 	if [ "${ev}" -eq 0 ]; then
 		PARTITION="${DEVICE}1"
@@ -257,7 +264,7 @@ EOF
 	else
 		error "${ev}" "failed to create partition on device: ${device}"
 	fi
-	
+
 #	refresh_block_devices
 
 	is_bootable=$(LC_ALL=C fdisk -l ${device} | awk -v part=${PARTITION} '
@@ -284,7 +291,7 @@ EOF
 			error "${ev}" "fdisk stuffed up while setting device as bootable"
 			return 1
 		fi
-	
+
 #		refresh_block_devices
 
 		is_bootable=$(LC_ALL=C fdisk -l ${device} | awk -v part=${PARTITION} '
@@ -310,7 +317,7 @@ EOF
 			}
 		}
 	')
-	
+
 	if [ "${part_id:-0}" -ne "${part_type}" ]; then
 		# set partition type
 		fdisk "${device}" \
@@ -320,13 +327,13 @@ ${part_type}
 p
 w
 EOF
-		
+
 		ev="${?}"
 		if [ "${ev}" -ne 0 ]; then
 			error "${ev}" "fdisk failed when setting partition type \"${part_fs}\""
 			return 1
 		fi
-		
+
 #		refresh_block_devices
 
 		part_id=$(LC_ALL=C fdisk -l ${device}  | awk -v fs_type=${part_type} -v part=${PARTITION} '
@@ -341,11 +348,11 @@ EOF
 		if [ "${part_id:-0}" -ne "${part_type}" ]; then
 			error 1 "failed to set partition type 83 or 6 on ${device}"
 			return 1
-		fi	
-	fi	
+		fi
+	fi
 
 	${fs_prog} "${PARTITION}"
-	
+
 	ev="${?}"
 	if [ "${ev}" -ne 0 ]; then
 		error "${ev}" "failed to format ${PARTITION}"
@@ -360,7 +367,7 @@ mount_partition()
 	local partition="${1}"
 	local mountpoint="${2}"
 	shift 2
-	
+
 	if [ -n "${DEBUG}" ]; then
 		fdisk -l >&2
 	fi
@@ -368,7 +375,7 @@ mount_partition()
 	local ev
 
 	say "mounting ${partition} on ${mountpoint}"
-	
+
 	sleep 1
 	mount -o rw "${partition}" "${mountpoint}"
 
@@ -415,7 +422,7 @@ install_grub()
 	local device="${1}"
 	local mountpoint="${2}"
 	shift 2
-	
+
 	local ev
 	local device_map disk
 
@@ -437,7 +444,7 @@ install_grub()
 	# fix the device.map file
 	sed -i -e "s|(hd0)|(hdX)|" -e "s|(${old_hdmap})|(hd0)|" \
 		-e "s|(hdX)|(${old_hdmap})|" "${device_map}"
-	
+
 	say "grub successfully installed to ${device}"
 }
 #--------------------------------------------------------------
@@ -451,14 +458,14 @@ copy_files()
 	for i in initrd vmlinuz; do
 		cp -v	${source_dir}/boot/${i}* \
 			${mountpoint}/boot
-	
+
 		ev="${?}"
 		if [ "${ev}" -ne 0 ]; then
 			error "${ev}" "failed to copy files ${source_dir}/boot/${i} to ${mountpoint}/boot"
 			return 1
 		fi
 	done
-	
+
 	if [ "${GRUB2}" = "false" ]; then
 		if [ -e ${source_dir}/boot/message ] ; then
 			cp -v	${source_dir}/boot/message \
@@ -479,7 +486,7 @@ copy_files()
 	if [ -e ${source_dir}/boot/memtest86+.bin ] ; then
 		cp -v	${source_dir}/boot/memtest86+.bin \
 			${mountpoint}/boot
-	
+
 		ev="${?}"
 		if [ "${ev}" -ne 0 ]; then
 			error "${ev}" "failed to copy files memtest to ${mountpoint}/boot"
@@ -496,10 +503,10 @@ copy_files_from_dev()
 	local mountpoint="${2}"
 	local nocopy="${3}"
 	shift 3
-	
+
 	local ev
 	local booted_device fll_booted_dir
-	
+
 	FLL_BASE_DIR_AWK=$(echo $FLL_BASE_DIR | sed -e 's|\/|\\\/|g')
 	booted_device=$(LC_ALL=C mount | awk '
 		{
@@ -527,7 +534,7 @@ copy_files_from_dev()
  		return 0
 	fi
 
-	say "copying files the iso to the ${mountpoint}"
+	say "copying the iso files to the ${mountpoint}"
 	dd if="${booted_device}" of="${mountpoint}/${name}"
 
 	ev="${?}"
@@ -548,10 +555,10 @@ copy_files_from_local_iso()
 	shift 4
 
 	local ev
-	local mounted_iso 
-	
+	local mounted_iso
+
 	say "mounting iso: ${iso}"
-	
+
 	mounted_iso="$(mktemp -d -p /tmp/ install-usb-iso.XXXXXX)"
 
 	while :; do
@@ -576,7 +583,7 @@ copy_files_from_local_iso()
 	say "iso mounted on ${mounted_iso}"
 
 	copy_files "${mounted_iso}" "${mountpoint}"
-	
+
 	ev="${?}"
 	if [ "${ev}" -ne 0 ]; then
 		error "${ev}" "failed to copy files to ${mountpoint}/boot"
@@ -603,7 +610,7 @@ copy_files_from_local_iso()
  		return 0
 	fi
 
-	say "copying files the iso to the ${mountpoint}"
+	say "copying the iso files to the ${mountpoint}"
 	cp -v "${iso}" "${mountpoint}/${name}"
 
 	ev="${?}"
@@ -649,17 +656,17 @@ prepare_persist()
 				perc="50"
 			fi
 
-			use=$(awk -v a="${avail}" -v p="${perc}" 'BEGIN{ printf "%d\n", (a * p / 100)/4096 }')
+			use=$(awk -v a="${avail}" -v p="${perc}" 'BEGIN{ printf "%d\n", (a * p / 100)/8192 }')
                         if [ "${fs}" == "vfat" ]; then
-			  if [ "${use}" -gt 2097152 ]; then
+			  if [ "${use}" -gt 249 ]; then
 			  	# Maximum filesize limited to a bit less than 2G on vfat
-			 	use=2048000
+			 	use=249
 			  fi
                         fi
 			say "creating persistent loopback file, count=${use}"
 
 			mkdir -p "${mountpoint}/${FLL_DISTRO_NAME}"
-                	dd if=/dev/zero of="${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" count="${use}" bs=4M || return 1
+                	dd if=/dev/zero count="${use}" bs=8M | pv -tab -B16M | dd  of="${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw"  bs=8M || return 1
                 	echo 'y' | LANG=C /sbin/mkfs.ext2 "${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" || return 1
 			tune2fs -c 0 "${mountpoint}/${FLL_DISTRO_NAME}/${FLL_DISTRO_NAME}-rw" || return 1
 
@@ -725,11 +732,11 @@ menuentry "${name} from iso (${kernel##vmlinuz??})" {
   linux (loop)/boot/${kernel} boot=fll fromhd=UUID=${uuid} fromiso=/${name}.iso nointro quiet ${PERSIST} ${Parameters}
   initrd (loop)/boot/initrd${kernel##vmlinuz}
 }
- 
+
 EOF
 
 	done
-	
+
 	if [ -e ${mountpoint}/boot/memtest86+.bin ]; then
 		cat >> ${mountpoint}/boot/grub/grub.cfg <<EOF \
 
@@ -866,7 +873,7 @@ while true ; do
 		-n|--noformat)
 			if [ -z "${PART_FS}" ]; then
 				noformat=true
-				shift 
+				shift
 			else
 				usage
 				exit 254
@@ -882,7 +889,7 @@ while true ; do
 			;;
 		-p|--persist)
 			PERSIST="persist"
-			shift 
+			shift
 			;;
 		-P|--percent)
 			case "${2}" in
@@ -918,12 +925,12 @@ done
 #--------------------------------------------------------------
 # sanity checking and argument post-processing
 #--------------------------------------------------------------
-if [ -z "${DEVICE}" ]; then 
+if [ -z "${DEVICE}" ]; then
 	error 2 "requires -D|--drive option"
 	exit 2
 fi
 
-if [ ! -b "${DEVICE}" ]; then 
+if [ ! -b "${DEVICE}" ]; then
 	error 3 "device not found: ${DEVICE}"
 	exit 3
 fi
@@ -1011,7 +1018,7 @@ else
 	unset PERSIST
 fi
 
-if [ "${GRUB2}" = "true" ]; then 
+if [ "${GRUB2}" = "true" ]; then
 	grubcfg "${PARTITION}" "${USBTMPDIR}" "${FLL_DISTRO_NAME}" ${@}	|| exit 11
 else
 	menulst "${PARTITION}" "${USBTMPDIR}" "${FLL_DISTRO_NAME}" ${@}	|| exit 12

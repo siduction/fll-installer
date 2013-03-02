@@ -4,8 +4,8 @@
 # Jeremy Katz <katzj@redhat.com>
 #
 # overlay/persistence enhancements by Douglas McClendon <dmc@viros.org>
-# forked aptosid version by Niall Walsh <niallwalsh@users.berlios.de>
-# 
+# forked siduction version by Alf Gaida <agaida@siduction.org>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; version 2 of the License.
@@ -22,7 +22,7 @@
 # NOTE
 # extra args are appended to kernel cmdlines
 # There's no md5sum checking anywhere (noverify hardcoded on)
-# It is hardcoded to use "aptosid" as the path
+# It is hardcoded to use "siduction" as the path
 # It cuts filenames down to fit 8.3
 # ext* is untested
 # block device as iso support newly added (untested)
@@ -32,7 +32,7 @@
 # TODO if we want it, we need a checkisomd5 function :-/
 noverify=1
 # TODO Should be from default/distro or similar?
-LiveOS="aptosid"
+LiveOS="siduction"
 
 export PATH=/sbin:/usr/sbin:$PATH
 
@@ -86,7 +86,7 @@ checkMBR() {
 
     bs=$(mktemp /tmp/bs.XXXXXX)
     dd if=$device of=$bs bs=512 count=1 2>/dev/null || exit 2
-    
+
     mbrword=$(hexdump -n 2 $bs |head -n 1|awk {'print $2;'})
     rm -f $bs
     if [ "$mbrword" = "0000" ]; then
@@ -103,8 +103,8 @@ checkMBR() {
 checkPartActive() {
     dev=$1
     getdisk $dev
-    
-    # if we're installing to whole-disk and not a partition, then we 
+
+    # if we're installing to whole-disk and not a partition, then we
     # don't need to worry about being active
     if [ "$dev" = "$device" ]; then
 	return
@@ -151,7 +151,7 @@ checkSyslinuxVersion() {
 }
 
 # TODO check why and if anything is possible?
-if [ $(id -u) != 0 ]; then 
+if [ $(id -u) != 0 ]; then
     echo "You need to be root to run this script"
     exit 1
 fi
@@ -221,10 +221,10 @@ if [ -z "$noverify" ]; then
     fi
 fi
 
-# do some basic sanity checks.  
+# do some basic sanity checks.
 checkFilesystem $USBDEV
 if [ -z "$noboot" ]; then
-    checkSyslinuxVersion 
+    checkSyslinuxVersion
     checkPartActive $USBDEV
     checkMBR $USBDEV
     [ -n $resetmbr ] && resetMBR $USBDEV

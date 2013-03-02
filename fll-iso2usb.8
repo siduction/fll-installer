@@ -1,11 +1,11 @@
-.TH FLL-ISO2USB "8" "12th October 2007" "" ""
+.TH FLL-ISO2USB "8" "1th March 2013" "" ""
 .SH NAME
 \fBfll-iso2usb\fR \- installs a live-CD iso build with the
 fll\-tools as a "fromiso" into a USB pen
 .SH SYNOPSIS
 \fBfll-iso2usb\fR \fI<options>\fR \fI-- <extra_options_to_grub>\fR
 .SH DESCRIPTION
-installs a \fBF.U.L.L.S.T.O.R.Y.\fR iso-image on a USB-pen, makes the pen
+installs a \fBsiduction\fR iso-image on a USB-pen, makes the pen
 bootable and writes the needed grub files.
 .PP
 \fBfll-iso2usb\fR creates a partition or uses the first partition from the USB-device, installs
@@ -56,11 +56,12 @@ debug sh code execution
 .PP
 .SH EXAMPLES
 .TP
-\fBfll-iso2usb \-D /dev/sdb \-\-iso /home/aptosid/aptosid.iso \-p  \\\fR
+\fBfll-iso2usb \-D /dev/sdb \-\-iso /home/siduction/siduction.iso \-p  \\\fR
 \fB            \-\- toram lang=de tz=Europe/Berlin \fR
 .PP
 installs the iso image into the USB device sdb. Uses persist and the cheatcodes on the 
 grub default command line.
 .PP
 .SH AUTHOR
-This manual page was written by Joaquim Boura <x-un-i@berlios.de>
+This manual page was written originally by Joaquim Boura <x-un-i@berlios.de>
+and is modified by Alf Gaida <agaida@siduction.org>

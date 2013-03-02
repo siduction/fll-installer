@@ -1,18 +1,18 @@
-.TH FLL-ISO2DISK "8" "29th May 2008" "" ""
+.TH FLL-ISO2DISK "8" "1th March 2013" "" ""
 .SH NAME
 \fBfll-iso2disk\fR \- installs a live-CD iso build with the
 fll\-tools as a fromiso into a preformatted partition
 .SH SYNOPSIS
 \fBfll-iso2disk\fR \fI<options>\fR \fBIsoPath\fR \fBTargetDevice\fR \fI-- <extra_options_to_boot>\fR
 .SH DESCRIPTION
-installs a \fBF.U.L.L.S.T.O.R.Y.\fR iso-image to a partition, makes 
+installs a \fBsiduction\fR iso-image to a partition, makes 
 the partition bootable and writes the needed syslinux files.
 .PP
 \fBfll-iso2disk\fR takes an iso file (or device) and 
 creates a bootable live system using syslinux on the target device.
 Any arguments following the IsoPath and TargetDevice are appended
 to the live systems boot command line.   Target device should be an
-existing fat or ext2/3 partition.
+existing fat or ext2/3/4 partition.
 .PP
 .SH OPTIONS
 .TP
@@ -30,18 +30,19 @@ Force putting the plain syslinux mbr on the device.
 .TP
 \fB\-\-noverify\fR
 Do not verify the integrity of the iso.
-Currently always on as no verification code written for aptosid.
+Currently always on as no verification code written for siduction.
 .TP
 \fB\-\-test\fR
 Do not copy the iso or create a persist file.
 .PP
 .SH EXAMPLES
 .TP
-\fBfll-iso2disk --overlay-size-mb 1024 /home/aptosid/aptosid.iso /dev/sdb1 \\\fR
-\fB            \-\- lang=ie nointro nonetwork\fR
+\fBfll-iso2disk --overlay-size-mb 1024 /home/siduction/siduction.iso /dev/sdb1 \\\fR
+\fB            \-\- lang=de nointro nonetwork\fR
 .PP
 installs the iso image into the device sdb1 and creates a 1GB loopback file 
 for persistance. Uses the cheatcodes on the boot command line.
 .PP
 .SH AUTHOR
-This manual page was written by Niall Walsh <niallwalsh@users.berlios.de>
+This manual page was originally written by Niall Walsh <niallwalsh@users.berlios.de>
+and is modified by Alf Gaida <agaida@siduction.org>

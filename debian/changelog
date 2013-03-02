@@ -1,3 +1,19 @@
+fll-installer (0.10.2) unstable; urgency=low
+
+  * change dependencies from grub-pc|grub-efi  
+    to grub-pc | grub-efi-amd64 | grub-efi-amd64
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 03 Mar 2013 00:01:27 +0100
+
+fll-installer (0.10.1) unstable; urgency=low
+
+  * grub-fix, some occurences of aptosid etc 
+  * visualization over pv
+  * some parameters changed
+  * correct use for vfat
+ 
+ -- Alf Gaida <agaida@siduction.org>  Sat, 02 Mar 2013 22:02:03 +0100
+
 fll-installer (0.9.40) unstable; urgency=low
 
   [ Ovidiu Angelescu ]

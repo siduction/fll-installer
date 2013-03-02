@@ -1,9 +1,10 @@
-Format: http://dep.debian.net/deps/dep5
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/    
 Upstream-Name: fll-installer
-Source: <http://svn.berlios.de/svnroot/repos/fullstory/fll-installer/trunk/>
+Source: git://git.siduction.org/code/fll-installer
 
 Files: *
-Copyright: 2012      Ovidiu Angelescu <convbsd@siduction.net>
+Copyright: 2012-2013 Alf Gaida <agaida@siduction.org>
+           2012-2013 Ovidiu Angelescu <convbsd@siduction.net>
            2007-2011 Joaquim Boura <x-un-i@berlios.de>
            2006-2008 Red Hat, Inc.
            2008-2010 Niall Walsh <niallwalsh@users.berlios.de>
