@@ -1,3 +1,9 @@
+fll-installer (0.10.4) unstable; urgency=low
+
+  * do some ill minded fixing in modules/backend/install_grub.bm
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 11 Mar 2013 03:33:49 +0100
+
 fll-installer (0.10.3) unstable; urgency=low
 
   * make the grub say more verbose 

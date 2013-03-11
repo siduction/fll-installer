@@ -100,12 +100,17 @@ install_grub()
 	say "GRUB target: $bootfrom  --root-directory=$TARGET_MNT_POINT "
 	if [ "${bootfrom}" = "$(get_root_device ${bootfrom})" ]
 	then # install on MBR
-		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >&2
+	     # is twice because sometimes the first one fails ind that case the second don't fail!
+	     # AG: This is ill minded, but it seems to work. Copied this "fix" from install to partition
+		say "Choice: Install on MBR"
+		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" > /root/grubinst || \
+			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" > /root/grubinstII
 	else # install on partition
 	     # is twice because sometimes the first one fails in that cases the second
 	     # don't fail !!!
-		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >&2 || \
-			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >&2
+		say "Choice: Install on partition"
+		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}"  > /root/grubinst || \
+			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}"  > /root/grubinstII
 	fi
 
 	# 
