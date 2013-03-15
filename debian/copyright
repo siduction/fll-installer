@@ -13,6 +13,7 @@ License: GPL-2.0+
 
 Files: modules/backend/fix_boot_on_HD.bm
 Copyright: 2012      J. Hamatoma <hama@siduction.net>
+License: GPL-2.0+
 
 Files: debian/*
 Copyright: 2011-2012 Alf Gaida <agaida@siduction.org>

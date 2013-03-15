@@ -1,3 +1,10 @@
+fll-installer (0.10.6) unstable; urgency=low
+
+  * fix lintian warnig about missing license, added license info
+    to modules/backend/fix_boot_on_HD.bm 
+
+ -- Alf Gaida <agaida@siduction.org>  Fri, 15 Mar 2013 02:52:23 +0100
+
 fll-installer (0.10.5) unstable; urgency=low
 
   * add some debugging code (redirect stdout and stderr to file)
