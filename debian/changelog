@@ -1,3 +1,10 @@
+fll-installer (0.10.5) unstable; urgency=low
+
+  * add some debugging code (redirect stdout and stderr to file)
+  * refs #1102
+
+ -- Alf Gaida <agaida@siduction.org>  Fri, 15 Mar 2013 02:47:42 +0100
+
 fll-installer (0.10.4) unstable; urgency=low
 
   * do some ill minded fixing in modules/backend/install_grub.bm

@@ -87,30 +87,30 @@ install_grub()
 		fi
 	fi
 	# installing on MBR 
+        # for debugging purposes we redirect the output of stdout and stderr to /root/fll-backup-mbr
 	if [ "$bootfrom" = "$(get_root_device ${bootfrom})" ]
 	then
 		# Make a backup of the old mbr
 		dd if=${bootfrom} of=$TARGET_MNT_POINT/boot/${FLL_DISTRO_NAME}-old-mbr.$(date -I) \
-			bs=446 count=1 >/dev/null
+			bs=446 count=1 &> /root/fll-backup-mbr
 	fi
 
 	#
 	# install grub
 	#
 	say "GRUB target: $bootfrom  --root-directory=$TARGET_MNT_POINT "
+        # sometimes the first attempt to write grub fails, in this case the second attemt don't fail           
+        # we want to know, why the first attempt fail, so we redirect stdout and stderr to /root/fll-grubinst and *-II
+        # it's nothing really new in this code, but we have the chance to debug this ill behavior
 	if [ "${bootfrom}" = "$(get_root_device ${bootfrom})" ]
 	then # install on MBR
-	     # is twice because sometimes the first one fails ind that case the second don't fail!
-	     # AG: This is ill minded, but it seems to work. Copied this "fix" from install to partition
 		say "Choice: Install on MBR"
-		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" > /root/grubinst || \
-			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" > /root/grubinstII
+		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" &> /root/fll-grubinst || \
+			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" &> /root/fll-grubinst-II
 	else # install on partition
-	     # is twice because sometimes the first one fails in that cases the second
-	     # don't fail !!!
 		say "Choice: Install on partition"
-		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}"  > /root/grubinst || \
-			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}"  > /root/grubinstII
+		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}"  &> /root/fll-grubinst || \
+			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}"  &> /root/fll-grubinst-II
 	fi
 
 	# 
