@@ -1,3 +1,30 @@
+fll-installer (0.11) unstable; urgency=low
+
+  * hopefully fixed the bad grub-install behavior
+  * fixed documentation and logging
+  * bump version
+  * refs #1117
+
+ -- Alf Gaida <agaida@siduction.org>  Wed, 20 Mar 2013 18:40:02 +0100
+
+fll-installer (0.10.9) unstable; urgency=low
+
+  * if (hd0) then test device.map. If not found create one.
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 18 Mar 2013 00:35:38 +0100
+
+fll-installer (0.10.8) unstable; urgency=low
+
+  * make install_grub.bm more verbose
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 18 Mar 2013 00:09:35 +0100
+
+fll-installer (0.10.7) unstable; urgency=low
+
+  * changes in module/backend/install_grub.bm 
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 17 Mar 2013 19:12:27 +0100
+
 fll-installer (0.10.6) unstable; urgency=low
 
   * fix lintian warnig about missing license, added license info
