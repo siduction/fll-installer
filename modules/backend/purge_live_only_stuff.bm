@@ -31,6 +31,8 @@ purge_live_only_stuff()
 	chroot_it dpkg --purge	fll-live-initscripts \
 				fll-live-utils \
 				fll-live-xorgconfig \
+				siduction-settings-gnome\
+				siduction-live-settings-common\
 				desktop-defaults-common \
 				desktop-defaults-kde \
 				desktop-defaults-lxde \
