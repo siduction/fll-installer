@@ -31,14 +31,13 @@ purge_live_only_stuff()
 	chroot_it dpkg --purge	fll-live-initscripts \
 				fll-live-utils \
 				fll-live-xorgconfig \
-				siduction-live-settings-gnome \
 				siduction-live-settings-common \
-				desktop-defaults-common \
-				desktop-defaults-kde \
-				desktop-defaults-lxde \
-				desktop-defaults-gnome \
-				desktop-defaults-xfce \
-				desktop-defaults-rqt \
+				siduction-live-settings-gnome \
+				siduction-live-settings-kde \
+				siduction-live-settings-lxde \
+				siduction-live-settings-nox \
+				siduction-live-settings-rqt \
+				siduction-live-settings-xfce \
 				cli-installer \
 				fll-installer \
 				nbd-client \
