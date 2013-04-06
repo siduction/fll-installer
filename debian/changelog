@@ -1,8 +1,12 @@
-fll-installer (0.13) UNRELEASED; urgency=low
+fll-installer (0.15) unstable; urgency=low
 
+  [ Ovidiu Angelescu ]
   * added all siduction-live-settings-$flavours to purge_live_only_stuff.bm
 
- -- Ovidiu Angelescu <convbsd@siduction.net>  Sat, 06 April 2013 07:29:02 +0300
+  [ Alf Gaida ]
+  * rebuild closes #1142
+
+ -- Alf Gaida <agaida@siduction.org>  Sat, 06 Apr 2013 16:48:45 +0200
 
 fll-installer (0.14) unstable; urgency=low
 
