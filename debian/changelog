@@ -1,8 +1,12 @@
-fll-installer (0.14) UNRELEASED; urgency=low
+fll-installer (0.14) unstable; urgency=low
 
+  [ Ovidiu Angelescu ]
   * fixed two typo's in purge_live_only_stuff.bm
 
- -- Ovidiu Angelescu <convbsd@siduction.net>  Fri, 05 April 2013 22:54:02 +0300
+  [ Alf Gaida ]
+  * rebuild 
+
+ -- Alf Gaida <agaida@siduction.org>  Sat, 06 Apr 2013 03:58:47 +0200
 
 fll-installer (0.13) UNRELEASED; urgency=low
 
