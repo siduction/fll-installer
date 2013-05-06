@@ -1,12 +1,16 @@
-fll-installer (0.18) UNRELEASED; urgency=low
+fll-installer (0.18) unstable; urgency=low
 
+  [ J. Hamatoma ]
   * fix: sidu-boot-one-time has not be called
   * fix: run level for sidu-boot
   * fix: SingletonLock is a link: wrong query
   * sidu-boot-one-time: removing /tmp/org.chromium... avoiding chromium warning
   * close: #1020
 
- -- J. Hamatoma <hama@siduction.net>  Sat, 04 May 2013 18:04:01 +0200
+  [ Alf Gaida ]
+  * rebuild closes #1181
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 06 May 2013 02:46:52 +0200
 
 fll-installer (0.15) unstable; urgency=low
 
