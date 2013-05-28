@@ -31,6 +31,7 @@ purge_live_only_stuff()
 	chroot_it dpkg --purge	fll-live-initscripts \
 				fll-live-utils \
 				fll-live-xorgconfig \
+				siduction-live-settings-cinnamon \
 				siduction-live-settings-common \
 				siduction-live-settings-gnome \
 				siduction-live-settings-kde \

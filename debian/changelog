@@ -1,3 +1,9 @@
+fll-installer (0.19) UNRELEASED; urgency=low
+
+  * added siduction-live-settings-cinnamon to purge_live_only_stuff.bm
+
+ -- Ovidiu Angelescu <convbsd@siduction.org>  Mon, 27 May 2013 23:40:52 +0300
+
 fll-installer (0.18) unstable; urgency=low
 
   [ J. Hamatoma ]
