@@ -13,7 +13,8 @@ Homepage: http://svn.berlios.de/wsvn/fullstory/fll-installer/trunk/
 
 Package: fll-installer
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
+ ${misc:Depends},
  adduser,
  base-files (>= 6.4),
  initramfs-tools,
@@ -26,8 +27,10 @@ Depends: ${misc:Depends},
  os-prober,
  rsync,
  fll-live-initscripts (>= 3.10.4)
-Recommends: sidu-installer
-Suggests: gparted,
+Recommends:
+ sidu-installer
+Suggests:
+ gparted,
  distro-defaults
 Description: backend scripts to install siduction to hdd
  fll-installer provides a framework for installing siduction Live Linux
@@ -38,13 +41,16 @@ Description: backend scripts to install siduction to hdd
 
 Package: fll-iso2usb
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
+ ${misc:Depends},
  grub-pc | grub-efi-amd64 | grub-efi-i386,
  distro-defaults,
  parted,
  pv, 
-Recommends: install-usb-gui
-Suggests: fuseiso
+Recommends:
+ install-usb-gui
+Suggests:
+ fuseiso
 Description: backend scripts to install siduction to an usb hdd
  fll-iso2usb provides the backend for installing siduction Live Linux
  to removable storage, usb disk drives.

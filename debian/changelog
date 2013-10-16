@@ -1,10 +1,16 @@
-fll-installer (0.20) UNRELEASED; urgency=low
+fll-installer (2013.10.17) unstable; urgency=low
 
+  [ Ovidiu Angelescu ]
   * added * for siduction-live-settings in purge_live_only_stuff.bm
     for purging siduction-live-settings-$flavour* and
     siduction-live-settings-common*
 
- -- Ovidiu Angelescu <convbsd@siduction.org>  Wed, 16 Oct 2013 18:46:17 +0300
+  [ Alf Gaida ]
+  * closes #1370
+  * change the numbering to date based 
+  * improve some debian/$foo
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 17 Oct 2013 01:05:13 +0200
 
 fll-installer (0.19) unstable; urgency=low
 
