@@ -1,3 +1,11 @@
+fll-installer (0.20) UNRELEASED; urgency=low
+
+  * added * for siduction-live-settings in purge_live_only_stuff.bm
+    for purging siduction-live-settings-$flavour* and
+    siduction-live-settings-common*
+
+ -- Ovidiu Angelescu <convbsd@siduction.org>  Wed, 16 Oct 2013 18:46:17 +0300
+
 fll-installer (0.19) unstable; urgency=low
 
   [ Ovidiu Angelescu ]
