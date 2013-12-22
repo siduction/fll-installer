@@ -1,3 +1,9 @@
+fll-installer (2013.12.22) unstable; urgency=medium
+
+  * purge live stufff changed from dpkg to apt-get
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 22 Dec 2013 15:12:15 +0100
+
 fll-installer (2013.10.17) unstable; urgency=low
 
   [ Ovidiu Angelescu ]

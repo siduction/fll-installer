@@ -28,23 +28,27 @@ purge_live_only_stuff()
 
 	# purge live-specific packages
 
-	chroot_it dpkg --purge	fll-live-initscripts \
-				fll-live-utils \
-				fll-live-xorgconfig \
-				siduction-live-settings-cinnamon* \
-				siduction-live-settings-common* \
-				siduction-live-settings-gnome* \
-				siduction-live-settings-kde* \
-				siduction-live-settings-lxde* \
-				siduction-live-settings-nox* \
-				siduction-live-settings-rqt* \
-				siduction-live-settings-xfce* \
-				cli-installer \
-				fll-installer \
-				nbd-client \
-				setpassword \
-				sidu-installer \
-				sshstart >&2
+	chroot_it apt-get --purge --assume-yes \
+            fll-live-initscripts \
+	    fll-live-utils \
+	    fll-live-xorgconfig \
+	    siduction-live-settings-cinnamon* \
+	    siduction-live-settings-common* \
+	    siduction-live-settings-gnome* \
+	    siduction-live-settings-kde* \
+	    siduction-live-settings-lxde* \
+	    siduction-live-settings-nox* \
+	    siduction-live-settings-rqt* \
+	    siduction-live-settings-xfce* \
+	    cli-installer \
+	    fll-installer \
+	    nbd-client \
+	    setpassword \
+	    sidu-installer \
+	    sshstart >&2
+
+        logit "purge_live_only_stuff purged"
+
 
 	# remove virtualisation helpers on non-emulated hardware
 	if [ -z "$(lspci -d 80ee:beef)" ]; then
