@@ -6,7 +6,7 @@ Uploaders: J. Hamatoma <hama@siduction.net>,
  Ferdinand Thommes <devil@siduction.org>,
  Ovidiu Angelescu <convbsd@siduction.net>,
 Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Vcs-Git: git://git.siduction.org/code/fll-installer
 Vcs-Browser: http://git.siduction.org/?p=code/fll-installer.git
 Homepage: http://svn.berlios.de/wsvn/fullstory/fll-installer/trunk/
