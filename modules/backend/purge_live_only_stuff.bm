@@ -12,59 +12,59 @@
 ##
 purge_live_only_stuff()
 {
-	#
-	# log my call
-	#
-	logit "purge_live_only_stuff"
-	#
-	local installed_packages
+    # log my call
+    #
+    logit "purge_live_only_stuff"
+    #
+    local installed_packages
 
-	# divert /usr/sbin/policy-rc.d temporarily to protect
-	# the chroot from invoke-rc.d calls
-	chroot_it dpkg-divert --divert /usr/sbin/policy-rc.d.REAL \
-		--local --rename --add /usr/sbin/policy-rc.d
-	printf '#!/bin/sh\nexit 101\n' > "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
-	chmod +x "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+    # divert /usr/sbin/policy-rc.d temporarily to protect
+    # the chroot from invoke-rc.d calls
+    chroot_it dpkg-divert --divert /usr/sbin/policy-rc.d.REAL \
+        --local --rename --add /usr/sbin/policy-rc.d
+    printf '#!/bin/sh\nexit 101\n' > "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+    chmod +x "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
 
-	# purge live-specific packages
+    # purge live-specific packages
 
-	chroot_it apt-get --purge --assume-yes \
-            fll-live-initscripts \
-	    fll-live-utils \
-	    fll-live-xorgconfig \
-	    siduction-live-settings-cinnamon* \
-	    siduction-live-settings-common* \
-	    siduction-live-settings-gnome* \
-	    siduction-live-settings-kde* \
-	    siduction-live-settings-lxde* \
-	    siduction-live-settings-nox* \
-	    siduction-live-settings-rqt* \
-	    siduction-live-settings-xfce* \
-	    cli-installer \
-	    fll-installer \
-	    nbd-client \
-	    setpassword \
-	    sidu-installer \
-	    sshstart >&2
+    chroot_it apt-get purge --assume-yes \
+        fll-live-initscripts \
+        fll-live-utils \
+        fll-live-xorgconfig \
+        siduction-live-settings-cinnamon* \
+        siduction-live-settings-common* \
+        siduction-live-settings-gnome* \
+        siduction-live-settings-kde* \
+        siduction-live-settings-lxde* \
+        siduction-live-settings-nox* \
+        siduction-live-settings-rqt* \
+        siduction-live-settings-xfce* \
+        cli-installer \
+        fll-installer \
+        nbd-client \
+        setpassword \
+        sidu-installer \
+        sshstart
+        # more verbose for tests  >&2
 
         logit "purge_live_only_stuff purged"
 
 
-	# remove virtualisation helpers on non-emulated hardware
-	if [ -z "$(lspci -d 80ee:beef)" ]; then
-		installed_packages=$(dpkg -l |awk '/virtualbox\-ose\-guest\-modules/{print $2}')
-		if [ -n "${installed_packages}" ]; then
-		   chroot_it dpkg --purge ${installed_packages} >&2
-		fi
-	fi
+    # remove virtualisation helpers on non-emulated hardware
+    if [ -z "$(lspci -d 80ee:beef)" ]; then
+        installed_packages=$(dpkg -l |awk '/virtualbox\-ose\-guest\-modules/{print $2}')
+        if [ -n "${installed_packages}" ]; then
+           chroot_it dpkg --purge ${installed_packages} >&2
+        fi
+    fi
 
-	# remove divert
-	rm -f "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
-	chroot_it dpkg-divert --rename --remove /usr/sbin/policy-rc.d
+    # remove divert
+    rm -f "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+    chroot_it dpkg-divert --rename --remove /usr/sbin/policy-rc.d
 
-	#  disable live config
-	if [ -f "${TARGET_MNT_POINT}/etc/default/distro" ]; then
-		sed -i "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" \
-			"${TARGET_MNT_POINT}/etc/default/distro"
-	fi
+    #  disable live config
+    if [ -f "${TARGET_MNT_POINT}/etc/default/distro" ]; then
+        sed -i "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" \
+            "${TARGET_MNT_POINT}/etc/default/distro"
+    fi
 }
