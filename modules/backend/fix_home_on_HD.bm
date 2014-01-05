@@ -43,8 +43,18 @@ fix_home_on_HD()
 			"${TARGET_MNT_POINT}${INSTHOME}/Desktop/install-gui.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.config/autostart/${FLL_DISTRO_NAME}.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.hushlogin" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.config/chromium/SingletonLock" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.config/chromium/Local State" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.config/chromium/First Run" \
 			"${TARGET_MNT_POINT}/root/.hushlogin"; do
-		[ -f "${file}" ] && rm -f "${file}"
+		[ -f "${file}" -o -L "$file" ] && rm -f "${file}"
+	done
+
+	#
+	# purge content of some dirs
+	#
+	for file in	${TARGET_MNT_POINT}${INSTHOME}/.cache/* ; do
+		rm -rF "${file}"
 	done
 
 	#

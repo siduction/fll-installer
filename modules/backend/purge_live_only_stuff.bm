@@ -3,7 +3,7 @@
 # Needs:
 # FLL_DISTRO_MODE
 # TARGET_MNT_POINT
-#
+##
 # Calls:
 # logit
 # chroot_it
@@ -50,7 +50,7 @@ purge_live_only_stuff() {
     # remove divert
     rm -f "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
     chroot_it dpkg-divert --rename --remove /usr/sbin/policy-rc.d
-
+	
     #  disable live config
     if [ -f "${TARGET_MNT_POINT}/etc/default/distro" ]; then
         sed -i "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" \

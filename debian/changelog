@@ -1,3 +1,10 @@
+fll-installer (2014.01.03) unstable; urgency=low
+
+  * removing chromium session info on the hd installation
+  * closes: #1460
+
+ -- J. Hamatoma <hama@siduction.net>  Sun, 05 Jan 2014 19:29:37 +0100
+
 fll-installer (2013.12.29) unstable; urgency=medium
 
   * solve the problem with purging live packages
@@ -6,7 +13,7 @@ fll-installer (2013.12.29) unstable; urgency=medium
 
 fll-installer (2013.12.22.1) unstable; urgency=medium
 
-  * typo removed and more verbose 
+  * typo removed and more verbose
 
  -- Alf Gaida <agaida@siduction.org>  Sun, 22 Dec 2013 15:41:25 +0100
 
@@ -26,7 +33,7 @@ fll-installer (2013.10.17) unstable; urgency=low
 
   [ Alf Gaida ]
   * closes #1370
-  * change the numbering to date based 
+  * change the numbering to date based
   * improve some debian/$foo
 
  -- Alf Gaida <agaida@siduction.org>  Thu, 17 Oct 2013 01:05:13 +0200
@@ -37,7 +44,7 @@ fll-installer (0.19) unstable; urgency=low
   * added siduction-live-settings-cinnamon to purge_live_only_stuff.bm
 
   [ Alf Gaida ]
-  * rebuild refs #1241 
+  * rebuild refs #1241
 
  -- Alf Gaida <agaida@siduction.org>  Tue, 04 Jun 2013 22:03:17 +0200
 
@@ -71,20 +78,20 @@ fll-installer (0.14) unstable; urgency=low
   * fixed two typo's in purge_live_only_stuff.bm
 
   [ Alf Gaida ]
-  * rebuild 
+  * rebuild
 
  -- Alf Gaida <agaida@siduction.org>  Sat, 06 Apr 2013 03:58:47 +0200
 
 fll-installer (0.13) UNRELEASED; urgency=low
 
-  * renamed siduction-settings-gnome to siduction-live-settings gnome 
+  * renamed siduction-settings-gnome to siduction-live-settings gnome
     in purge_live_only_stuff.bm
 
  -- Ovidiu Angelescu <convbsd@siduction.net>  Fri, 05 April 2013 22:02:02 +0300
 
 fll-installer (0.12) UNRELEASED; urgency=low
 
-  * changes for transition from desktop-defaults to siduction-settings 
+  * changes for transition from desktop-defaults to siduction-settings
     such as: purge siduction-live-settings-common , siduction-live-settings-gnome
   * fixed fix_home_on_HD.bm for reenabling  automount in gnome when
     installing
@@ -114,14 +121,14 @@ fll-installer (0.10.8) unstable; urgency=low
 
 fll-installer (0.10.7) unstable; urgency=low
 
-  * changes in module/backend/install_grub.bm 
+  * changes in module/backend/install_grub.bm
 
  -- Alf Gaida <agaida@siduction.org>  Sun, 17 Mar 2013 19:12:27 +0100
 
 fll-installer (0.10.6) unstable; urgency=low
 
   * fix lintian warnig about missing license, added license info
-    to modules/backend/fix_boot_on_HD.bm 
+    to modules/backend/fix_boot_on_HD.bm
 
  -- Alf Gaida <agaida@siduction.org>  Fri, 15 Mar 2013 02:52:23 +0100
 
@@ -140,24 +147,24 @@ fll-installer (0.10.4) unstable; urgency=low
 
 fll-installer (0.10.3) unstable; urgency=low
 
-  * make the grub say more verbose 
+  * make the grub say more verbose
 
  -- Alf Gaida <agaida@siduction.org>  Mon, 11 Mar 2013 00:47:59 +0100
 
 fll-installer (0.10.2) unstable; urgency=low
 
-  * change dependencies from grub-pc|grub-efi  
+  * change dependencies from grub-pc|grub-efi
     to grub-pc | grub-efi-amd64 | grub-efi-amd64
 
  -- Alf Gaida <agaida@siduction.org>  Sun, 03 Mar 2013 00:01:27 +0100
 
 fll-installer (0.10.1) unstable; urgency=low
 
-  * grub-fix, some occurences of aptosid etc 
+  * grub-fix, some occurences of aptosid etc
   * visualization over pv
   * some parameters changed
   * correct use for vfat
- 
+
  -- Alf Gaida <agaida@siduction.org>  Sat, 02 Mar 2013 22:02:03 +0100
 
 fll-installer (0.9.40) unstable; urgency=low

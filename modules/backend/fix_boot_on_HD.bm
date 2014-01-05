@@ -1,103 +1,19 @@
 ##
 ##-------------------------------------
 # Needs:
-# TARGET_MNT_POINT
-# USER_NAME
 #
 # Calls:
+# logit
 #
 ##-------------------------------------
 ##
 fix_boot_on_HD()
 {
-	local LOG=/tmp/Install.log
-	logit "fix_boot_on_installed system"
-	FN=${TARGET_MNT_POINT}/etc/init.d/sidu-boot
-    cat >$FN <<'EOS'
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides:          sidu-boot
-# Required-Start:    $remote_fs
-# Required-Stop:
-# Default-Start:     3 4 5
-# Default-Stop:
-# Short-Description: siduction specific things during bootup
-# Description:       Some cleanup.  Note, it need to run after mountnfs-bootclean.sh.
-### END INIT INFO
-
-PATH=/sbin:/usr/sbin:/bin:/usr/bin
-
-do_start () {
-	#
-	for dir in /home/* ; do
-		FN=${dir}/.config/chromium/SingletonLock
-		if [ -L $FN ] ; then
-			echo "deleting $FN..."
-			rm $FN
-		fi
-	done
-}
-
-case "$1" in
-  start|"")
-	do_start
-	;;
-  restart|reload|force-reload)
-	do_start
-	;;
-  stop)
-	# No-op
-	;;
-  *)
-	echo "Usage: sidu-boot.sh [start|restart|stop]" >&2
-	exit 3
-	;;
-esac
-
-:
-EOS
-	chmod 754 $FN
-	
-	FN=${TARGET_MNT_POINT}/etc/init.d/sidu-boot-one-time
-    cat >$FN <<'EOS'
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides:          sidu-boot-one-time
-# Required-Start:    $remote_fs
-# Required-Stop:
-# Default-Start:     3 4 5
-# Default-Stop:
-# Short-Description: siduction specific things during the FIRST bootup
-# Description:       Some cleanup.
-### END INIT INFO
-
-# Clear all the caches:
-cd /tmp
-for dir in /home/* ; do
-	subdir=$dir/.cache
-	echo $subdir ... >>/tmp/b_trace.log
-	if [ -d $subdir ] ; then
-		find $subdir -maxdepth 1 -exec rm -vRf "{}" \; >>/tmp/b_trace.log 2>&1
-	fi
-done
-
-# Clear Chromium session history:
-rm -vRf /tmp/org.chromium.Chromium* >>/tmp/b_trace.log 2>&1
-
-/etc/init.d/sidu-boot | tee -a /tmp/b_trace.log
-echo "installing sidu-boot..."
-insserv -v sidu-boot >>/tmp/b_trace.log 2>&1
-
-# Prevent from second execution
-perl -ni -e 'print unless /sidu-boot-one-time/;' /etc/init.d/bootmisc.sh
-mv  /etc/init.d/sidu-boot-one-time /tmp
-:
-EOS
-	chmod 754 $FN
-	
-	FN=${TARGET_MNT_POINT}/etc/init.d/bootmisc.sh
-	perl -pi -e 's!^(do_start.*[{].*)$!$1\n\t/etc/init.d/sidu-boot-one-time\n!' $FN
-	echo "Modified $FN" >>$LOG
-	grep -A 2 -B 2 sidu $FN >>$LOG
-	ls -ld ${TARGET_MNT_POINT}/etc/init.d/sidu* >>$LOG
+	logit "fix_boot_on_hd"
+	# at this moment there is nothing to do.
+    #
+	# the following is moved to fix_home_on_HD.bm
+    # rm /home/<user>/.config/chromium/SingletonLock
+    # rm /home/<user>/.cache/*
+    return 0
 }
