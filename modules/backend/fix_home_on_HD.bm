@@ -53,8 +53,10 @@ fix_home_on_HD()
 	#
 	# purge content of some dirs
 	#
-	for file in	${TARGET_MNT_POINT}${INSTHOME}/.cache/* ; do
-		rm -rF "${file}"
+	for dir in	${TARGET_MNT_POINT}${INSTHOME}/.cache \
+		${TARGET_MNT_POINT}${INSTHOME}/.config/midori \
+		${TARGET_MNT_POINT}${INSTHOME}/.config/qupzilla/profiles ; do
+		[ -d "$dir" ] && rm -Rf ${dir}/*
 	done
 
 	#

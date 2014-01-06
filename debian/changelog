@@ -1,3 +1,9 @@
+fll-installer (2014.01.04) unstable; urgency=low
+
+  * browser cache cleared for midory and quzilla
+
+ -- J. Hamatoma <hama@siduction.net>  Mon, 06 Jan 2014 02:03:41 +0100
+
 fll-installer (2014.01.03) unstable; urgency=low
 
   * removing chromium session info on the hd installation
