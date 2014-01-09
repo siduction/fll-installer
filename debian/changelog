@@ -1,3 +1,16 @@
+fll-installer (2014.01.10) unstable; urgency=medium
+
+  * new version, new dependencies
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 09 Jan 2014 23:12:17 +0100
+
+fll-installer (2014.01.09) unstable; urgency=medium
+
+  * versioned dependency - version changed for 
+    fll-live-initscripts (>= 2013.12.11)
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 09 Jan 2014 19:06:47 +0100
+
 fll-installer (2014.01.04) unstable; urgency=low
 
   * browser cache cleared for midory and quzilla

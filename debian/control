@@ -26,7 +26,7 @@ Depends:
  whois,
  os-prober,
  rsync,
- fll-live-initscripts (>= 3.10.4)
+ fll-live-initscripts (>= 2014.01.10)
 Recommends:
  sidu-installer
 Suggests:
