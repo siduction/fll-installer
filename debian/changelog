@@ -1,3 +1,9 @@
+fll-installer (2014.01.22) unstable; urgency=medium
+
+  * purge live only now purge syslinux and syslinux common 
+
+ -- Alf Gaida <agaida@siduction.org>  Wed, 22 Jan 2014 19:56:54 +0100
+
 fll-installer (2014.01.10) unstable; urgency=medium
 
   * new version, new dependencies

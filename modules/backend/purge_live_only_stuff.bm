@@ -31,7 +31,8 @@ purge_live_only_stuff() {
         nbd-client \
         setpassword \
         sidu-installer \
-        sshstart; do
+        sshstart \
+        syslinux-common; do
         logit "Purge: $i"
         chroot_it apt-get purge --assume-yes $i
     done
