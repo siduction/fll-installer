@@ -27,6 +27,7 @@ purge_live_only_stuff() {
 
     # purge live-specific packages
     for i in cli-installer \
+        gfxboot \
         fll-* \
         nbd-client \
         setpassword \

@@ -1,3 +1,9 @@
+fll-installer (2014.02.10) unstable; urgency=medium
+
+  * purge gfxboot in purge live only 
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 10 Feb 2014 19:09:08 +0100
+
 fll-installer (2014.01.22) unstable; urgency=medium
 
   * purge live only now purge syslinux and syslinux common 
