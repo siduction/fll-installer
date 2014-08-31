@@ -1,3 +1,10 @@
+fll-installer (2014.08.31) UNRELEASED; urgency=medium
+
+  * changed fix_home_on_HD.bm for reenabling automount and
+    automount-open in gnome, mate and cinnamon
+
+ -- Angelescu Ovidiu <convbsd@siduction.org>  Sun, 31 Aug 2014 21:48:08 +0300
+
 fll-installer (2014.02.10) unstable; urgency=medium
 
   * purge gfxboot in purge live only 
