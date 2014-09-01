@@ -112,8 +112,8 @@ EOF
             cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
 #!/bin/sh
 if [ ! -d /usr/share/fll-installer ]; then
-    gsettings set org.cinnamon.desktop automount true
-    gsettings set org.cinnamon.desktop automount-open true
+    gsettings set org.cinnamon.desktop.media-handling automount true
+    gsettings set org.cinnamon.desktop.media-handling automount-open true
     rm ${INSTHOME}/.config/autostart/automount-open.desktop
 fi
 EOF
