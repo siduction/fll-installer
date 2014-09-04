@@ -1,9 +1,13 @@
-fll-installer (2014.08.31) UNRELEASED; urgency=medium
+fll-installer (2014.09.04) unstable; urgency=medium
 
+  [ Angelescu Ovidiu ]
   * changed fix_home_on_HD.bm for reenabling automount and
     automount-open in gnome, mate and cinnamon
 
- -- Angelescu Ovidiu <convbsd@siduction.org>  Sun, 31 Aug 2014 21:48:08 +0300
+  [ Alf Gaida ]
+  * rebuild closes #1676 
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 04 Sep 2014 19:17:57 +0200
 
 fll-installer (2014.02.10) unstable; urgency=medium
 
