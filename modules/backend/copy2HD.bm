@@ -33,12 +33,10 @@ copy2HD()
 	#
 	# experimental copy2HD loop adapted from fll-live-initramfs
 	#
-	# /selinux is not shipped in base-files, make the damn dir now
 
 	progress "Copying files. This can take a while. Please be patient."
 
-	[ -d "${TARGET_MNT_POINT}/selinux" ] || mkdir "${TARGET_MNT_POINT}/selinux"
-		for dir in ${DEFAULT_DIR}/*; do
+	for dir in ${DEFAULT_DIR}/*; do
 		[ -d "${dir}" ] || continue
 		
 		if [ -L "${dir}" ]; then

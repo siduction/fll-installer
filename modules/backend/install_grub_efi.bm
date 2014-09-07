@@ -56,10 +56,20 @@ install_grub_efi()
 	# Create the target directory for the efi loader on the efisys partition
 	mkdir $TARGET_MNT_POINT/boot/efi
 	mount ${efisys} $TARGET_MNT_POINT/boot/efi
-	sed -i -e 's|GRUB_DISTRIBUTOR=`.*`|GRUB_DISTRIBUTOR="'${FLL_DISTRO_NAME}'"|' $TARGET_MNT_POINT/etc/default/grub
-	mkdir -p $TARGET_MNT_POINT/boot/efi/EFI/${FLL_DISTRO_NAME}
+	mkdir -p "${TARGET_MNT_POINT}/boot/efi/EFI/debian"
 
 	# Install grub-efi in the chroot
+	( grep -q ia32-efi /proc/cmdline && bootarch="i386" ) || bootarch="amd64"
+	instarch=$(dpkg-architecture --print-architecture)
+	if [ "${bootarch}" = "${instarch}" ]; then
+		grubdeb="grub-efi"
+	else
+		if [ "${bootarch}" = "i386" ]; then
+			grubdeb="grub-efi-ia32"
+		else
+			grubdeb="grub-efi-${bootarch}"
+		fi
+	fi
 	EFIAPTSOURCES=$(mktemp -d --tmpdir=${TARGET_MNT_POINT}/tmp/ liveapt.XXXXXX)
 	APTGETBASE="apt-get -o Dir::Etc=${EFIAPTSOURCES##${TARGET_MNT_POINT}}"
 	. /lib/init/fll
@@ -67,7 +77,7 @@ install_grub_efi()
 	echo 'deb file:///mnt/extras sid main' > ${EFIAPTSOURCES}/sources.list
 	mkdir ${EFIAPTSOURCES}/preferences.d
 	chroot_it ${APTGETBASE} update > /dev/null
-	chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes install grub-efi > /dev/null
+	chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes install ${grubdeb} > /dev/null
 	umount ${TARGET_MNT_POINT}/mnt
 	echo '' > ${EFIAPTSOURCES}/sources.list
 	chroot_it ${APTGETBASE} update > /dev/null

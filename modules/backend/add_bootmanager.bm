@@ -92,13 +92,12 @@ add_bootmanager()
 
 	# determine if root_device is usb
 	device=$(echo $root_device|cut -d / -f3)
-	usb_dev=$(echo $(readlink -f /sys/block/${device}/device) | grep  "usb")
+	usb_dev=$(readlink -f /sys/block/${device}/device | grep "usb")
 
 	# do efi if grub and have efi system partition and not usb install
 	if [ "$BOOT_LOADER" = "grub" ] && [ -n "$efisys" ] && [ -z "$usb_dev" ]
 	then
-		# No bootloader unless amd64
-		[ "$(dpkg --print-architecture)" = "amd64" ] && install_grub_efi
+		install_grub_efi
 	elif [ "$BOOT_LOADER" = "grub" ]
 	then
 		install_grub

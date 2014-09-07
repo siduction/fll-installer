@@ -4,7 +4,6 @@
 # FLL_DISTRO_NAME-installer
 # CONFIG_FILE
 # TMPDIR
-# BOOT_DISK
 # HD_MAP
 # ACTION (changes)
 # LOG
@@ -34,7 +33,6 @@ main()
 		convert_live2HD \
 		add_bootmanager \
 		update_fstab \
-		fix_usb_install \
 		purge_live_only_stuff"
 
 	#
@@ -48,7 +46,6 @@ main()
 		# exit 1
 	fi
 	
-	# initialize the ACTION variable for progress()
 	ACTION=0
 
 	#
@@ -66,7 +63,6 @@ main()
 	done
 
 	sync
-
 
 	#
 	# say the world we have done our work

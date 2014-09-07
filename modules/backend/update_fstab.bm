@@ -3,7 +3,7 @@
 # Needs:
 # TARGET_MNT_POINT
 # HD_AUTO
-# HD_COICE
+# HD_CHOICE
 # HD_MAP
 #
 # Calls:
@@ -30,11 +30,39 @@ update_fstab()
 	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
 	root_device=$(get_root_device $root_partition)
 	wanted="--wanted ${root_device}"
-	# ignore live iso and wrong loopback device (loop2)
 	if [ -b /dev/mapper/${FLL_DISTRO_NAME}-live ]; then
-		ignore_device="--ignore ${FLL_DISTRO_NAME}-live --ignore /dev/loop2"
+		ignore_device="--ignore ${FLL_DISTRO_NAME}-live"
 	fi
-	
+	# if root_device is usb ignore devices not solely on it (like install-gui scripts/disk)
+	usb_dev=$(readlink -f /sys/block/${root_device#/dev/}/device | grep "usb")
+	if [ -n "${usb_dev}" ]; then
+		for d in /sys/block/* ; do
+			mydisk="/dev/${d#/sys/block/}"
+			dmd=""
+			if [ "x$(grub-probe -d "${mydisk}" -t abstraction)" = "xlvm" ]; then
+				# lvm device so discover pv device(s)
+				dmd="/dev/mapper/$(cat ${d}/dm/name)"
+				lvd="$(lvs --noheadings -o devices ${dmd})"
+				[ -n "${lvd}" ] || continue
+				# check it is on only one device
+				set -- $lvd
+				[ $# -gt 1 ] && continue
+				# strip the trailing (12345) sector of disk
+				mydisk="${1%\(*}"
+			fi
+			gp="$(grub-probe -d "${mydisk}" -t disk)"
+			# using set to strip whitespace
+			if [ -n "${gp}" ] && set -- ${gp} && \
+			   [ "x${1}" != "x${root_device}" ]; then
+				if [ -n "${dmd}" ]; then
+					ignore_device="${ignore_device} --ignore ${dmd}"
+				else
+					ignore_device="${ignore_device} --ignore ${1}"
+				fi
+			fi
+		done
+	fi
+
 	if [ -n "${HD_MAP}" ]; then
 		for i in "${HD_MAP}"
 		do

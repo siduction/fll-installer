@@ -18,6 +18,8 @@
 # translate_linux_to_grub
 # get_boot_cmdline
 # getbootparam
+# get_esp
+# get_fat
 #
 # update_status
 # install_grub
@@ -35,6 +37,7 @@ install_grub()
     local usb_dev
     local point
     local bootfrom
+    local grubdev
 
     #
     # log my call
@@ -43,101 +46,81 @@ install_grub()
     #
 
     root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
-    say "debug: root_partition=$root_partition"
 
     root_device=$(get_root_device $root_partition)
-    say "debug: root_device=$root_device"
 
     device=$(echo $root_device|cut -d / -f3)
-    say "debug: device=$device"
 
-    usb_dev=$(echo $(readlink -f /sys/block/${device}/device) | grep usb)
-    say "debug: usb_dev=$usb_dev"
+    usb_dev=$(readlink -f /sys/block/${device}/device | grep "usb")
 
-    # if the user chooses an USB device for the Grub installation we ignore
-    # that ( at least till further investigation) and set it to "partition"
+    grubdev=""
+
     case $BOOT_WHERE in
         mbr)
-            bootfrom="(hd0)"
+                        bootfrom=$(grub-mkdevicemap -n -m - | awk '/^\(hd0\)/{print $2}')
+                        grubdev="${bootfrom}"
             ;;
         partition)
             bootfrom="${root_partition}"
             ;;
         /dev/[hsv]d[a-z])
-            device=$(echo ${BOOT_WHERE}|cut -d / -f3)
-            if [ -n "$usb_dev" ]; then
-                bootfrom="${root_partition}"
-            else
                 bootfrom="${BOOT_WHERE}"
-            fi
         ;;
-        "")
-            bootfrom="(hd0)"
-            ;;
         *)
             bootfrom="${root_partition}"
     esac
 
-    if [ -n "${usb_dev}" ]; then
-        # USB install must have first Grub on partition
-        bootfrom=${HD_CHOICE}
-    else
-        # in case of jfs/xfs force installation to mbr
-        # but only if HD is not on USB and it's not already MBR
-        if [ "${BOOT_WHERE}" = "partition" ]; then
-            case "$HD_FSTYPE" in
-            jfs|xfs) bootfrom=${root_device};;
-            esac
-        fi
-    fi
+    [ -z "$grubdev" ] && grubdev="$(ls -l /dev/disk/by-id | grep ${bootfrom##*/}$)"
 
-    if [ $bootfrom="(hd0)" ]; then
-        if [ -f $TARGET_MNT_POINT/boot/grub/device.map ]; then
-            say "$TARGET_MNT_POINT/boot/grub/device.map found - ok"
-        else
-            say "$TARGET_MNT_POINT/boot/grub/device.map not found - create a new one"
-            grub-mkdevicemap --device-map="$TARGET_MNT_POINT/boot/grub/device.map"
-        fi
-    fi
-
-    say "debug: BOOT_WHERE=$BOOT_WHERE"
-    say "debug: bootfrom=$bootfrom"
-
-    # installing on MBR
-        # for debugging purposes we redirect the output of stdout and stderr to /root/fll-backup-mbr
-    if [ "$bootfrom" = "$(get_root_device ${bootfrom})" ]
-    then
-        # Make a backup of the old mbr
-        dd if=${bootfrom} of=$TARGET_MNT_POINT/boot/${FLL_DISTRO_NAME}-old-mbr.$(date -I) \
-            bs=446 count=1 > /root/fll-install-grub  2>&1
+    # in case of jfs/xfs force installation to mbr
+    # but only if it's not already MBR
+    if [ "${BOOT_WHERE}" = "partition" ]; then
+        case "$HD_FSTYPE" in
+        jfs|xfs) bootfrom=${root_device};;
+        esac
     fi
 
     #
     # install grub
     #
-    say "grub --root-directory=$TARGET_MNT_POINT "
-    # sometimes the first attempt to write grub fails, in this case the second attemt don't fail
-    # AG 2013-03-16
-    # we want to know, why the first attempt fail, so we redirect stdout and stderr to /root/fll-install-grub
-    # it's nothing really new in this code, but we have the chance to debug this ill behavior
-    # AG 2013-03-20
-    # Don't know, if the double writing of boot will make any sense with the new structure - but it does no harm
-    # so i decided to leave this like it is
-    if [ "${bootfrom}" = "$(get_root_device ${bootfrom})" ]
-    then # install on a disk
-        if [ "${bootfrom}" = "(hd0)" ]; then
-            say "Choice: Install on ${bootfrom}"
-            grub-install --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-            grub-install --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-        else
-            grub-install --recheck --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-            grub-install --recheck --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-       fi
-    else # install on partition
-        say "Choice: Install on partition $bootfrom"
-        grub-install --recheck --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-        grub-install --recheck --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-    fi
+	# is twice because sometimes the first one fails in that cases the second
+	# don't fail !!!
+	grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >&2 || \
+		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >&2
+	chroot_it sh -c "echo \"grub-pc grub-pc/install_devices multiselect ${grubdev}\" | debconf-set-selections "
+
+	#
+	# portable efi 
+	#
+	# when the install is on usb and that usb has a fat partition
+	# we put portable efi bootloaders in the ESP on the device
+	# or the first fat partition
+	if [ -n "${usb_dev}" ]; then
+		get_usbefi "${root_device}"
+		if [ -n "${usbefi}" ]; then
+			HD_MAP="$usbefi:/boot/efi ${HD_MAP}"
+
+			# Mount it now
+			mkdir $TARGET_MNT_POINT/boot/efi
+			mount ${usbefi} $TARGET_MNT_POINT/boot/efi
+
+			# Install grub-fll-portable-efi in the chroot
+			EFIAPTSOURCES=$(mktemp -d --tmpdir=${TARGET_MNT_POINT}/tmp/ liveapt.XXXXXX)
+			APTGETBASE="apt-get -o Dir::Etc=${EFIAPTSOURCES##${TARGET_MNT_POINT}}"
+			. /lib/init/fll
+			mount -o bind $(fll_get_mnt) ${TARGET_MNT_POINT}/mnt
+			echo 'deb file:///mnt/extras sid main' > ${EFIAPTSOURCES}/sources.list
+			mkdir ${EFIAPTSOURCES}/preferences.d
+			chroot_it ${APTGETBASE} update > /dev/null
+			chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes install grub2-fll-portable-efi > /dev/null
+			chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes remove --purge os-prober > /dev/null || :
+			umount ${TARGET_MNT_POINT}/mnt
+			echo '' > ${EFIAPTSOURCES}/sources.list
+			chroot_it ${APTGETBASE} update > /dev/null
+			chroot_it ${APTGETBASE} clean > /dev/null
+			rm -rf ${EFIAPTSOURCES}
+		fi
+	fi
 
     #
     # Create initital grub configuration (grub2 ignores -y)

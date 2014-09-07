@@ -1,4 +1,5 @@
 /proc/*
+/disks/*
 /etc/network/run/*
 /home/*/.DCOPserver_*
 /home/*/.gvfs*
@@ -18,4 +19,3 @@
 /tmp/*
 /var/cache/gdm/*
 /var/tmp/*
-

@@ -1,4 +1,0 @@
-# stop lintian complaining about a missing manpage. This
-# manpage never will be written
-fll-iso2usb: binary-without-manpage usr/bin/fll-iso-strip
-
