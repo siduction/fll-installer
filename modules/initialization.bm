@@ -87,13 +87,17 @@ get_fat () {
 ###-------------------------------------
 #
 get_usbefi () {
+	# given a partition, finds an efi on a usb disk it is on
+	# failing that the first fat partition a disk it requires has
 	usbdisk="${1}"
 	usbefi=""
-	get_esp "${usbdisk}"
-	if [ -z "${esp}" ]; then
-		get_fat "${usbdisk}"
-		esp="${fat}"
-	fi
+	fat=""
+	for disk in $(fll_disk_usb ${usbdisk}) ; do
+		get_esp "${disk}"
+		[ -n "$esp" ] && break
+		[ -z "$fat" ] && get_fat "${disk}"
+	done
+	[ -z "$esp" ] && [ -n "$fat" ] && esp="$fat"
 	[ -n "${esp}" ] && usbefi="${esp}"
 }
 

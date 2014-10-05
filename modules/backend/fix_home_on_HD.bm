@@ -27,7 +27,7 @@ fix_home_on_HD()
 		if [ -d "${TARGET_MNT_POINT}${LIVEHOME}" ] && \
 			[ ! -d "${TARGET_MNT_POINT}${INSTHOME}" ]; then
 			mv "${TARGET_MNT_POINT}${LIVEHOME}" "${TARGET_MNT_POINT}${INSTHOME}"
-
+			
 			# fix /home/user paths in various config files
 			find "${TARGET_MNT_POINT}${INSTHOME}" \
 				-type f \

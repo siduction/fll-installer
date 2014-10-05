@@ -10,14 +10,15 @@
 # logit
 # progress
 # chroot_it
-# get_root_device
+# fll_disk_device
+# fll_disk_usb
 #
 ##-------------------------------------
 ##
 update_fstab()
 {
 	local autohd
-	local root_partition root_device part wanted ignore_device
+	local root_partition root_device usb_dev part wanted want wants ignore_device d fdd igds i
 	#
 	# log my call
 	#
@@ -28,38 +29,26 @@ update_fstab()
 
 	# 0. prepare
 	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
-	root_device=$(get_root_device $root_partition)
-	wanted="--wanted ${root_device}"
+	root_device="$(fll_disk_device $root_partition)"
+	usb_dev="$(fll_disk_usb $root_partition)"
+	for want in ${root_device} ; do
+		wants="${wants} ${want}"
+	done
 	if [ -b /dev/mapper/${FLL_DISTRO_NAME}-live ]; then
 		ignore_device="--ignore ${FLL_DISTRO_NAME}-live"
 	fi
-	# if root_device is usb ignore devices not solely on it (like install-gui scripts/disk)
-	usb_dev=$(readlink -f /sys/block/${root_device#/dev/}/device | grep "usb")
-	if [ -n "${usb_dev}" ]; then
+	# if root_device is solely usb, ignore devices not on the same device(s)
+	if [ "${root_device}" = "${usb_dev}" ]; then
 		for d in /sys/block/* ; do
-			mydisk="/dev/${d#/sys/block/}"
-			dmd=""
-			if [ "x$(grub-probe -d "${mydisk}" -t abstraction)" = "xlvm" ]; then
-				# lvm device so discover pv device(s)
-				dmd="/dev/mapper/$(cat ${d}/dm/name)"
-				lvd="$(lvs --noheadings -o devices ${dmd})"
-				[ -n "${lvd}" ] || continue
-				# check it is on only one device
-				set -- $lvd
-				[ $# -gt 1 ] && continue
-				# strip the trailing (12345) sector of disk
-				mydisk="${1%\(*}"
-			fi
-			gp="$(grub-probe -d "${mydisk}" -t disk)"
-			# using set to strip whitespace
-			if [ -n "${gp}" ] && set -- ${gp} && \
-			   [ "x${1}" != "x${root_device}" ]; then
-				if [ -n "${dmd}" ]; then
-					ignore_device="${ignore_device} --ignore ${dmd}"
-				else
-					ignore_device="${ignore_device} --ignore ${1}"
+			for fdd in $(fll_disk_device /dev/${d##*/}) ; do
+				# add to list to ignore unless part of root
+				if echo ${root_device} | grep -m 1 -q -v ${fdd} ; then
+					igds="${igds} ${fdd}"
 				fi
-			fi
+			done
+		done
+		for igd in $(echo ${igds} | sort -u); do
+			ignore_device="${ignore_device} --ignore ${igd}"
 		done
 	fi
 
@@ -67,10 +56,14 @@ update_fstab()
 		for i in "${HD_MAP}"
 		do
 			part=$(echo $i | cut -d":" -f1)
-			root_device=$(get_root_device $part)
-			wanted="${wanted} --wanted ${root_device}"
+			for want in $(fll_disk_device $part); do
+				wants="${wants} ${want}"
+			done
 		done
 	fi
+	for want in $(echo ${wants} | sort -u) ; do
+		wanted="${wanted} --wanted ${want}"
+	done
 
 	# 1. mount /proc, /dev and /sys on chroot
 	mount --bind /proc "${TARGET_MNT_POINT}/proc"
