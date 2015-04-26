@@ -8,25 +8,28 @@ Copyright: 2012-2013 Alf Gaida <agaida@siduction.org>
            2007-2011 Joaquim Boura <x-un-i@berlios.de>
            2006-2008 Red Hat, Inc.
            2008-2010 Niall Walsh <niallwalsh@users.berlios.de>
-           2004-2014 Stefan Lippers-Hollmann <s.l-h@gmx.de>.
-License: GPL-2.0+
-
+           2004-2015 Stefan Lippers-Hollmann <s.l-h@gmx.de>
+License: GPL-2.0
+Comment:
+ Based on the knoppix installer from Fabian Franz
+ <knoppix-installer@fabian-franz.de> with fixes and help by: Joerg Schirottke
+ <master@kanotix.de> and Stefan Lippers-Hollmann <s.l-h@gmx.de>
+ 
 Files: modules/backend/fix_boot_on_HD.bm
 Copyright: 2012      J. Hamatoma <hama@siduction.net>
-License: GPL-2.0+
+License: GPL-2.0
 
 Files: debian/*
 Copyright: 2011-2014 Alf Gaida <agaida@siduction.org>
            2007-2011 Joaquim Boura <x-un-i@berlios.de>
            2008-2010 Niall Walsh <niallwalsh@users.berlios.de>
            2004-2011 Stefan Lippers-Hollmann <s.l-h@gmx.de>.
-License: GPL-2.0+
+License: GPL-2.0
 
-License: GPL-2.0+
+License: GPL-2.0
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ the Free Software Foundation; version 2 of the License.
  .
  This package is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of

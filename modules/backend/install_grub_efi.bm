@@ -1,42 +1,25 @@
 ##
 ##-------------------------------------
 # Needs:
-# HD_CHOICE
 # TARGET_MNT_POINT
-# FLL_DISTRO_NAME
 # HD_MAP (updates it)
 #
 # Calls:
 # logit
-# get_root_device
 # chroot_it
 # getbootparam
 # get_efisys
+# fll_get_mnt (from /lib/init/fll)
 #
 ##-------------------------------------
 ##
 install_grub_efi()
 {
-	local GRUB_KOPT
-	local GRUB_DEFOPTIONS
-	local GRUB_VGA
-	local root_partition
-	local root_device
-	local device
-	local usb_dev
-	local point
-	local bootfrom
 	local EFIAPTSOURCES
 	local APTGETBASE
-	local cryptopts
-	local cryptsource
-	local cryptuuid
-	local rooton
-	local vg
-	local pv
-	local dmname
-	local dev
-
+	local efisize
+	local instarch
+	local grubdeb
 
 	#
 	# log my call
@@ -44,12 +27,6 @@ install_grub_efi()
 	logit "installing grub-efi"
 	#
 
-	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
-
-	root_device=$(get_root_device $root_partition)
-
-	device=$(echo $root_device|cut -d / -f3)
-	
 	get_efisys
 	HD_MAP="$efisys:/boot/efi ${HD_MAP}"
 
@@ -59,21 +36,22 @@ install_grub_efi()
 	mkdir -p "${TARGET_MNT_POINT}/boot/efi/EFI/debian"
 
 	# Install grub-efi in the chroot
-	( grep -q ia32-efi /proc/cmdline && bootarch="i386" ) || bootarch="amd64"
+	grubdeb="grub-efi"
 	instarch=$(dpkg-architecture --print-architecture)
-	if [ "${bootarch}" = "${instarch}" ]; then
-		grubdeb="grub-efi"
-	else
-		if [ "${bootarch}" = "i386" ]; then
+	if [ -r /sys/firmware/efi/fw_platform_size ]; then
+		efisize="$(head -n1 /sys/firmware/efi/fw_platform_size)"
+		if [ "${instarch}" = "i386" ] && [ "${efisize}" = "64" ];  then
+			grubdeb="grub-efi-amd64"
+		elif [ "${instarch}" = "amd64" ] && [ "${efisize}" = "32" ]; then
 			grubdeb="grub-efi-ia32"
-		else
-			grubdeb="grub-efi-${bootarch}"
 		fi
 	fi
 	EFIAPTSOURCES=$(mktemp -d --tmpdir=${TARGET_MNT_POINT}/tmp/ liveapt.XXXXXX)
 	APTGETBASE="apt-get -o Dir::Etc=${EFIAPTSOURCES##${TARGET_MNT_POINT}}"
 	. /lib/init/fll
-	mount -o bind $(fll_get_mnt) ${TARGET_MNT_POINT}/mnt
+	extramnt="/fll"
+	[ -e "${extramnt}/extras" ] || extramnt="$(fll_get_mnt)"
+	mount -o bind ${extramnt} ${TARGET_MNT_POINT}/mnt
 	echo 'deb file:///mnt/extras sid main' > ${EFIAPTSOURCES}/sources.list
 	mkdir ${EFIAPTSOURCES}/preferences.d
 	chroot_it ${APTGETBASE} update > /dev/null
@@ -83,68 +61,6 @@ install_grub_efi()
 	chroot_it ${APTGETBASE} update > /dev/null
 	chroot_it ${APTGETBASE} clean > /dev/null
 	rm -rf ${EFIAPTSOURCES}
-
-	# 
-	# Create initital grub configuration (grub2 ignores -y)
-	#
-	say "create initial grub efi configuration"
-
-	if [ -e "${TARGET_MNT_POINT}/etc/default/grub" ]; then
-		#TODO a proper configuration
-		# propagate the default video mode 
-		# extract vga mode from CMDLINE
-		GRUB_DEFOPTIONS=""
-		GRUB_VGA=$(getbootparam vga)
-		[ -n "$GRUB_VGA" ] && GRUB_DEFOPTIONS="vga=$GRUB_VGA"
-
-		# find out what cryptopts we need for /
-		cryptopts=""
-		rooton=""
-		vg=$(lvs --noheadings -o vg_name $root_device 2>/dev/null | xargs echo)
-		if [ -n "$vg" ]; then
-			# / is in a lvm volume group
-			pv=$(vgs --noheadings -o pv_name $vg  2>/dev/null | xargs echo)
-			for p in $pv ; do
-				# p is a physical volume in vg needed for /
-				# get it's /dev/mapper name
-				dmname=$(dmsetup --columns --noheadings -o name info $p  2>/dev/null | xargs echo)
-				if [ -n "$dmname" ]; then
-					rooton="$rooton $dmname"
-				fi
-			done
-		else
-			# check any /dev/mapper device
-			[ "${root_device}" = "${root_device##/dev/mapper/}" ] || rooton="${root_device##/dev/mapper/}"
-		fi
-		# if we found any mapper devices to check for crypt
-		for dev in $rooton ; do
-			cryptsource=$(cryptsetup status $dev 2>/dev/null | awk -F: '/device:/{print $2}' | xargs echo)
-			if [ -n "$cryptsource" ] ; then
-				if [ "${cryptsource}" = "${cryptsource#/dev/mapper/}" ]; then
-					# use uuid if possible for non /dev/mapper devices
-					cryptuuid=$(udevadm info -q env --name ${cryptsource} | \
-						    awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
-					if [ -n "${cryptuuid}" ]; then
-						cryptsource="UUID=${cryptuuid}"
-					fi
-				fi
-				# $dev is a crypted device on $cryptsource
-				if [ -z "$GRUB_DEFOPTIONS" ]; then
-					GRUB_DEFOPTIONS="cryptopts=source=$cryptsource,target=$dev"
-				else
-					GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS} cryptopts=source=$cryptsource,target=$dev"
-				fi
-				# root is in a volume group so scan it
-				[ -n "$vg" ] && GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS},lvm=${root_device##/dev/mapper/}"
-				echo "$dev	$cryptsource	none	luks" >> /etc/crypttab
-			fi
-		done
-		sed -i -e "s#\(GRUB_CMDLINE_LINUX=\).*#\1\"${GRUB_DEFOPTIONS}\"#"  \
-		    ${TARGET_MNT_POINT}/etc/default/grub
-	fi
-
-	# update the grub config with our changes
-	chroot_it update-grub >&2
 
 	return 0
 }

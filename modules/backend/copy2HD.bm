@@ -45,31 +45,35 @@ copy2HD()
 			#
 			ln -sf "$(readlink -f ${dir})" "${TARGET_MNT_POINT}/${dir##*/}"
 		else
-			case "${dir##*/}" in
-				dev)
+			dir="/${dir##*/}"
+			case "${dir}" in
+				/dev)
 					# copy the static dev from ${DEFAULT_DIR}
+					dir="${DEFAULT_DIR}${dir}"
 					;;
-				home)
+				/home)
 					# don't clobber an existing /home/${DEFAULT_USER}
 					[ -d "${TARGET_MNT_POINT}/home/${DEFAULT_USER}" ] && continue
 					
 					# don't copy if /home/${USER_NAME} exists
 					# we could not move /home/${DEFAULT_USER}
 					[ -d "${TARGET_MNT_POINT}/home/${USER_NAME}" ] && continue
-
-					# substitute variable to point to dir on live fs
-					dir="/${dir##*/}"
 					;;
 				*)
-					# substitute variable to point to dir on live fs
-					dir="/${dir##*/}"
+					# don't copy trees containing either source or target
+					[ "${TARGET_MNT_POINT#${dir}}" != "${TARGET_MNT_POINT}" ] && continue
+					[ "${DEFAULT_DIR#${dir}}" != "${DEFAULT_DIR}" ] && continue
 					;;
 			esac
 			
 			#
 			# do the copy
 			#
-			rsync	--archive --quiet \
+			rsync	--archive \
+				--acls \
+				--hard-links \
+				--xattrs \
+				--quiet \
 				--exclude-from="${SEARCHPATH}/data/exclusion_list" \
 				"${dir}" "${TARGET_MNT_POINT}"
 			if [ $? -ne 0 ] ; then

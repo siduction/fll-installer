@@ -26,10 +26,12 @@ purge_live_only_stuff() {
     chmod +x "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
 
     # purge live-specific packages
-    for i in cli-installer \
+    for i in \
+        cli-installer \
         desktop-defaults-*\
         gfxboot \
         fll-* \
+	kexec-tools \
         nbd-client \
         setpassword \
         sidu-installer \
