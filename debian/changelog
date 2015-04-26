@@ -1,3 +1,9 @@
+fll-installer (2015.04.26) unstable; urgency=low
+
+  * move to unstable
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 26 Apr 2015 16:42:57 +0200
+
 fll-installer (2015.03.23) experimental; urgency=medium
 
   * upstream merges and latest changes by convbsd 
