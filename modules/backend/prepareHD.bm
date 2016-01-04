@@ -37,7 +37,15 @@ prepareHD()
 	# sometimes kernel has not yet loaded the partition table
 	# so ask him to do that
 	# 
-	/sbin/partprobe 
+	# lines copied from fll_fstab_generator
+	#
+	if which udevadm >/dev/null; then
+		udevadm trigger --subsystem-match=block
+		udevadm settle --timeout=30
+	else
+		udevtrigger --subsystem-match=block
+		udevsettle --timeout=30
+	fi
 
 	TMP="$(mktemp)"
 
@@ -78,8 +86,6 @@ prepareHD()
 	#
 	mkdir -p "$TARGET_MNT_POINT"
 	mount_options=""
-	FOUND=$(mount | grep $HD_CHOICE)
-	[ -n "$FOUND" ] && umount $HD_CHOICE
 	[ "$HD_FORMAT" = "yes" ] && mount_options="-t $HD_FSTYPE"
 	mount $mount_options "$HD_CHOICE" "$TARGET_MNT_POINT" > "${TMP}" 2>&1
 	if [ $? -ne 0 ]; then

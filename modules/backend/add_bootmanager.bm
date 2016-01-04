@@ -6,6 +6,7 @@
 # BOOT_LOADER
 # HD_CHOICE
 # HD_MAP
+# FLL_GFXBOOT_THEME
 #
 # Calls:
 # logit
@@ -36,8 +37,55 @@ add_bootmanager()
 	mount --bind /dev  "${TARGET_MNT_POINT}/dev"
 	mount --bind /sys  "${TARGET_MNT_POINT}/sys"
 	mount --bind /run  "${TARGET_MNT_POINT}/run"
+
+	##
+	## workaround...start
+	##
+	# This can be probably changed later, but for now
+	# must be done as at least update-grub uses an old-style /etc/fstab
+	# so we create one for that
+
+	# 0. prepare
+	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
+	map_devices="$(fll_disk_device $root_partition)"
+
+	if [ -n "${HD_MAP}" ]; then
+		for i in "${HD_MAP}"
+		do
+			part=$(echo $i | cut -d":" -f1)
+			map_devices="${map_devices} $(fll_disk_device $part)"
+		done
+	fi
+	map_devices="$(echo ${map_devices} | uniq -u)"
+	wanted=""
+	for map_device in ${map_devices}; do
+		wanted="${wanted} --wanted ${map_device}"
+	done
+
+	chroot_it fll_fstab_generator --file /etc/fstab ${wanted}
+
+	local cryptsource
+	local crypttarget
+
+	set -- $(fll_crypt_device ${root_partition})
+	while [ -n "$1" ]; do
+		cryptsource="$1"
+		crypttarget="$2"
+		shift 2
+		if [ "${cryptsource}" = "${cryptsource#/dev/mapper/}" ]; then
+			local cryptuuid
+			# use uuid if possible for non /dev/mapper devices
+			cryptuuid=$(udevadm info -q env --name ${cryptsource} | \
+					awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
+			if [ -n "${cryptuuid}" ]; then
+				cryptsource="UUID=${cryptuuid}"
+			fi
+		fi
+		echo "${crypttarget#/dev/mapper/}	$cryptsource	none	luks" >> ${TARGET_MNT_POINT}/etc/crypttab
+	done
 	
 	BOOT_KERNELS=""
+
 	for i in $TARGET_MNT_POINT/lib/modules/?.*
 	do
 		BOOT_KERNEL=$(basename $i)
@@ -58,29 +106,6 @@ add_bootmanager()
 	progress "$MSG2"
 
 	##
-	## workaround...start
-	##
-	# This can be probably changed later, but for now
-	# must be done as at least update-grub uses an old-style /etc/fstab
-	# so we create one for that
-
-	# 0. prepare
-	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
-	root_device=$(get_root_device $root_partition)
-	wanted="--wanted ${root_device}"
-
-	if [ -n "${HD_MAP}" ]; then
-		for i in "${HD_MAP}"
-		do
-			part=$(echo $i | cut -d":" -f1)
-			root_device=$(get_root_device $part)
-			wanted="${wanted} --wanted ${root_device}"
-		done
-	fi
-
-	chroot_it fll_fstab_generator --file /etc/fstab ${wanted}
-
-	##
 	## workaround...end
 	##
 
@@ -90,21 +115,88 @@ add_bootmanager()
 		get_efisys
 	fi
 
-	# determine if root_device is usb
-	device=$(echo $root_device|cut -d / -f3)
-	usb_dev=$(echo $(readlink -f /sys/block/${device}/device) | grep  "usb")
+	# determine if map devices are just usb
+	usb_dev=""
+	for map_device in ${map_devices}; do
+		if [ -n "$(fll_disk_isusb ${map_device})" ] ; then
+			usb_dev="${usb_dev} ${map_device}"
+		else
+			# any non usb device means efi could be installed
+			usb_dev=""
+			break
+		fi
+	done
 
 	# do efi if grub and have efi system partition and not usb install
 	if [ "$BOOT_LOADER" = "grub" ] && [ -n "$efisys" ] && [ -z "$usb_dev" ]
 	then
-		# No bootloader unless amd64
-		[ "$(dpkg --print-architecture)" = "amd64" ] && install_grub_efi
+		install_grub_efi
 	elif [ "$BOOT_LOADER" = "grub" ]
 	then
 		install_grub
 	#
 	# else lilo no longer  supported
 	#
+	fi
+
+	if [ "$BOOT_LOADER" = "grub" ]; then
+		# 
+		# Create initital grub configuration (grub2 ignores -y)
+		#
+		say "create initial grub configuration"
+
+		if [ -e "${TARGET_MNT_POINT}/etc/default/grub" ]; then
+			#TODO a proper configuration
+			# propagate the default video mode 
+			# extract vga mode from CMDLINE
+			GRUB_DEFOPTIONS=""
+			GRUB_VGA=$(getbootparam vga)
+			[ -n "$GRUB_VGA" ] && GRUB_DEFOPTIONS="vga=$GRUB_VGA"
+
+			# find out what cryptopts we need for /
+			local cryptsource
+			local crypttarget
+			set -- $(fll_crypt_device ${root_partition})
+			while [ -n "$1" ]; do
+				cryptsource="$1"
+				crypttarget="${2#/dev/mapper/}"
+				shift 2
+				if [ "${cryptsource}" = "${cryptsource#/dev/mapper/}" ]; then
+					local cryptuuid
+					# use uuid if possible for non /dev/mapper devices
+					cryptuuid=$(udevadm info -q env --name ${cryptsource} | \
+							awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
+					if [ -n "${cryptuuid}" ]; then
+						cryptsource="UUID=${cryptuuid}"
+					fi
+				fi
+				# $dev is a crypted device on $crypt
+				if [ -z "$GRUB_DEFOPTIONS" ]; then
+					GRUB_DEFOPTIONS="cryptopts=source=$cryptsource,target=$crypttarget"
+				else
+					GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS} cryptopts=source=$crypt,target=$crypttarget"
+				fi
+				# root is in a volume group so scan it
+				fll_disk_abstract ${root_partition}
+				[ "${f_d_abstract}" = "lvm" ] && GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS},lvm=${root_partition##/dev/mapper/}"
+			done
+			sed -i "s|\(GRUB_CMDLINE_LINUX=\).*|\1\"${GRUB_DEFOPTIONS}\"|" \
+				"${TARGET_MNT_POINT}/etc/default/grub"
+
+			# enable a grub theme, if it exists
+			if [ -n "${FLL_GFXBOOT_THEME}" ] && [ -r "/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt" ]; then
+				if grep -q ^GRUB_THEME\= "${TARGET_MNT_POINT}/etc/default/grub" >/dev/null 2>&1; then
+					 sed -i "s|\(GRUB_THEME=\).*|\1/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt|"
+						"${TARGET_MNT_POINT}/etc/default/grub"
+				else
+					printf "\nGRUB_THEME=\"/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt\"\n" \
+						>>"${TARGET_MNT_POINT}/etc/default/grub"
+				fi
+			fi
+		fi
+
+		# update the grub config with our changes
+		chroot_it update-grub >&2
 	fi
 
 	##

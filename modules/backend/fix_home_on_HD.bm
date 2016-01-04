@@ -27,7 +27,7 @@ fix_home_on_HD()
 		if [ -d "${TARGET_MNT_POINT}${LIVEHOME}" ] && \
 			[ ! -d "${TARGET_MNT_POINT}${INSTHOME}" ]; then
 			mv "${TARGET_MNT_POINT}${LIVEHOME}" "${TARGET_MNT_POINT}${INSTHOME}"
-
+			
 			# fix /home/user paths in various config files
 			find "${TARGET_MNT_POINT}${INSTHOME}" \
 				-type f \
@@ -47,15 +47,15 @@ fix_home_on_HD()
 			"${TARGET_MNT_POINT}${INSTHOME}/.config/chromium/Local State" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.config/chromium/First Run" \
 			"${TARGET_MNT_POINT}/root/.hushlogin"; do
-		[ -f "${file}" -o -L "$file" ] && rm -f "${file}"
+		[ -f "${file}" ] && rm -f "${file}"
 	done
 
 	#
 	# purge content of some dirs
 	#
 	for dir in	${TARGET_MNT_POINT}${INSTHOME}/.cache \
-		${TARGET_MNT_POINT}${INSTHOME}/.config/midori \
-		${TARGET_MNT_POINT}${INSTHOME}/.config/qupzilla/profiles ; do
+	        	${TARGET_MNT_POINT}${INSTHOME}/.config/midori \
+		        ${TARGET_MNT_POINT}${INSTHOME}/.config/qupzilla/profiles ; do
 		[ -d "$dir" ] && rm -Rf ${dir}/*
 	done
 
@@ -94,24 +94,60 @@ fix_home_on_HD()
 	fi
 
 	#
-	# enable automount-open for gnome in install mode
+	# enable automount-open for gnome, mate and cinnamon in install mode
 	#
-	if [ -d /usr/share/siduction-settings/gnome ]; then
-	cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings/gnome/automount-open" <<EOF
+	if [ -d /usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE} ]; then
+	case "$FLL_FLAVOUR" in
+        gnome)
+            cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
 #!/bin/sh
-
 if [ ! -d /usr/share/fll-installer ]; then
-gsettings set org.gnome.desktop.media-handling automount-open true
-rm ${INSTHOME}/.config/autostart/automount-open.desktop
+    gsettings set org.gnome.desktop.media-handling automount true
+    gsettings set org.gnome.desktop.media-handling automount-open true
+    rm ${INSTHOME}/.config/autostart/automount-open.desktop
 fi
 EOF
-	chmod +x ${TARGET_MNT_POINT}/usr/share/siduction-settings/gnome/automount-open
+            ;;
+        cinnamon)
+            cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
+#!/bin/sh
+if [ ! -d /usr/share/fll-installer ]; then
+    gsettings set org.cinnamon.desktop.media-handling automount true
+    gsettings set org.cinnamon.desktop.media-handling automount-open true
+    rm ${INSTHOME}/.config/autostart/automount-open.desktop
+fi
+EOF
+             ;;
+        mate)
+            cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
+#!/bin/sh
+if [ ! -d /usr/share/fll-installer ]; then
+    gsettings set org.mate.media-handling automount true
+    gsettings set org.mate.media-handling automount-open true
+    rm ${INSTHOME}/.config/autostart/automount-open.desktop
+fi
+EOF
+            ;;
+         esac
+
+	if [ ! -d ${TARGET_MNT_POINT}${INSTHOME}/.config/autostart ]; then
+	    mkdir -p ${TARGET_MNT_POINT}${INSTHOME}/.config/autostart
+	fi
+
+	#
+	# fix permisions for automount-open automount-open.desktop and /.config/autostart 
+	#
 	chroot "${TARGET_MNT_POINT}" \
-	chown ${USER_NAME} /usr/share/siduction-settings/gnome/automount-open
+	chown ${USER_NAME} ${INSTHOME}/.config/autostart
 	chroot "${TARGET_MNT_POINT}" \
-	ln -sf /usr/share/siduction-settings/gnome/automount-open.desktop ${INSTHOME}/.config/autostart/automount-open.desktop
+	chgrp ${USER_NAME} ${INSTHOME}/.config/autostart
+	chmod +x ${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open
 	chroot "${TARGET_MNT_POINT}" \
-	chown ${USER_NAME} /usr/share/siduction-settings/gnome/automount-open.desktop
+	ln -sf /usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open.desktop ${INSTHOME}/.config/autostart/automount-open.desktop
+	chroot "${TARGET_MNT_POINT}" \
+	chown ${USER_NAME} /usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open
+	chroot "${TARGET_MNT_POINT}" \
+	chown ${USER_NAME} /usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open.desktop
 	fi
 }
 ##-------------------------------------

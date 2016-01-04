@@ -18,6 +18,8 @@
 # translate_linux_to_grub
 # get_boot_cmdline
 # getbootparam
+# get_esp
+# get_fat
 #
 # update_status
 # install_grub
@@ -26,180 +28,106 @@
 ##
 install_grub()
 {
-    local GRUB_KOPT
-    local GRUB_DEFOPTIONS
-    local GRUB_VGA
-    local root_partition
-    local root_device
-    local device
-    local usb_dev
-    local point
-    local bootfrom
+	local GRUB_KOPT
+	local GRUB_DEFOPTIONS
+	local GRUB_VGA
+	local root_partition
+	local root_device
+	local device
+	local usb_dev
+	local point
+	local bootfrom
+	local grubdev
+	
+	#
+	# log my call
+	#
+	logit "installing grub"
+	#
 
-    #
-    # log my call
-    #
-    logit "installing grub"
-    #
+	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
+	bootfrom=""
+        grubdev=""
 
-    root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
-    say "debug: root_partition=$root_partition"
+        case "$BOOT_WHERE" in
+                mbr)
+                        bootfrom=$(grub-mkdevicemap -n -m - | awk '/^\(hd0\)/{print $2}')
+                        grubdev="${bootfrom}"
+                        ;;
+                partition)
+                        bootfrom="${root_partition}"
+                        ;;
+        esac
+	[ -z "${bootfrom}" ] && bootfrom="${BOOT_WHERE}"
+	# grub will install on $bf and tell debconf to install it to $gds
+	gds=""
+	for bf in ${bootfrom}; do
+		# get the gd for this bf
+		# mbr might have set it but we want it reset each loop otherwise
+		if [ -z "$grubdev" ] ; then
+			gd="$(ls -l /dev/disk/by-id | awk '/\/'${bf##*/}'$/{print "/dev/disk/by-id/"$9;exit}' )"
+		else
+			gd="${grubdev}"
+		fi
+		#
+		# install grub
+		#
+		# is twice because sometimes the first one fails in that cases the second
+		# don't fail !!!
+		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bf}" >&2 || \
+			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bf}" >&2
+		if [ -z "${gds}" ]; then
+			gds="$gd"
+		else
+			gds="$gds, $gd"
+		fi
+	done
+	chroot_it sh -c "echo \"grub-pc grub-pc/install_devices multiselect ${gds}\" | debconf-set-selections "
 
-    root_device=$(get_root_device $root_partition)
-    say "debug: root_device=$root_device"
+	#
+	# portable efi 
+	#
+	# when the install is on usb and that usb has a fat partition
+	# we put portable efi bootloaders in the ESP on the device
+	# or the first fat partition
+	isusb=""
+	for disk in $(fll_disk_device ${root_partition}); do
+		if [ -n "$(fll_disk_isusb ${disk})" ]; then
+			isusb="${isusb} ${disk}"
+		else
+			# any non-usb root device means we are not going portable
+			isusb=""
+			break
+		fi
+	done
+	if [ -n "${isusb}" ]; then
+		get_usbefi ${root_partition}
+		if [ -n "${usbefi}" ]; then
+			HD_MAP="$usbefi:/boot/efi ${HD_MAP}"
 
-    device=$(echo $root_device|cut -d / -f3)
-    say "debug: device=$device"
+			# Mount it now
+			mkdir $TARGET_MNT_POINT/boot/efi
+			mount ${usbefi} $TARGET_MNT_POINT/boot/efi
 
-    usb_dev=$(echo $(readlink -f /sys/block/${device}/device) | grep usb)
-    say "debug: usb_dev=$usb_dev"
+			# Install grub-fll-portable-efi in the chroot
+			EFIAPTSOURCES=$(mktemp -d --tmpdir=${TARGET_MNT_POINT}/tmp/ liveapt.XXXXXX)
+			APTGETBASE="apt-get -o Dir::Etc=${EFIAPTSOURCES##${TARGET_MNT_POINT}}"
+			. /lib/init/fll
+			extramnt="/fll"
+			[ -e "${extramnt}/extras" ] || extramnt="$(fll_get_mnt)"
+			mount -o bind ${extramnt} ${TARGET_MNT_POINT}/mnt
+			echo 'deb file:///mnt/extras sid main' > ${EFIAPTSOURCES}/sources.list
+			mkdir ${EFIAPTSOURCES}/preferences.d
+			chroot_it ${APTGETBASE} update > /dev/null
+			chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes install grub2-fll-portable-efi > /dev/null
+			chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes remove --purge os-prober > /dev/null || :
+			umount ${TARGET_MNT_POINT}/mnt
+			echo '' > ${EFIAPTSOURCES}/sources.list
+			chroot_it ${APTGETBASE} update > /dev/null
+			chroot_it ${APTGETBASE} clean > /dev/null
+			rm -rf ${EFIAPTSOURCES}
+		fi
+	fi
 
-    # if the user chooses an USB device for the Grub installation we ignore
-    # that ( at least till further investigation) and set it to "partition"
-    case $BOOT_WHERE in
-        mbr)
-            bootfrom="(hd0)"
-            ;;
-        partition)
-            bootfrom="${root_partition}"
-            ;;
-        /dev/[hsv]d[a-z])
-            device=$(echo ${BOOT_WHERE}|cut -d / -f3)
-            if [ -n "$usb_dev" ]; then
-                bootfrom="${root_partition}"
-            else
-                bootfrom="${BOOT_WHERE}"
-            fi
-        ;;
-        "")
-            bootfrom="(hd0)"
-            ;;
-        *)
-            bootfrom="${root_partition}"
-    esac
-
-    if [ -n "${usb_dev}" ]; then
-        # USB install must have first Grub on partition
-        bootfrom=${HD_CHOICE}
-    else
-        # in case of jfs/xfs force installation to mbr
-        # but only if HD is not on USB and it's not already MBR
-        if [ "${BOOT_WHERE}" = "partition" ]; then
-            case "$HD_FSTYPE" in
-            jfs|xfs) bootfrom=${root_device};;
-            esac
-        fi
-    fi
-
-    if [ $bootfrom="(hd0)" ]; then
-        if [ -f $TARGET_MNT_POINT/boot/grub/device.map ]; then
-            say "$TARGET_MNT_POINT/boot/grub/device.map found - ok"
-        else
-            say "$TARGET_MNT_POINT/boot/grub/device.map not found - create a new one"
-            grub-mkdevicemap --device-map="$TARGET_MNT_POINT/boot/grub/device.map"
-        fi
-    fi
-
-    say "debug: BOOT_WHERE=$BOOT_WHERE"
-    say "debug: bootfrom=$bootfrom"
-
-    # installing on MBR
-        # for debugging purposes we redirect the output of stdout and stderr to /root/fll-backup-mbr
-    if [ "$bootfrom" = "$(get_root_device ${bootfrom})" ]
-    then
-        # Make a backup of the old mbr
-        dd if=${bootfrom} of=$TARGET_MNT_POINT/boot/${FLL_DISTRO_NAME}-old-mbr.$(date -I) \
-            bs=446 count=1 > /root/fll-install-grub  2>&1
-    fi
-
-    #
-    # install grub
-    #
-    say "grub --root-directory=$TARGET_MNT_POINT "
-    # sometimes the first attempt to write grub fails, in this case the second attemt don't fail
-    # AG 2013-03-16
-    # we want to know, why the first attempt fail, so we redirect stdout and stderr to /root/fll-install-grub
-    # it's nothing really new in this code, but we have the chance to debug this ill behavior
-    # AG 2013-03-20
-    # Don't know, if the double writing of boot will make any sense with the new structure - but it does no harm
-    # so i decided to leave this like it is
-    if [ "${bootfrom}" = "$(get_root_device ${bootfrom})" ]
-    then # install on a disk
-        if [ "${bootfrom}" = "(hd0)" ]; then
-            say "Choice: Install on ${bootfrom}"
-            grub-install --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-            grub-install --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-        else
-            grub-install --recheck --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-            grub-install --recheck --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-       fi
-    else # install on partition
-        say "Choice: Install on partition $bootfrom"
-        grub-install --recheck --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-        grub-install --recheck --force --root-directory=$TARGET_MNT_POINT "${bootfrom}" >> /root/fll-install-grub 2>&1
-    fi
-
-    #
-    # Create initital grub configuration (grub2 ignores -y)
-    #
-    say "create initial grub configuration"
-
-    if [ -e "${TARGET_MNT_POINT}/etc/default/grub" ]; then
-        #TODO a proper configuration
-        # propagate the default video mode
-        # extract vga mode from CMDLINE
-        GRUB_DEFOPTIONS=""
-        GRUB_VGA=$(getbootparam vga)
-        [ -n "$GRUB_VGA" ] && GRUB_DEFOPTIONS="vga=$GRUB_VGA"
-
-        # find out what cryptopts we need for /
-        cryptopts=""
-        rooton=""
-        vg=$(lvs --noheadings -o vg_name $root_device 2>/dev/null | xargs echo)
-        if [ -n "$vg" ]; then
-            # / is in a lvm volume group
-            pv=$(vgs --noheadings -o pv_name $vg  2>/dev/null | xargs echo)
-            for p in $pv ; do
-                # p is a physical volume in vg needed for /
-                # get it's /dev/mapper name
-                dmname=$(dmsetup --columns --noheadings -o name info $p  2>/dev/null | xargs echo)
-                if [ -n "$dmname" ]; then
-                    rooton="$rooton $dmname"
-                fi
-            done
-        else
-            # check any /dev/mapper device
-            [ "${root_device}" = "${root_device##/dev/mapper/}" ] || rooton="${root_device##/dev/mapper/}"
-        fi
-        # if we found any mapper devices to check for crypt
-        for dev in $rooton ; do
-            cryptsource=$(cryptsetup status $dev 2>/dev/null | awk -F: '/device:/{print $2}' | xargs echo)
-            if [ -n "$cryptsource" ] ; then
-                if [ "${cryptsource}" = "${cryptsource#/dev/mapper/}" ]; then
-                    # use uuid if possible for non /dev/mapper devices
-                    cryptuuid=$(udevadm info -q env --name ${cryptsource} | \
-                    awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
-                    if [ -n "${cryptuuid}" ]; then
-                        cryptsource="UUID=${cryptuuid}"
-                    fi
-                fi
-                # $dev is a crypted device on $cryptsource
-                if [ -z "$GRUB_DEFOPTIONS" ]; then
-                    GRUB_DEFOPTIONS="cryptopts=source=$cryptsource,target=$dev"
-                else
-                    GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS} cryptopts=source=$cryptsource,target=$dev"
-                fi
-                # root is in a volume group so scan it
-                [ -n "$vg" ] && GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS},lvm=${root_device##/dev/mapper/}"
-                echo "$dev	$cryptsource	none	luks" >> /etc/crypttab
-            fi
-        done
-        sed -i -e "s#\(GRUB_CMDLINE_LINUX=\).*#\1\"${GRUB_DEFOPTIONS}\"#"  \
-        ${TARGET_MNT_POINT}/etc/default/grub
-    fi
-
-    # update the grub config with our changes
-    chroot_it update-grub >&2
-
-    return 0
+	return 0
 }

@@ -4,6 +4,86 @@ fll-installer (2015.01.05) unstable; urgency=medium
 
  -- J. Hamatoma <hama@siduction.net>  Tue, 05 Jan 2016 00:33:31 +0100
 
+fll-installer (2015.12.06) unstable; urgency=medium
+
+  * remove *-livesettings packages
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 06 Dec 2015 23:49:52 +0100
+
+fll-installer (2015.04.26) unstable; urgency=low
+
+  * move to unstable
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 26 Apr 2015 16:42:57 +0200
+
+fll-installer (2015.03.23) experimental; urgency=medium
+
+  * upstream merges and latest changes by convbsd 
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 23 Mar 2015 00:20:59 +0100
+
+fll-installer (2014.12.10) unstable; urgency=medium
+
+  * enable grubthemes, if installed
+  * merge upstream
+
+ -- Alf Gaida <agaida@siduction.org>  Wed, 10 Dec 2014 23:12:15 +0100
+
+fll-installer (2014.10.04) unstable; urgency=medium
+
+  * update-initramfs changed
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 05 Oct 2014 16:29:17 +0200
+
+fll-installer (2014.09.29) unstable; urgency=medium
+
+  * initramfs update instead of creation
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 29 Sep 2014 23:24:22 +0200
+
+fll-installer (2014.09.06) unstable; urgency=medium
+
+  * merging upstream 
+
+ -- Alf Gaida <agaida@siduction.org>  Sat, 06 Sep 2014 23:22:16 +0200
+
+fll-installer (2014.09.04) unstable; urgency=medium
+
+  [ Angelescu Ovidiu ]
+  * changed fix_home_on_HD.bm for reenabling automount and
+    automount-open in gnome, mate and cinnamon
+
+  [ Alf Gaida ]
+  * rebuild closes #1676 
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 04 Sep 2014 19:17:57 +0200
+
+fll-installer (2014.02.10) unstable; urgency=medium
+
+  * purge gfxboot in purge live only 
+
+ -- Alf Gaida <agaida@siduction.org>  Mon, 10 Feb 2014 19:09:08 +0100
+
+fll-installer (2014.01.22) unstable; urgency=medium
+
+  * purge live only now purge syslinux and syslinux common 
+
+ -- Alf Gaida <agaida@siduction.org>  Wed, 22 Jan 2014 19:56:54 +0100
+
+fll-installer (2014.01.10) unstable; urgency=medium
+
+  * new version, new dependencies
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 09 Jan 2014 23:12:17 +0100
+
+fll-installer (2014.01.09) unstable; urgency=medium
+
+  * versioned dependency - version changed for 
+    fll-live-initscripts (>= 2013.12.11)
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 09 Jan 2014 19:06:47 +0100
+>>>>>>> 0adda8ed064e39a1a396a30829c597d2ae6df4c9
+
 fll-installer (2014.01.04) unstable; urgency=low
 
   * browser cache cleared for midory and quzilla

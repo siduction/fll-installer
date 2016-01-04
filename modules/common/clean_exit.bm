@@ -11,6 +11,8 @@
 ##
 clean_exit()
 {
+	DURATION=$(($(date +%s) - STARTTIME))
+	say "Exiting after $((DURATION / 60)):$((DURATION % 60))." 
 	[ -n "$TMPDIR" ] && rm -rf "$TMPDIR"
 	if [ "$1" = "0" ]; then
 		logit "$FLL_DISTRO_NAME-installer terminated"

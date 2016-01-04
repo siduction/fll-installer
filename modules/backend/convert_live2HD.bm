@@ -7,12 +7,8 @@
 # logit
 # progress
 # update_passwd
-# copy_etc2HD
-# copy_home2HD
 # fix_home_on_HD
 # fix_etc_on_HD
-# fix_boot_on_HD
-# system_create_modules
 # system_services
 #
 ##-------------------------------------
@@ -34,8 +30,6 @@ convert_live2HD()
 	fix_etc_on_HD
 
 	fix_locales_on_HD
-	
-	fix_boot_on_HD
 
 	progress "Converting live system to Debian..."
 

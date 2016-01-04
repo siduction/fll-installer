@@ -3,8 +3,12 @@
 # Needs:
 # FLL_DISTRO_MODE
 # TARGET_MNT_POINT
+<<<<<<< HEAD
 # DSFG_ONLY
 ##
+=======
+#
+>>>>>>> 0adda8ed064e39a1a396a30829c597d2ae6df4c9
 # Calls:
 # logit
 # chroot_it
@@ -18,7 +22,7 @@ purge_live_only_stuff() {
     logit "purge_live_only_stuff"
     #
     local installed_packages
-    
+
     # divert /usr/sbin/policy-rc.d temporarily to protect
     # the chroot from invoke-rc.d calls
     chroot_it dpkg-divert --divert /usr/sbin/policy-rc.d.REAL \
@@ -27,12 +31,18 @@ purge_live_only_stuff() {
     chmod +x "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
 
     # purge live-specific packages
-    for i in cli-installer \
+    for i in \
+        cli-installer \
+        desktop-defaults-*\
+        gfxboot \
         fll-* \
+        kexec-tools \
+        *-livesettings \
         nbd-client \
         setpassword \
         sidu-installer \
-        sshstart; do
+        sshstart \
+        syslinux-common; do
         logit "Purge: $i"
         chroot_it apt-get purge --assume-yes $i
     done
@@ -61,7 +71,7 @@ purge_live_only_stuff() {
     # remove divert
     rm -f "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
     chroot_it dpkg-divert --rename --remove /usr/sbin/policy-rc.d
-	
+
     #  disable live config
     if [ -f "${TARGET_MNT_POINT}/etc/default/distro" ]; then
         sed -i "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" \

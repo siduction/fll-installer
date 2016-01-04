@@ -6,8 +6,6 @@
 # HOST_NAME
 # FLL_MOUNTPOINT
 # USER_NAME
-# DEFAULT_USER
-# THEME
 #
 # Calls:
 # logit
@@ -53,28 +51,33 @@ fix_etc_on_HD () {
 	chroot_it deluser "${USER_NAME}" sudo
 
 	#
-	# "normalize" /etc/inittab
+	# "normalize" gettys
 	#
-	sed -i -e 's@/sbin/getty -n -i -l /usr/bin/fll_login@/sbin/getty@' \
-			"${TARGET_MNT_POINT}/etc/inittab"
+
+	# sysvinit
+	if [ -r "${TARGET_MNT_POINT}/usr/share/sysvinit/inittab" ]; then
+		cp -f	"${TARGET_MNT_POINT}/usr/share/sysvinit/inittab" \
+				"${TARGET_MNT_POINT}/etc/inittab"
+
+		sed -i	-e 's/^\([2-6]\):23:respawn/\1:2345:respawn/' \
+			-e 's/id:[0-6]:initdefault:/id:5:initdefault:/' \
+				"${TARGET_MNT_POINT}/etc/inittab"
+	fi
+
+	# systemd
+	if [ -r "${TARGET_MNT_POINT}/etc/systemd/system/getty@.service" ]; then
+		rm -f	"${TARGET_MNT_POINT}/etc/systemd/system/getty@.service" \
+			"${TARGET_MNT_POINT}/etc/systemd/system/autovt@.service"
+
+		ln -fs	/lib/systemd/system/autovt@.service \
+			"${TARGET_MNT_POINT}/etc/systemd/system/getty.target.wants/getty@tty1.service"
+	fi
 	
 	#
 	# normalize /etc/pam.d/login
 	#
 	if [ -f "${TARGET_MNT_POINT}/etc/pam.d/login" ]; then
 		sed -i '/^#.*pam_lastlog\.so/s/^#[ \t]\+//' "${TARGET_MNT_POINT}/etc/pam.d/login"
-	fi
-
-	#
-	# make sure that /etc/mtab is either:
-	# - an empty regular file
-	# - or a symlink pointing to /proc/mounts
-	#
-	if [ -f "${TARGET_MNT_POINT}/etc/mtab" ]; then
-		:> "${TARGET_MNT_POINT}/etc/mtab"
-	else
-		rm -f "${TARGET_MNT_POINT}/etc/mtab"
-		ln -sf /proc/mounts "${TARGET_MNT_POINT}/etc/mtab"
 	fi
 
 	#
@@ -132,21 +135,5 @@ fix_etc_on_HD () {
 			"${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf"
 	fi
 
-	#
-	# prepares grub-theme-siduction-$RELEASE settings
-	# 
-	DET_RES=$(su ${DEFAULT_USER} -c xrandr | head -n 1 | awk '{print $8.$9.$10}'| cut -d , -f1 )
-	GRUB_RES=$(hwinfo --framebuffer | grep $DET_RES | head -n 1| awk '{print $3}')
-	GRUBTHEME="/usr/share/grub/themes/${THEME}/theme-${GRUB_RES}.txt"
-	if  [ -f "${GRUBTHEME}" ] && [ "x$GRUB_RES" != "x" ]; then
-		sed -i '/GRUB_THEME=.*/d' "${TARGET_MNT_POINT}/etc/default/grub"
-		sed -i '/GRUB_GFXPAYLOAD_LINUX=.*/d' "${TARGET_MNT_POINT}/etc/default/grub"
- 
-		sed -i "s#\#GRUB_GFXMODE=.*#GRUB_GFXMODE=${GRUB_RES} \
-		\nGRUB_GFXPAYLOAD_LINUX=${GRUB_RES} \
-		\nGRUB_THEME=\"$GRUBTHEME\"#"  "${TARGET_MNT_POINT}/etc/default/grub"
-       fi
-
 	return 0
 }
- 

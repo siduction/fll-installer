@@ -25,28 +25,77 @@ get_efisys () {
 	do
 		# next disk if usb
 		[ -n "$(echo $(readlink -f /sys/block/${disk##*/}/device) | grep 'usb')" ] && continue
-		# GPT disks appear in fdisk as a single partition of System GPT
-		parts=$(fdisk -l $disk | grep -v "Extended" | \
-		        grep '^/dev/' | cut -d " " -f1 | cut -d "/" -f 3)
-		if [ "/dev/${parts}" = "${disk}1" ] && \
-		   [ -n "$(fdisk -l $disk | awk '/^\/dev\//{if($6 == "GPT"){print "GPT"}}')" ]
-		then
-			# use gdisk to check for efi system partition
-			efis="$(gdisk -l ${disk} | \
-			        awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'"$1}}')"
-			# stop on the first vfat partition found setting efisys
-			for efi in $efis ; do
-				[ "$(blkid -s TYPE -o value ${efi})" = "vfat" ] && \
-				    efisys="${efi}" && break 2
-			done
-		fi
+		get_esp "${disk}"
+		efisys="${esp}"
 	done
 }
 
 #
 ###-------------------------------------
 #
+get_esp () {
+	disk="${1}"
+	if LANG=C  fdisk -l ${disk} | grep -q 'Disklabel type: gpt'
+	then
+		# use gdisk to check for efi system partition
+		efis="$(gdisk -l ${disk} | \
+			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'"$1}}')"
+		# stop on the first vfat partition found setting esp
+		for efi in $efis ; do
+			[ "$(blkid -s TYPE -o value ${efi})" = "vfat" ] && \
+				esp="${efi}" && break
+		done
+	fi
+}
 
+#
+###-------------------------------------
+#
+get_fat () {
+	disk="${1}"
+	if LANG=C fdisk -l ${disk} | grep -q 'Disklabel type: gpt'
+	then
+		# use gdisk to check for partitions
+		parts="$(gdisk -l ${disk} | \
+			awk '/^ +[[:digit:]]/{print "'${disk}'"$1}')"
+		# stop on the first vfat partition
+		for part in $parts ; do
+			[ "$(blkid -s TYPE -o value ${part})" = "vfat" ] && \
+				fat="${part}" && break
+		done
+	else
+		# use fdisk to check for partitions
+		parts="$(fdisk -l ${disk} | \
+			awk '/^\//{print $1}')"
+		# stop on the first vfat partition
+		for part in $parts ; do
+			[ "$(blkid -s TYPE -o value ${part})" = "vfat" ] && \
+				fat="${part}" && break
+		done
+	fi
+}
+
+#
+###-------------------------------------
+#
+get_usbefi () {
+	# given a partition, finds an efi on a usb disk it is on
+	# failing that the first fat partition a disk it requires has
+	usbdisk="${1}"
+	usbefi=""
+	fat=""
+	for disk in $(fll_disk_usb ${usbdisk}) ; do
+		get_esp "${disk}"
+		[ -n "$esp" ] && break
+		[ -z "$fat" ] && get_fat "${disk}"
+	done
+	[ -z "$esp" ] && [ -n "$fat" ] && esp="$fat"
+	[ -n "${esp}" ] && usbefi="${esp}"
+}
+
+#
+###-------------------------------------
+#
 TARGET_MNT_POINT="/fll/hdinstall" 
 TARGET_MNT_NAME="hdinstall" 
 
