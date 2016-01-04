@@ -1,3 +1,9 @@
+fll-installer (2015.01.05) unstable; urgency=medium
+
+  * removing non DSFG compliant packages
+
+ -- J. Hamatoma <hama@siduction.net>  Tue, 05 Jan 2016 00:33:31 +0100
+
 fll-installer (2014.01.04) unstable; urgency=low
 
   * browser cache cleared for midory and quzilla

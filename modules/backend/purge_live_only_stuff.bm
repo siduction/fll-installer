@@ -1,8 +1,9 @@
-##
+----##
 ##-------------------------------------
 # Needs:
 # FLL_DISTRO_MODE
 # TARGET_MNT_POINT
+# DSFG_ONLY
 ##
 # Calls:
 # logit
@@ -35,6 +36,16 @@ purge_live_only_stuff() {
         logit "Purge: $i"
         chroot_it apt-get purge --assume-yes $i
     done
+    
+    if [ -n "$DSFG_ONLY" ] ; then
+		VMRS_OUT=$(vmrs -s)
+		if [ -z "$VMRS_OUT" ] ; then
+			logit "+++ nothing found: vmrs -s"
+		else
+			logit "Purge not DSFG package $VMRS_OUT:"
+			apt-get purge $VMRS_OUT 
+		fi
+    fi
     # more verbose for tests  >&2
 
     logit "purge_live_only_stuff purged"
