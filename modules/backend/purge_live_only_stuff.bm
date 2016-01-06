@@ -44,12 +44,12 @@ purge_live_only_stuff() {
     done
     
     if [ "$FREE_SW_ONLY" = "T" ] ; then
-		VMRS_OUT=$(vmrs -s)
-		if [ -z "$VMRS_OUT" ] ; then
-			logit "+++ nothing found: vmrs -s"
+		VRMS_OUT=$(vrms -s)
+		if [ -z "$VRMS_OUT" ] ; then
+			logit "+++ nothing found: vrms -s"
 		else
-			logit "Purge not DSFG package $VMRS_OUT:"
-			apt-get purge $VMRS_OUT 
+			logit "Purge not DSFG packages $VRMS_OUT:"
+			apt-get purge $VRMS_OUT
 		fi
     fi
     # more verbose for tests  >&2
