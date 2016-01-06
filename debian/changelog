@@ -11,6 +11,12 @@ fll-installer (2016.01.05) unstable; urgency=medium
 
  -- J. Hamatoma <hama@siduction.net>  Tue, 05 Jan 2016 00:33:31 +0100
 
+fll-installer (2015.12.31) unstable; urgency=medium
+
+  * remove *-gfxboot-core too
+
+ -- Alf Gaida <agaida@siduction.org>  Thu, 31 Dec 2015 19:31:13 +0100
+
 fll-installer (2015.12.06) unstable; urgency=medium
 
   * remove *-livesettings packages
