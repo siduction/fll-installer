@@ -3,12 +3,8 @@
 # Needs:
 # FLL_DISTRO_MODE
 # TARGET_MNT_POINT
-<<<<<<< HEAD
-# DSFG_ONLY
+# FREE_SW_ONLY
 ##
-=======
-#
->>>>>>> 0adda8ed064e39a1a396a30829c597d2ae6df4c9
 # Calls:
 # logit
 # chroot_it
@@ -47,7 +43,7 @@ purge_live_only_stuff() {
         chroot_it apt-get purge --assume-yes $i
     done
     
-    if [ -n "$DSFG_ONLY" ] ; then
+    if [ "$FREE_SW_ONLY" = "T" ] ; then
 		VMRS_OUT=$(vmrs -s)
 		if [ -z "$VMRS_OUT" ] ; then
 			logit "+++ nothing found: vmrs -s"
