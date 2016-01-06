@@ -1,3 +1,16 @@
+fll-installer (2016.01.06.3) unstable; urgency=medium
+
+  * extend logging informations
+
+ -- Alf Gaida <agaida@siduction.org>  Wed, 06 Jan 2016 03:23:16 +0100
+
+fll-installer (2016.01.06.2) unstable; urgency=medium
+
+  * check for non-free packages in live system - should be the same
+    as in the chroot - delete the packages in the chroot.
+
+ -- Alf Gaida <agaida@siduction.org>  Wed, 06 Jan 2016 02:55:30 +0100
+
 fll-installer (2016.01.06.1) unstable; urgency=medium
 
   * place the purge in the chroot

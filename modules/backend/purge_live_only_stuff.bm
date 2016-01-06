@@ -44,8 +44,10 @@ purge_live_only_stuff() {
         chroot_it apt-get purge --assume-yes $i
     done
 
+    logit "Free SW only: ${FREE_SW_ONLY}"    
+
     if [ "${FREE_SW_ONLY}" = "T" ]; then
-        VMRS_OUT=$(chroot_it vmrs -s)
+        VMRS_OUT=$(vmrs -s)
         if [ -z "${VMRS_OUT}" ]; then
             logit "+++ nothing found: vmrs -s"
         else
