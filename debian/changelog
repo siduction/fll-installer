@@ -1,3 +1,10 @@
+fll-installer (2016.01.06.1) unstable; urgency=medium
+
+  * place the purge in the chroot
+  * fix some whitespaces
+
+ -- Alf Gaida <agaida@siduction.org>  Wed, 06 Jan 2016 02:22:42 +0100
+
 fll-installer (2016.01.06) unstable; urgency=medium
 
   * unhandled conflict markers
@@ -95,7 +102,6 @@ fll-installer (2014.01.09) unstable; urgency=medium
     fll-live-initscripts (>= 2013.12.11)
 
  -- Alf Gaida <agaida@siduction.org>  Thu, 09 Jan 2014 19:06:47 +0100
->>>>>>> 0adda8ed064e39a1a396a30829c597d2ae6df4c9
 
 fll-installer (2014.01.04) unstable; urgency=low
 
