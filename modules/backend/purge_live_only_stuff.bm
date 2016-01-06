@@ -43,15 +43,17 @@ purge_live_only_stuff() {
         logit "Purge: $i"
         chroot_it apt-get purge --assume-yes $i
     done
-    
-    if [ "$FREE_SW_ONLY" = "T" ] ; then
-		VRMS_OUT=$(vrms -s)
-		if [ -z "$VRMS_OUT" ] ; then
-			logit "+++ nothing found: vrms -s"
-		else
-			logit "Purge not DSFG packages $VRMS_OUT:"
-			apt-get purge $VRMS_OUT
-		fi
+
+    logit "Free SW only: ${FREE_SW_ONLY}"    
+
+    if [ "${FREE_SW_ONLY}" = "T" ]; then
+        VRMS_OUT=$(vrms -s)
+        if [ -z "${VRMS_OUT}" ]; then
+            logit "+++ nothing found: vrms -s"
+        else
+            logit "Purge not DSFG package ${VRMS_OUT}:"
+            chroot_it apt-get purge ${VRMS_OUT} --assume-yes 
+        fi
     fi
     # more verbose for tests  >&2
 
