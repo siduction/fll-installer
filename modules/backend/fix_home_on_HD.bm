@@ -54,15 +54,16 @@ fix_home_on_HD()
 	# purge content of some dirs
 	#
 	for dir in	${TARGET_MNT_POINT}${INSTHOME}/.cache \
-	        	${TARGET_MNT_POINT}${INSTHOME}/.config/midori \
-		        ${TARGET_MNT_POINT}${INSTHOME}/.config/qupzilla/profiles ; do
+			${TARGET_MNT_POINT}${INSTHOME}/.config/midori \
+			${TARGET_MNT_POINT}${INSTHOME}/.config/qupzilla/profiles ; do
 		[ -d "$dir" ] && rm -Rf ${dir}/*
 	done
 
 	#
 	# revert sudo workarounds
 	#
-	for file in	"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/config/kdesurc" \
+	for file in	"${TARGET_MNT_POINT}${INSTHOME}/.config/kdesurc" \
+			"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/config/kdesurc" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/apps/konsole/sumc.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/apps/konsole/su.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.gconf/apps/gksu/%gconf.xml" \
@@ -97,9 +98,9 @@ fix_home_on_HD()
 	# enable automount-open for gnome, mate and cinnamon in install mode
 	#
 	if [ -d /usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE} ]; then
-	case "$FLL_FLAVOUR" in
-        gnome)
-            cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
+		case "$FLL_FLAVOUR" in
+			gnome)
+				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
 #!/bin/sh
 if [ ! -d /usr/share/fll-installer ]; then
     gsettings set org.gnome.desktop.media-handling automount true
@@ -107,9 +108,9 @@ if [ ! -d /usr/share/fll-installer ]; then
     rm ${INSTHOME}/.config/autostart/automount-open.desktop
 fi
 EOF
-            ;;
-        cinnamon)
-            cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
+			;;
+			cinnamon)
+				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
 #!/bin/sh
 if [ ! -d /usr/share/fll-installer ]; then
     gsettings set org.cinnamon.desktop.media-handling automount true
@@ -117,9 +118,9 @@ if [ ! -d /usr/share/fll-installer ]; then
     rm ${INSTHOME}/.config/autostart/automount-open.desktop
 fi
 EOF
-             ;;
-        mate)
-            cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
+				;;
+			mate)
+				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
 #!/bin/sh
 if [ ! -d /usr/share/fll-installer ]; then
     gsettings set org.mate.media-handling automount true
@@ -127,12 +128,11 @@ if [ ! -d /usr/share/fll-installer ]; then
     rm ${INSTHOME}/.config/autostart/automount-open.desktop
 fi
 EOF
-            ;;
-         esac
+				;;
+	esac
 
-	if [ ! -d ${TARGET_MNT_POINT}${INSTHOME}/.config/autostart ]; then
-	    mkdir -p ${TARGET_MNT_POINT}${INSTHOME}/.config/autostart
-	fi
+	# We don't check existence, -p handles that
+	mkdir -p ${TARGET_MNT_POINT}${INSTHOME}/.config/autostart
 
 	#
 	# fix permisions for automount-open automount-open.desktop and /.config/autostart 

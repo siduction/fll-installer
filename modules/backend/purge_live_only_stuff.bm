@@ -1,79 +1,81 @@
-----##
+##
 ##-------------------------------------
 # Needs:
 # FLL_DISTRO_MODE
 # TARGET_MNT_POINT
 # FREE_SW_ONLY
-##
+#
 # Calls:
 # logit
 # chroot_it
 #
 ##-------------------------------------
 ##
-purge_live_only_stuff() {
-    #
-    # log my call
-    #
-    logit "purge_live_only_stuff"
-    #
-    local installed_packages
+purge_live_only_stuff()
+{
+	#
+	# log my call
+	#
+	logit "purge_live_only_stuff"
+	#
+	local installed_packages
 
-    # divert /usr/sbin/policy-rc.d temporarily to protect
-    # the chroot from invoke-rc.d calls
-    chroot_it dpkg-divert --divert /usr/sbin/policy-rc.d.REAL \
-        --local --rename --add /usr/sbin/policy-rc.d
-    printf '#!/bin/sh\nexit 101\n' > "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
-    chmod +x "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+	# divert /usr/sbin/policy-rc.d temporarily to protect
+	# the chroot from invoke-rc.d calls
+	chroot_it dpkg-divert --divert /usr/sbin/policy-rc.d.REAL \
+		--local --rename --add /usr/sbin/policy-rc.d
+	printf '#!/bin/sh\nexit 101\n' > "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+	chmod +x "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
 
-    # purge live-specific packages
-    for i in \
-        cli-installer \
-        desktop-defaults-*\
-        gfxboot \
-        *-gfxboot-core \
-        fll-* \
-        kexec-tools \
-        *-livesettings \
-        nbd-client \
-        setpassword \
-        sidu-installer \
-        sshstart \
-        syslinux-common; do
-        logit "Purge: $i"
-        chroot_it apt-get purge --assume-yes $i
-    done
+	# purge live-specific packages
+	for i in \
+		cli-installer \
+		desktop-defaults-*\
+		gfxboot \
+		*-gfxboot-core \
+		fll-* \
+		kexec-tools \
+		*-livesettings \
+		nbd-client \
+		setpassword \
+		sidu-installer \
+		sshstart \
+		syslinux-common; do
+		logit "Purge: $i"
+		chroot_it apt-get purge --assume-yes $i >&2
+	done
 
-    logit "Free SW only: ${FREE_SW_ONLY}"    
+	# purge kexec-tools on uefi systems, where garbage collection is
+	# crucial
+	chroot_it dpkg --purge	kexec-tools >&2
 
-    if [ "${FREE_SW_ONLY}" = "T" ]; then
-        VRMS_OUT=$(vrms -s)
-        if [ -z "${VRMS_OUT}" ]; then
-            logit "+++ nothing found: vrms -s"
-        else
-            logit "Purge not DSFG package ${VRMS_OUT}:"
-            chroot_it apt-get purge ${VRMS_OUT} --assume-yes 
-        fi
-    fi
-    # more verbose for tests  >&2
+	logit "Free SW only: ${FREE_SW_ONLY}"    
+	if [ "${FREE_SW_ONLY}" = "T" ]; then
+		VRMS_OUT=$(vrms -s)
+		if [ -z "${VRMS_OUT}" ]; then
+			logit "+++ nothing found: vrms -s"
+		else
+			logit "Purge not DSFG package ${VRMS_OUT}:"
+			chroot_it apt-get purge ${VRMS_OUT} --assume-yes >&2
+		fi
+	fi
+	logit "purge_live_only_stuff purged"
 
-    logit "purge_live_only_stuff purged"
+	# remove virtualisation helpers on non-emulated hardware
+	if [ -z "$(lspci -d 80ee:beef)" ]; then
+		installed_packages=$(dpkg -l |awk '/virtualbox\-ose\-guest\-modules/{print $2}')
+		if [ -n "${installed_packages}" ]; then
+		   chroot_it dpkg --purge ${installed_packages} >&2
+		fi
+	fi
 
-    # remove virtualisation helpers on non-emulated hardware
-    if [ -z "$(lspci -d 80ee:beef)" ]; then
-        installed_packages=$(dpkg -l |awk '/virtualbox\-ose\-guest\-modules/{print $2}')
-        if [ -n "${installed_packages}" ]; then
-            chroot_it dpkg --purge ${installed_packages} >&2
-        fi
-    fi
+	# remove divert
+	rm -f "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
+	chroot_it dpkg-divert --rename --remove /usr/sbin/policy-rc.d
 
-    # remove divert
-    rm -f "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
-    chroot_it dpkg-divert --rename --remove /usr/sbin/policy-rc.d
-
-    #  disable live config
-    if [ -f "${TARGET_MNT_POINT}/etc/default/distro" ]; then
-        sed -i "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" \
-            "${TARGET_MNT_POINT}/etc/default/distro"
-    fi
+	#  disable live config
+	if [ -f "${TARGET_MNT_POINT}/etc/default/distro" ]; then
+		sed -i "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" \
+			"${TARGET_MNT_POINT}/etc/default/distro"
+	fi
 }

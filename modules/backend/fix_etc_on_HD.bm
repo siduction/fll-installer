@@ -97,13 +97,6 @@ fix_etc_on_HD () {
 	fi
 
 	#
-	# revert KDM autologin
-	#
-	if [ -f  "${TARGET_MNT_POINT}/etc/default/kdm.d/autologin" ]; then
-		rm -f "${TARGET_MNT_POINT}/etc/default/kdm.d/autologin"
-	fi
-
-	#
 	# revert GDM3 autologin
 	#
 	if [ -f "${TARGET_MNT_POINT}/etc/gdm3/daemon.conf" ]; then
@@ -118,6 +111,37 @@ fix_etc_on_HD () {
 	fi
 
 	#
+	# revert KDM autologin
+	#
+	if [ -f  "${TARGET_MNT_POINT}/etc/default/kdm.d/autologin" ]; then
+		rm -f "${TARGET_MNT_POINT}/etc/default/kdm.d/autologin"
+	fi
+
+	#
+	# revert lightdm autologin
+	#
+	if [ -f "${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf.d/80_fll-live-initscripts.conf" ]; then
+		rm -f "${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf.d/80_fll-live-initscripts.conf"
+		rmdir --ignore-fail-on-non-empty \
+			"${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf.d" || :
+	fi
+
+	#
+	# revert lxdm autologin
+	#
+	if [ -f "${TARGET_MNT_POINT}/etc/lxdm/live.conf" ] && \
+	   [ -f "${TARGET_MNT_POINT}/etc/lxdm/lxdm.conf" ]; then
+		rm -f "${TARGET_MNT_POINT}/etc/lxdm/live.conf"
+		ln -fs lxdm.conf "${TARGET_MNT_POINT}/etc/lxdm/default.conf"
+	fi
+
+	#
+	# revert SDDM autologin
+	#
+	rm -f	"${TARGET_MNT_POINT}/etc/sddm.conf" \
+		"${TARGET_MNT_POINT}/var/lib/sddm/state.conf"
+
+	#
 	# revert slim autologin
 	#
 	if [ -f "${TARGET_MNT_POINT}/etc/slim.conf" ]; then
@@ -125,14 +149,6 @@ fix_etc_on_HD () {
 			-e "/^auto_login.*/d" \
 			-e "s/^\#FLL\#//" \
 				"${TARGET_MNT_POINT}/etc/slim.conf"
-	fi
-
-	#
-	# revert lightdm autologin
-	#
-	if [ -f "${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf" ]; then
-		sed -i -e "s/^autologin-user/\#autologin-user/" \
-			"${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf"
 	fi
 
 	return 0
