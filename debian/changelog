@@ -1,8 +1,17 @@
-fll-installer (0.11.3) UNRELEASED; urgency=medium
+fll-installer (0.11.3) unstable; urgency=medium
 
+  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
+  
+  [ Alf Gaida ]
+  * take the whole upstream changelog, drop our changelog
+  * go with upstream versions
+  * leave only important changes in our sources
+    - Zeppo, hama, myself and other contributors - you are not
+      forgotten, but i had to clean up the diffs - sorry. The
+      commits and living code are still in git 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 24 Feb 2016 22:38:40 +0100
+ -- Alf Gaida <agaida@siduction.org>  Sat, 25 Jun 2016 11:04:38 +0200
 
 fll-installer (0.11.2) unstable; urgency=medium
 
