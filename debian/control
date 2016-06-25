@@ -23,7 +23,7 @@ Depends: ${misc:Depends},
  whois,
  os-prober,
  rsync,
- fll-live-initscripts (>= 2014.01.10)
+ fll-live-initscripts
 Breaks: initscripts (<< 2.88dsf-16~)
 Recommends: sidu-installer
 Suggests: gparted,

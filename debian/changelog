@@ -6,12 +6,13 @@ fll-installer (0.11.3) unstable; urgency=medium
   [ Alf Gaida ]
   * take the whole upstream changelog, drop our changelog
   * go with upstream versions
+  * remove fll-live-initscripts version
   * leave only important changes in our sources
     - Zeppo, hama, myself and other contributors - you are not
       forgotten, but i had to clean up the diffs - sorry. The
       commits and living code are still in git 
 
- -- Alf Gaida <agaida@siduction.org>  Sat, 25 Jun 2016 11:04:38 +0200
+ -- Alf Gaida <agaida@siduction.org>  Sat, 25 Jun 2016 15:00:12 +0200
 
 fll-installer (0.11.2) unstable; urgency=medium
 
