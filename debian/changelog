@@ -1,638 +1,369 @@
-fll-installer (2016.01.06.4) UNRELEASED; urgency=medium
+fll-installer (0.11.3) UNRELEASED; urgency=medium
 
-  * merge alf into master
+  * NOT RELEASED YET
 
- -- Alf Gaida <agaida@siduction.org>  Wed, 06 Jan 2016 15:45:05 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 24 Feb 2016 22:38:40 +0100
 
-fll-installer (2016.01.06.3) unstable; urgency=medium
+fll-installer (0.11.2) unstable; urgency=medium
 
-  * extend logging informations
+  * generate ed25519 ssh host keys.
 
- -- Alf Gaida <agaida@siduction.org>  Wed, 06 Jan 2016 03:23:16 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 24 Feb 2016 22:38:03 +0100
 
-fll-installer (2016.01.06.2) unstable; urgency=medium
+fll-installer (0.11.1) unstable; urgency=medium
 
-  * check for non-free packages in live system - should be the same
-    as in the chroot - delete the packages in the chroot.
+  * stop creating /etc/initramfs-tools/conf.d/resume, modern initramfs-tools
+    fails over this.
 
- -- Alf Gaida <agaida@siduction.org>  Wed, 06 Jan 2016 02:55:30 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 11 Dec 2015 06:45:03 +0100
 
-fll-installer (2016.01.06.1) unstable; urgency=medium
+fll-installer (0.11.0) unstable; urgency=medium
 
-  * place the purge in the chroot
-  * fix some whitespaces
+  * adapt to new lightdm autologin.
+  * add support for lxdm autologin.
 
- -- Alf Gaida <agaida@siduction.org>  Wed, 06 Jan 2016 02:22:42 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 27 Nov 2015 00:44:13 +0100
 
-fll-installer (2016.01.06) unstable; urgency=medium
+fll-installer (0.10.46) unstable; urgency=medium
 
-  * unhandled conflict markers
-  * renamed variable: FREE_SW_ONLY
+  * revert KDE5-kdesu preseeding as well as KDE4-kdesu preseeding.
+  * drop KDE3/ KDE4 specific autostart reversion and stick to the XDG
+    approach.
 
- -- J. Hamatoma <hama@siduction.net>  Wed, 06 Jan 2016 01:16:40 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 20 Oct 2015 05:00:05 +0200
 
-fll-installer (2016.01.05) unstable; urgency=medium
+fll-installer (0.10.45) unstable; urgency=medium
 
-  * removing non DSFG compliant packages
+  * remove /var/lib/sddm/state.conf as well. Drop unnecessary test condition,
+    rm -f is silent anyways.
 
- -- J. Hamatoma <hama@siduction.net>  Tue, 05 Jan 2016 00:33:31 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 12 Jul 2015 01:24:30 +0200
 
-fll-installer (2015.12.31) unstable; urgency=medium
+fll-installer (0.10.44) unstable; urgency=medium
 
-  * remove *-gfxboot-core too
+  * revert SDDM autologin.
 
- -- Alf Gaida <agaida@siduction.org>  Thu, 31 Dec 2015 19:31:13 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 02 Jul 2015 21:18:43 +0200
 
-fll-installer (2015.12.06) unstable; urgency=medium
+fll-installer (0.10.43) unstable; urgency=medium
 
-  * remove *-livesettings packages
+  * make sure to extend the rsync call to copy xattrs, acls and hardlinks as
+    well.
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 06 Dec 2015 23:49:52 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 21 Feb 2015 20:36:01 +0100
 
-fll-installer (2015.04.26) unstable; urgency=low
+fll-installer (0.10.42) unstable; urgency=medium
 
-  * move to unstable
+  * use sysfs to get efi platform size and rework grub-efi deb overrides.
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 26 Apr 2015 16:42:57 +0200
+ -- Niall Walsh <niallwalsh@celtux.org>  Mon, 12 Jan 2015 22:18:55 +0000
 
-fll-installer (2015.03.23) experimental; urgency=medium
+fll-installer (0.10.41) unstable; urgency=medium
 
-  * upstream merges and latest changes by convbsd 
+  * bump standards version to 3.9.6, no changes necessary.
+  * drop last remains of fll-iso2disk.
+  * convert to machine readable copyright.
+  * add a minimal manpage.
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 23 Mar 2015 00:20:59 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 03 Jan 2015 19:47:52 +0100
 
-fll-installer (2014.12.10) unstable; urgency=medium
+fll-installer (0.10.40) unstable; urgency=medium
 
-  * enable grubthemes, if installed
-  * merge upstream
+  * enable grub themes for the HD install, if the configured one is still
+    installed.
 
- -- Alf Gaida <agaida@siduction.org>  Wed, 10 Dec 2014 23:12:15 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 08 Dec 2014 05:06:07 +0100
 
-fll-installer (2014.10.04) unstable; urgency=medium
+fll-installer (0.10.39) unstable; urgency=medium
 
-  * update-initramfs changed
+  * do not copy a dir containing FLL_MOUNTPOINT or TARGET_MNT_POINT.
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 05 Oct 2014 16:29:17 +0200
+ -- Niall Walsh <niallwalsh@celtux.org>  Thu, 30 Oct 2014 13:31:59 +0000
 
-fll-installer (2014.09.29) unstable; urgency=medium
+fll-installer (0.10.38) unstable; urgency=medium
 
-  * initramfs update instead of creation
+  * take extras from /fll/extras if there.
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 29 Sep 2014 23:24:22 +0200
+ -- Niall Walsh <niallwalsh@celtux.org>  Sat, 25 Oct 2014 12:16:24 +0100
 
-fll-installer (2014.09.06) unstable; urgency=medium
+fll-installer (0.10.37) unstable; urgency=medium
 
-  * merging upstream 
+  * fdisk output for gpt disks has changed to update the esp/fat finders.
 
- -- Alf Gaida <agaida@siduction.org>  Sat, 06 Sep 2014 23:22:16 +0200
+ -- Niall Walsh <niallwalsh@celtux.org>  Wed, 08 Oct 2014 19:18:25 +0100
 
-fll-installer (2014.09.04) unstable; urgency=medium
+fll-installer (0.10.36) unstable; urgency=medium
 
-  [ Angelescu Ovidiu ]
-  * changed fix_home_on_HD.bm for reenabling automount and
-    automount-open in gnome, mate and cinnamon
+  * fix grub device setting
+  * fix and clean fstab wanted and ignore devices
+  * fix disk de-dupe and de-dupe fll_disk_usb
+  * update_fstab: use disk.bm usb detection and update local variables
+  * install_grub_efi: strip out defunct junk and update local and calls
+  * fix add_bootmanager config generation message to not mention efi
 
-  [ Alf Gaida ]
-  * rebuild closes #1676 
+ -- Niall Walsh <niallwalsh@celtux.org>  Tue, 30 Sep 2014 14:17:10 +0100
 
- -- Alf Gaida <agaida@siduction.org>  Thu, 04 Sep 2014 19:17:57 +0200
+fll-installer (0.10.35) unstable; urgency=medium
 
-fll-installer (2014.02.10) unstable; urgency=medium
+  * rewrite fll_crypt_device to protect pairs well
+  * fix test for when to use uuid for cryptsource
+  * update add_bootmanager to use fll_disk_device to map drives
+  * rewrite add_bootmanager usb test to check no mapped drives is not usb
+  * get_usbefi using fll_disk_usb to walk out
+  * install_grub accepts a list in BOOT_WHERE
+  * install_grub rewrite usb test for portable
+  * fix isusb return
+  * drop spurious TEST output and fix update_fstab list of calls
 
-  * purge gfxboot in purge live only 
+ -- Niall Walsh <niallwalsh@celtux.org>  Mon, 29 Sep 2014 16:22:22 +0100
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 10 Feb 2014 19:09:08 +0100
+fll-installer (0.10.34) unstable; urgency=medium
 
-fll-installer (2014.01.22) unstable; urgency=medium
+  * fll_disk_device and fll_crypt_device, make results uniq
+  * add fll_disk_usb and fll_disk_isusb functions to disk.bm
 
-  * purge live only now purge syslinux and syslinux common 
+ -- Niall Walsh <niallwalsh@celtux.org>  Wed, 17 Sep 2014 22:48:20 +0100
 
- -- Alf Gaida <agaida@siduction.org>  Wed, 22 Jan 2014 19:56:54 +0100
+fll-installer (0.10.33) unstable; urgency=medium
 
-fll-installer (2014.01.10) unstable; urgency=medium
+  * add some crypt looking up to disks.bm
+  * re-order fstab and crypttab creation for add_bootloader
+  * move grub.cfg generation up into add_bootloader (de-duping)
 
-  * new version, new dependencies
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 12 Sep 2014 22:44:26 +0200
 
- -- Alf Gaida <agaida@siduction.org>  Thu, 09 Jan 2014 23:12:17 +0100
+fll-installer (0.10.32) unstable; urgency=medium
 
-fll-installer (2014.01.09) unstable; urgency=medium
+  * add common/disk.bm module, start with device lookup
+  * update_fstab overhaul to use new disk.bm
 
-  * versioned dependency - version changed for 
-    fll-live-initscripts (>= 2013.12.11)
+ -- Niall Walsh <niallwalsh@celtux.org>  Fri, 12 Sep 2014 21:28:27 +0100
 
- -- Alf Gaida <agaida@siduction.org>  Thu, 09 Jan 2014 19:06:47 +0100
->>>>>>> 0adda8ed064e39a1a396a30829c597d2ae6df4c9
+fll-installer (0.10.31) unstable; urgency=medium
 
-fll-installer (2014.01.04) unstable; urgency=low
+  * add /disks/ to the excludes.
+  * drop floppy boot disk creation.
 
-  * browser cache cleared for midory and quzilla
+ -- Niall Walsh <niallwalsh@celtux.org>  Fri, 05 Sep 2014 02:13:35 +0100
 
- -- J. Hamatoma <hama@siduction.net>  Mon, 06 Jan 2014 02:03:41 +0100
+fll-installer (0.10.30) unstable; urgency=medium
 
-fll-installer (2014.01.03) unstable; urgency=low
+  [ Niall Walsh ]
+  * install grub-efi-${arch} not grub-efi when boot arch != install arch
+  * stop limiting efi installs to only amd64
 
-  * removing chromium session info on the hd installation
-  * closes: #1460
+  [ Stefan Lippers-Hollmann ]
+  * remove os-prober for portable installs.
 
- -- J. Hamatoma <hama@siduction.net>  Sun, 05 Jan 2014 19:29:37 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 03 Sep 2014 20:59:23 +0200
 
-fll-installer (2013.12.29) unstable; urgency=medium
+fll-installer (0.10.29) unstable; urgency=medium
 
-  * solve the problem with purging live packages
+  * fix portable-efi path for msdos at least.
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 29 Dec 2013 23:40:39 +0100
+ -- Niall Walsh <niallwalsh@celtux.org>  Tue, 02 Sep 2014 20:31:21 +0100
 
-fll-installer (2013.12.22.1) unstable; urgency=medium
+fll-installer (0.10.28) unstable; urgency=medium
 
-  * typo removed and more verbose
+  * have usb installs setup grub2-fll-portable-efi when they have vfat.
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 22 Dec 2013 15:41:25 +0100
+ -- Niall Walsh <niallwalsh@celtux.org>  Tue, 02 Sep 2014 15:42:13 +0100
 
-fll-installer (2013.12.22) unstable; urgency=medium
+fll-installer (0.10.27) unstable; urgency=medium
 
-  * purge live stufff changed from dpkg to apt-get
-  * Standards: 3.9.5
+  * fix the usb install fstab tweak to actually work for lvm devices
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 22 Dec 2013 15:12:15 +0100
+ -- Niall Walsh <niallwalsh@celtux.org>  Tue, 02 Sep 2014 04:31:01 +0100
 
-fll-installer (2013.10.17) unstable; urgency=low
+fll-installer (0.10.26) unstable; urgency=medium
 
-  [ Ovidiu Angelescu ]
-  * added * for siduction-live-settings in purge_live_only_stuff.bm
-    for purging siduction-live-settings-$flavour* and
-    siduction-live-settings-common*
+  * usb installs should only have devices on that usb device in fstab
 
-  [ Alf Gaida ]
-  * closes #1370
-  * change the numbering to date based
-  * improve some debian/$foo
+ -- Niall Walsh <niallwalsh@celtux.org>  Sat, 30 Aug 2014 22:23:28 +0100
 
- -- Alf Gaida <agaida@siduction.org>  Thu, 17 Oct 2013 01:05:13 +0200
+fll-installer (0.10.25) unstable; urgency=medium
 
-fll-installer (0.19) unstable; urgency=low
+  * stop forcing usb to partition.
 
-  [ Ovidiu Angelescu ]
-  * added siduction-live-settings-cinnamon to purge_live_only_stuff.bm
+ -- Niall Walsh <niallwalsh@celtux.org>  Fri, 29 Aug 2014 21:15:33 +0100
 
-  [ Alf Gaida ]
-  * rebuild refs #1241
+fll-installer (0.10.24) unstable; urgency=medium
 
- -- Alf Gaida <agaida@siduction.org>  Tue, 04 Jun 2013 22:03:17 +0200
+  * rename knoppix-utils.bm to fll-installer-utils.bm.
 
-fll-installer (0.18) unstable; urgency=low
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 23 Aug 2014 20:02:25 +0200
 
-  [ J. Hamatoma ]
-  * fix: sidu-boot-one-time has not be called
-  * fix: run level for sidu-boot
-  * fix: SingletonLock is a link: wrong query
-  * sidu-boot-one-time: removing /tmp/org.chromium... avoiding chromium warning
-  * close: #1020
+fll-installer (0.10.23) unstable; urgency=medium
 
-  [ Alf Gaida ]
-  * rebuild closes #1181
+  * remove some more fll-iso2usb remains.
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 06 May 2013 02:46:52 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 12 Aug 2014 23:38:38 +0200
 
-fll-installer (0.15) unstable; urgency=low
+fll-installer (0.10.22) unstable; urgency=medium
 
-  [ Ovidiu Angelescu ]
-  * added all siduction-live-settings-$flavours to purge_live_only_stuff.bm
+  * debconf set grub-pc install device
 
-  [ Alf Gaida ]
-  * rebuild closes #1142
+ -- Niall Walsh <niallwalsh@celtux.org>  Tue, 12 Aug 2014 20:38:56 +0100
 
- -- Alf Gaida <agaida@siduction.org>  Sat, 06 Apr 2013 16:48:45 +0200
+fll-installer (0.10.21) unstable; urgency=medium
 
-fll-installer (0.14) unstable; urgency=low
+  * drop fll-iso2usb for the time being.
 
-  [ Ovidiu Angelescu ]
-  * fixed two typo's in purge_live_only_stuff.bm
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 12 Aug 2014 21:04:45 +0200
 
-  [ Alf Gaida ]
-  * rebuild
+fll-installer (0.10.20) unstable; urgency=medium
 
- -- Alf Gaida <agaida@siduction.org>  Sat, 06 Apr 2013 03:58:47 +0200
+  * fix escaping.
 
-fll-installer (0.13) UNRELEASED; urgency=low
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 08 Aug 2014 04:32:42 +0200
 
-  * renamed siduction-settings-gnome to siduction-live-settings gnome
-    in purge_live_only_stuff.bm
+fll-installer (0.10.19) unstable; urgency=medium
 
- -- Ovidiu Angelescu <convbsd@siduction.net>  Fri, 05 April 2013 22:02:02 +0300
+  * yet one more chroot qualifier.
 
-fll-installer (0.12) UNRELEASED; urgency=low
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 08 Aug 2014 03:57:31 +0200
 
-  * changes for transition from desktop-defaults to siduction-settings
-    such as: purge siduction-live-settings-common , siduction-live-settings-gnome
-  * fixed fix_home_on_HD.bm for reenabling  automount in gnome when
-    installing
+fll-installer (0.10.18) unstable; urgency=low
 
- -- Ovidiu Angelescu <convbsd@siduction.net>  Fri, 05 April 2013 18:01:02 +0300
+  * fix systemd sanitation.
 
-fll-installer (0.11) unstable; urgency=low
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 08 Aug 2014 03:51:00 +0200
 
-  * hopefully fixed the bad grub-install behavior
-  * fixed documentation and logging
-  * bump version
-  * refs #1117
+fll-installer (0.10.17) unstable; urgency=low
 
- -- Alf Gaida <agaida@siduction.org>  Wed, 20 Mar 2013 18:40:02 +0100
+  * debian/control: switch Vcs tags to github.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 13 Apr 2014 22:13:37 +0200
+
+fll-installer (0.10.16) unstable; urgency=low
+
+  * bump standards version to 3.9.5, no changes necessary.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 15 Feb 2014 00:36:40 +0100
+
+fll-installer (0.10.15) unstable; urgency=low
+
+  * make sysvinit and systemd getty mangling reversal independent of each
+    other, as they're technically co-installable.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 15 Feb 2014 00:35:12 +0100
+
+fll-installer (0.10.14) unstable; urgency=low
+
+  * undo systemd based getty mangling.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 24 Jun 2013 20:03:53 +0200
+
+fll-installer (0.10.13) unstable; urgency=low
+
+  * drop fix_usb_install.bm, device.map is pretty dead
+  * do not try to install grub to (hd0), use grub-mkdevicemap to get real dev
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Mon, 24 Jun 2013 16:00:10 +0100
+
+fll-installer (0.10.12) unstable; urgency=low
+
+  * selinuxfs is now mounted at /sys/fs/selinux/, don't create /selinux/
+    anymore.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 07 May 2013 18:27:58 +0200
+
+fll-installer (0.10.11) unstable; urgency=low
+
+  * drop GRUB_DISTRIBUTOR mangling.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 04 May 2013 00:59:51 +0200
+
+fll-installer (0.10.10) unstable; urgency=low
+
+  * output kexec-tools purging on STDERR.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 18 Apr 2013 22:35:43 +0200
 
 fll-installer (0.10.9) unstable; urgency=low
 
-  * if (hd0) then test device.map. If not found create one.
+  * purge kexec-tools on uefi systems, where garbage collection is crucial.
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 18 Mar 2013 00:35:38 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 18 Apr 2013 22:24:09 +0200
 
 fll-installer (0.10.8) unstable; urgency=low
 
-  * make install_grub.bm more verbose
+  * don't backup the MBR anymore, restoring it on GPT disks would be fatal and
+    there are safer methods for MSDOS disks as well.
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 18 Mar 2013 00:09:35 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 19 Mar 2013 14:26:22 +0100
 
 fll-installer (0.10.7) unstable; urgency=low
 
-  * changes in module/backend/install_grub.bm
+  * bump standards version to 3.9.4, no changes necessary.
+  * update FSF postal address to be URLs.
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 17 Mar 2013 19:12:27 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 12 Jan 2013 02:28:49 +0100
 
 fll-installer (0.10.6) unstable; urgency=low
 
-  * fix lintian warnig about missing license, added license info
-    to modules/backend/fix_boot_on_HD.bm
+  * fixed "Bad device.map on USB install" reported on aptosid 2011-03.
 
- -- Alf Gaida <agaida@siduction.org>  Fri, 15 Mar 2013 02:52:23 +0100
+ -- Joaquim Boura <x-un-i@berlios.de>  Sat, 18 Aug 2012 16:27:20 +0200
 
 fll-installer (0.10.5) unstable; urgency=low
 
-  * add some debugging code (redirect stdout and stderr to file)
-  * refs #1102
+  * added line to the exclusion list for lxde.
 
- -- Alf Gaida <agaida@siduction.org>  Fri, 15 Mar 2013 02:47:42 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 23 Feb 2012 16:10:40 +0100
 
 fll-installer (0.10.4) unstable; urgency=low
 
-  * do some ill minded fixing in modules/backend/install_grub.bm
+  * bump standards version to 3.9.3, no changes necessary.
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 11 Mar 2013 03:33:49 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 23 Feb 2012 16:10:25 +0100
 
 fll-installer (0.10.3) unstable; urgency=low
 
-  * make the grub say more verbose
+  * convert_live2HD remove comments saying it uses removed modules
+  * drop aptosid-gnome-gsettings-live from live purge lists (it doesn't exist)
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 11 Mar 2013 00:47:59 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Sun, 22 Jan 2012 16:07:58 +0000
 
 fll-installer (0.10.2) unstable; urgency=low
 
-  * change dependencies from grub-pc|grub-efi
-    to grub-pc | grub-efi-amd64 | grub-efi-amd64
+  * switch to compat level 9.
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 03 Mar 2013 00:01:27 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 16 Jan 2012 01:09:10 +0100
 
 fll-installer (0.10.1) unstable; urgency=low
 
-  * grub-fix, some occurences of aptosid etc
-  * visualization over pv
-  * some parameters changed
-  * correct use for vfat
+  * purge aptosid-gnome-gsettings-live, thanks to convbsd.
 
- -- Alf Gaida <agaida@siduction.org>  Sat, 02 Mar 2013 22:02:03 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 07 Jan 2012 02:22:00 +0100
 
-fll-installer (0.9.40) unstable; urgency=low
+fll-installer (0.10.0) unstable; urgency=low
 
-  [ Ovidiu Angelescu ]
-  * removed code for gparted start issue from kde menu in installed mode
-    since it was a policykit-1 bug and now it's fixed in debian
+  * fll-iso-strip:
+    - update to isolinux (including isohybrid)
+    - fixup xorriso, including adding modification-date and efi-dir
+    - make usage display not just hidden in comments
+    - many cleanups
 
-  [ Alf Gaida ]
-  * rebuild closes #1075
-
- -- Alf Gaida <agaida@siduction.org>  Sat, 09 Feb 2013 14:38:12 +0100
-
-fll-installer (0.9.39) unstable; urgency=low
-
-  [ J. Hamatoma ]
-  * Non-maintainer upload.
-  * new: /etc/init.d/sidu-boot: removing Chromium lock file at boot time
-  * new /etc/init.d/sidu-boot-one-time: installing sidu-boot, deleting /home/*/.cache
-  * closes #1020
-  * fix: install_grub.bm: stacked "" avoid installing into explicite given disks
-  * closes #1019
-  * fix: prepareHD.bm: unmounting mounted root-partition protects from error exit
-
-  [ Alf Gaida ]
-  * rebuild closes #1026
-  * rebuild closes #1034
-
- -- Alf Gaida <agaida@siduction.org>  Thu, 06 Dec 2012 00:34:51 +0100
-
-fll-installer (0.9.38) unstable; urgency=low
-
-  [ Ovidiu Angelescu ]
-  * changed  /etc/default/grub to  ${TARGET_MNT_POINT}/etc/default/grub
-    when deleting GRUB_THEME in sed statement
-
-  [ Alf Gaida ]
-  * rebuild closes #911
-
- -- Alf Gaida <agaida@siduction.org>  Tue, 27 Nov 2012 20:21:39 +0100
-
-fll-installer (0.9.37) UNRELEASED; urgency=low
-
-  * cleanup code at agaida's sugestion for writing siduction grub theme
-    settings to /etc/default/grub when installing
-
- -- Ovidiu Angelescu <convbsd@siduction.net>  Tue, 27 Nov 2012 18:05:37 +0200
-
-fll-installer (0.9.36) unstable; urgency=low
-
-  [ Ovidiu Angelescu ]
-  * added hwinfo missed dependency in fll-installer control and
-    fixed date in previous commit
-
-  [ Alf Gaida ]
-  * removed slh as original-maintainer as we don't follow aptosid anymore
-  * rebuild closes #987
-
- -- Alf Gaida <agaida@siduction.org>  Tue, 27 Nov 2012 00:06:49 +0100
-
-fll-installer (0.9.35) UNRELEASED; urgency=low
-
-  * changed fll-installer/modules/backend/fix_etc_on_HD.bm and
-    initialization.bm to be able to write needed settings for
-    grub-theme-siduction-$RELEASE if it's installed when installing
-
- -- Ovidiu Angelescu <convbsd@siduction.net>  Sun, 25 Nov 2012 21:38:37 +0200
-
-fll-installer (0.9.34) unstable; urgency=low
-
-  [ Ovidiu Angelescu ]
-  * fixed a typo in fll-installer/modules/backend/fix_etc_on_HD.bm
-
-  [ Alf Gaida ]
-  * rebuild
-
- -- Alf Gaida <agaida@siduction.org>  Sat, 10 Nov 2012 15:24:46 +0100
-
-fll-installer (0.9.33) UNRELEASED; urgency=low
-
-  * changed fll-installer/modules/backend/fix_etc_on_HD.bm to be able to
-    preserve liveiso runlevel also in installed mode
-
- -- Ovidiu Angelescu <convbsd@siduction.net>  Sat, 10 Nov 2012 08:30:37 +0200
-
-fll-installer (0.9.32) unstable; urgency=low
-
-  [ Ovidiu Angelescu ]
-  * code for reenable for gnome automount-open in installed mode
-  * reverted mountpoint change for gnome from /mnt/hdinstall to /fll/hdinstall
-    since we use a more reliable way to prevent automount-open when installing
-
-  [ Alf Gaida ]
-  * rebuild closes #918
-
- -- Alf Gaida <agaida@siduction.org>  Sun, 21 Oct 2012 17:28:22 +0200
-
-fll-installer (0.9.31) unstable; urgency=low
-
-  [ Ovidiu Angelescu ]
-  * fixed two typo's in fix_home_on_HD.bm
-
-  [ Alf Gaida ]
-  * rebuild fixes #914
-
- -- Alf Gaida <agaida@siduction.org>  Wed, 17 Oct 2012 01:47:56 +0200
-
-fll-installer (0.9.30) UNRELEASED; urgency=low
-
-  [ Ovidiu Angelescu ]
-  * fixed gparted start issue from menus for kde in installed mode
-
-  [ Alf Gaida ]
-  * rebuild fixes #912
-
- -- Ovidiu Angelescu <convbsd@siduction.net>  Sun, 14 Oct 2012 18:47:37 +0300
-
-fll-installer (0.9.29) unstable; urgency=low
-
-  * added cli-installer to fll-
-    installer/modules/backend/purge_live_only_stuff.bm as its a live-
-    only package.
-
- -- Ovidiu Angelescu <convbsd@siduction.net>  Sat, 13 Oct 2012 22:47:37 +0300
-
-fll-installer (0.9.28) unstable; urgency=low
-
-  [ Ovidiu Angelescu ]
-  * changed install target for gnome to /mnt/hdinstall
-    to avoid automount of target partition
-
-  [ Alf Gaida ]
-  * rebuild closes #903
-
- -- Alf Gaida <agaida@siduction.org>  Tue, 09 Oct 2012 18:11:12 +0200
-
-fll-installer (0.9.27) UNRELEASED; urgency=low
-
-  * removed fll-installer-common from fll-
-    installer/modules/backend/purge_live_only_stuff.bm as
-    we don't have such a package
-
- -- Ovidiu Angelescu <convbsd@siduction.net>  Tue, 18 Sep 2012 20:11:37 +0300
-
-fll-installer (0.9.26) unstable; urgency=low
-
-  [ Ferdinand Thommes ]
-  * Non-maintainer upload.
-  * added desktop-defaults-rqt to fll-
-    installer/modules/backend/purge_live_only_stuff.bm as its a live-
-    only package [thxx convbsd] fixes
-
-  [ Alf Gaida ]
-  * added devil as uploader
-  * bump version to 0.9.26
-
- -- Alf Gaida <agaida@siduction.org>  Sat, 18 Aug 2012 13:39:37 +0200
-
-fll-installer (0.9.25) unstable; urgency=low
-
-  * rebuild closes #699
-
- -- Alf Gaida <agaida@siduction.org>  Sun, 13 May 2012 20:18:27 +0200
-
-fll-installer (0.9.24) unstable; urgency=low
-
-  * rewrote debian/copyright to match dep5. A few clarification bits:
-    A copyright file is a place for copyrights. A copyright file is no
-    place for novels like a 'grammy awards thank you speech'
-  * fixes #332
-
- -- Alf Gaida <agaida@siduction.org>  Sat, 24 Mar 2012 13:17:45 +0100
-
-fll-installer (0.9.23) unstable; urgency=low
-
-  * changelog lin 281 fixed.   fll-iso2usb: syntax-error-in-debian-changelog
-    line 281 "Fehlerhaft formatierter Header"
-  * fll-iso2usb override to stop lintian complaining about a missing
-    manpage
-  * fll-installer override to stoplintina complaining about a missing
-    manpage
-  * fixes #641
-
- -- Alf Gaida <agaida@siduction.org>  Thu, 22 Mar 2012 14:02:28 +0100
-
-fll-installer (0.9.22) unstable; urgency=low
-
-  * bump standards to 3.9.3
-  * debhelper (>=9)
-  * .gitignore added
-
- -- Alf Gaida <agaida@siduction.org>  Wed, 21 Mar 2012 11:19:07 +0100
-
-fll-installer (0.9.21) unstable; urgency=low
-
-  [ Sebastian Görgen ]
-  * Non-maintainer upload.
-  * Max cow file size for non vfat file systems, set bs to 4M
-
-  [ Alf Gaida ]
-  * rebuild fixes #612, #604, #607
-
- -- Alf Gaida <agaida@siduction.org>  Tue, 06 Mar 2012 21:36:26 +0100
-
-fll-installer (0.9.20) unstable; urgency=low
-
-  [ Sebastian Görgen ]
-  * Non-maintainer upload.
-  * Also create cow file if using ext2,ext3 and ext4
-
-  [ Alf Gaida ]
-  * rebuild fix #596
-
- -- Alf Gaida <agaida@siduction.org>  Wed, 08 Feb 2012 00:41:28 +0100
-
-fll-installer (0.9.19+nmu1) unstable; urgency=low
-
-  * Non-maintainer upload.
-  * throw away code to create boot_floppy, fixes #534
-  * don't deinstall packages that siduction don't use
-  * use partprobe to tell kernel to reload partition table
-
- -- Sebastian Görgen <zeppo@gmx.net>  Sun, 01 Jan 2012 16:12:08 +0100
-
-fll-installer (0.9.19) unstable; urgency=low
-
-  [ Sebastian Görgen ]
-  * Non-maintainer upload.
-  * purge sidu-installer, pywwetha and siguibui, fixes #514
-
-  [ Alf Gaida ]
-  * rebuild fixes #515, fixes #516
-  * version bump to manitainerversion
-
- -- Alf Gaida <agaida@siduction.org>  Thu, 29 Dec 2011 00:57:43 +0100
-
-fll-installer (0.9.18) unstable; urgency=low
-
-  [ zeppo ]
-  * ignore /dev/loop2 for creating /etc/fstab at installation
-
-  [ Alf Gaida ]
-  * bump version, fixes #504
-
- -- Alf Gaida <agaida@siduction.org>  Tue, 27 Dec 2011 23:58:24 +0100
-
-fll-installer (0.9.17) unstable; urgency=low
-
-  [ J. Hamatoma ]
-  * Exclusion list: .mozilla
-  * hamatoma is uploader
-  * recommands: sidu-installer
-
-  [ Alf Gaida ]
-  * fixes empty line issue in debian/control, no empty lines in
-    package blocks please
-
- -- Alf Gaida <agaida@siduction.org>  Sun, 25 Dec 2011 13:23:44 +0100
-
-fll-installer (0.9.16) unstable; urgency=low
-
-  [ Zeppo ]
-  * Don't reply runtime of installer to frontend
-  * Change standard variables to siduction style
-
-  [ Alf Gaida ]
-  * bump version
-
- -- Alf Gaida <agaida@siduction.org>  Fri, 23 Dec 2011 00:44:59 +0100
-
-fll-installer (0.9.15) unstable; urgency=low
-
-  * edited data/exclusion_list: added .gvfs dir to enable installation
-    using lxde (thx to hama for solving) refs #428
-
- -- Alf Gaida <agaida@siduction.org>  Sat, 17 Dec 2011 22:19:34 +0100
-
-fll-installer (0.9.14) unstable; urgency=low
-
-  * bump to 0.9.14
-
- -- Alf Gaida <agaida@siduction.org>  Sat, 03 Dec 2011 17:09:39 +0100
-
-fll-installer (0.9.13+nmu1) unstable; urgency=low
-
-  * Non-maintainer upload.
-  * Fix: wrong name of the desktop symbol. Closes: #352
-
- -- J. Hamatoma <hamatoma@gmx.de>  Sat, 03 Dec 2011 11:15:57 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Fri, 23 Dec 2011 17:12:08 +0000
 
 fll-installer (0.9.13) unstable; urgency=low
 
-  * debian/control homepage added
+  * convert to xorriso.
 
- -- Alf Gaida <agaida@siduction.org>  Mon, 28 Nov 2011 02:06:32 +0100
-
-fll-installer (0.9.12+nmu1) unstable; urgency=low
-
-  [ J. Hamatoma ]
-  * Non-maintainer upload.
-  * exclusion_list (copying to hd): sidu-installer.desktop added
-
- -- Alf Gaida <agaida@siduction.org>  Mon, 28 Nov 2011 02:06:01 +0100
-
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 17 Dec 2011 20:22:17 +0100
 
 fll-installer (0.9.12) unstable; urgency=low
 
-  * Check  Commit a6ae1039e9e340fa5465fe507427a846af67f03e
-    2011-11-02
-  * Me as Maintainer
+  * drop mtab clobbering, breaks insufficient initscripts.
 
- -- Alf Gaida <agaida@siduction.org>  Fri, 25 Nov 2011 22:08:33 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 17 Dec 2011 18:45:22 +0100
 
-fll-installer (0.9.11+nmu1) unstable; urgency=low
+fll-installer (0.9.11) unstable; urgency=low
 
-  * Non-maintainer upload.
-  * FTBFS fixed
-  * removed fullstory from debian/control
-  * fixed debian/source/options
-
- -- Dinko Sabo <vibora@siduction.org>  Tue, 25 Oct 2011 23:11:54 +0200
-
-fll-installer (0.9.11) UNRELEASED; urgency=low
-
-  [ Stefan Lippers-Hollmann ]
-  * NOT RELEASED YET
-
-  [ Ferdinand Thommes ]
-  * fixed copyright
-
-  [ Joaquim Boura ]
   * fix fluxbox menu after install.
 
-  * fixed debian/control
-  * added debian/source/options
-
- -- Ferdinand Thommes <devil@siduction.org>  Sun, 23 Oct 2011 10:10:20 +0200
+ -- Joaquim Boura <x-un-i@sapo.pt>  Sun, 30 Oct 2011 23:07:42 +0100
 
 fll-installer (0.9.10) unstable; urgency=low
 
@@ -760,7 +491,8 @@ fll-installer (0.8.7) unstable; urgency=low
 
 fll-installer (0.8.6) unstable; urgency=low
 
-  * partial re-introduction of svnr 28269:28396: - gdm3 revert.
+  * partial re-introduction of svnr 28269:28396:
+    - gdm3 revert.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 20 Jan 2011 02:19:06 +0100
 

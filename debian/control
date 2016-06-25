@@ -12,13 +12,11 @@ Vcs-Browser: http://git.siduction.org/?p=code/fll-installer.git
 
 Package: fll-installer
 Architecture: all
-Depends:
- ${misc:Depends},
+Depends: ${misc:Depends},
  adduser,
  base-files (>= 6.4),
  initramfs-tools,
  grub-pc | grub-efi,
- hwinfo,
  lsof,
  procps,
  udev-config-siduction,
@@ -27,14 +25,12 @@ Depends:
  rsync,
  fll-live-initscripts (>= 2014.01.10)
 Breaks: initscripts (<< 2.88dsf-16~)
-Recommends:
- sidu-installer
-Suggests:
- gparted,
+Recommends: sidu-installer
+Suggests: gparted,
  distro-defaults
 Description: backend scripts to install siduction to hdd
  fll-installer provides a framework for installing siduction Live Linux
  to hard disk drives.
  .
- This is a siduction live-only package and should not be installed to an
+ This is a FULLSTORY live-only package and should not be installed to an
  ordinary system.
