@@ -111,13 +111,6 @@ fix_etc_on_HD () {
 	fi
 
 	#
-	# revert KDM autologin
-	#
-	if [ -f  "${TARGET_MNT_POINT}/etc/default/kdm.d/autologin" ]; then
-		rm -f "${TARGET_MNT_POINT}/etc/default/kdm.d/autologin"
-	fi
-
-	#
 	# revert lightdm autologin
 	#
 	if [ -f "${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf.d/80_fll-live-initscripts.conf" ]; then

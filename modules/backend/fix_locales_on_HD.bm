@@ -34,7 +34,7 @@ fix_locales_on_HD ()
 		#
 		# the system locales
 		#
-		chroot_it /usr/bin/env -i FLL_LANG=$HD_LANG /etc/init.d/fll-locales localize
+		chroot_it /usr/bin/env -i FLL_LANG=$HD_LANG /usr/share/fll-live-initscripts/fll_locales localize
 
 		. $fll_locales
 
@@ -55,7 +55,7 @@ fix_locales_on_HD ()
 		#
 		if [ "${KDEKEYBOARDS}" ]; then
 			#
-			# adapted from desktop-defaults-kde
+			# adapted from desktop-defaults
 			#
 			if grep -s -q '^LayoutList=' "$TARGET_MNT_POINT/home/$USER_NAME/.kde/share/config/kxkbrc"; then
 				sed -i 's|^LayoutList=.*|LayoutList='"${KDEKEYBOARDS}"'|' \

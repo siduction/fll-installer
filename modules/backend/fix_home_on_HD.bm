@@ -38,8 +38,7 @@ fix_home_on_HD()
 	#
 	# purge unwanted files
 	#
-	for file in	"${TARGET_MNT_POINT}${INSTHOME}/.kde/Autostart/${FLL_DISTRO_NAME}.desktop" \
-			"${TARGET_MNT_POINT}${INSTHOME}/Desktop/${FLL_DISTRO_NAME}.desktop" \
+	for file in	"${TARGET_MNT_POINT}${INSTHOME}/Desktop/${FLL_DISTRO_NAME}.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/Desktop/install-gui.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.config/autostart/${FLL_DISTRO_NAME}.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.hushlogin" \
@@ -47,16 +46,14 @@ fix_home_on_HD()
 			"${TARGET_MNT_POINT}${INSTHOME}/.config/chromium/Local State" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.config/chromium/First Run" \
 			"${TARGET_MNT_POINT}/root/.hushlogin"; do
-		[ -f "${file}" ] && rm -f "${file}"
+		rm -f "${file}"
 	done
 
 	#
 	# purge content of some dirs
 	#
-	for dir in	${TARGET_MNT_POINT}${INSTHOME}/.cache \
-			${TARGET_MNT_POINT}${INSTHOME}/.config/midori \
-			${TARGET_MNT_POINT}${INSTHOME}/.config/qupzilla/profiles ; do
-		[ -d "$dir" ] && rm -Rf ${dir}/*
+	for dir in "${TARGET_MNT_POINT}${INSTHOME}/.cache"; do
+	    [ -d "$dir" ] && rm -Rf ${dir}/*
 	done
 
 	#

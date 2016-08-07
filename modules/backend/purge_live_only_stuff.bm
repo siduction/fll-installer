@@ -42,7 +42,7 @@ purge_live_only_stuff()
 		sshstart \
 		syslinux-common; do
 		logit "Purge: $i"
-		chroot_it apt-get purge --assume-yes $i >&2
+		chroot_it apt purge --assume-yes $i >&2
 	done
 
 	# purge kexec-tools on uefi systems, where garbage collection is
@@ -56,7 +56,7 @@ purge_live_only_stuff()
 			logit "+++ nothing found: vrms -s"
 		else
 			logit "Purge not DSFG package ${VRMS_OUT}:"
-			chroot_it apt-get purge ${VRMS_OUT} --assume-yes >&2
+			chroot_it apt purge ${VRMS_OUT} --assume-yes >&2
 		fi
 	fi
 	logit "purge_live_only_stuff purged"
