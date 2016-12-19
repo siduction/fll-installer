@@ -57,9 +57,9 @@ fix_locales_on_HD ()
 			#
 			# adapted from desktop-defaults
 			#
-			if grep -s -q '^LayoutList=' "$TARGET_MNT_POINT/home/$USER_NAME/.kde/share/config/kxkbrc"; then
+			if grep -s -q '^LayoutList=' "$TARGET_MNT_POINT/home/$USER_NAME/.config/kxkbrc"; then
 				sed -i 's|^LayoutList=.*|LayoutList='"${KDEKEYBOARDS}"'|' \
-					"$TARGET_MNT_POINT/home/$USER_NAME/.kde/share/config/kxkbrc"
+					"$TARGET_MNT_POINT/home/$USER_NAME/.config/kxkbrc"
 			fi
 		fi
 	fi
