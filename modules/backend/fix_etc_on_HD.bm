@@ -134,6 +134,10 @@ fix_etc_on_HD () {
 	rm -f	"${TARGET_MNT_POINT}/etc/sddm.conf" \
 		"${TARGET_MNT_POINT}/var/lib/sddm/state.conf"
 
+        # copy a possible configuration to sddm.conf
+        
+        cp -fv   "${TARGET_MNT_POINT}/etc/sddm-patience.conf"   "${TARGET_MNT_POINT}/etc/sddm.conf"
+
 	#
 	# revert slim autologin
 	#
