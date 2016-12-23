@@ -5,8 +5,8 @@ Maintainer: Alf Gaida <agaida@siduction.org>
 Uploaders: J. Hamatoma <hama@siduction.net>,
  Ferdinand Thommes <devil@siduction.org>,
  Ovidiu Angelescu <convbsd@siduction.net>,
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.6
+Build-Depends: debhelper (>= 10)
+Standards-Version: 3.9.8
 Vcs-Git: git://git.siduction.org/code/fll-installer
 Vcs-Browser: http://git.siduction.org/?p=code/fll-installer.git
 

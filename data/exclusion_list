@@ -2,6 +2,7 @@
 /disks/*
 /etc/network/run/*
 /home/*/.DCOPserver_*
+/home/*/.local/share/akonadi*
 /home/*/.gvfs*
 /home/*/.kde/cache-*
 /home/*/.kde/socket-*
@@ -9,7 +10,6 @@
 /home/*/.*uthority
 /home/*/Desktop/sidu-installer.desktop
 /home/*/.kaxtv*
-/home/*/.mozilla
 /lib/init/rw/*
 /media/*
 /mnt/*
