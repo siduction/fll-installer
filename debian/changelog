@@ -1,3 +1,9 @@
+fll-installer (0.11.3.5) unstable; urgency=medium
+
+  * Removed recommend sidu-installer
+
+ -- Alf Gaida <agaida@siduction.org>  Fri, 07 Apr 2017 22:47:54 +0200
+
 fll-installer (0.11.3.4) unstable; urgency=medium
 
   * copy a possible configuration to sddm.conf

@@ -25,7 +25,6 @@ Depends: ${misc:Depends},
  rsync,
  fll-live-initscripts
 Breaks: initscripts (<< 2.88dsf-16~)
-Recommends: sidu-installer
 Suggests: gparted,
  distro-defaults
 Description: backend scripts to install siduction to hdd
