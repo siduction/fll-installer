@@ -13,7 +13,7 @@
 # Error Codes
 # 20 - error copying iso to harddisk
 #
-# Return 0 on success 
+# Return 0 on success
 # on error the error code and message are in /tmp/.installer.errors
 ##-------------------------------------------------------------------
 ##
@@ -38,7 +38,7 @@ copy2HD()
 
 	for dir in ${DEFAULT_DIR}/*; do
 		[ -d "${dir}" ] || continue
-		
+
 		if [ -L "${dir}" ]; then
 			#
 			# /lib64 -> /lib symlink handling
@@ -54,7 +54,7 @@ copy2HD()
 				/home)
 					# don't clobber an existing /home/${DEFAULT_USER}
 					[ -d "${TARGET_MNT_POINT}/home/${DEFAULT_USER}" ] && continue
-					
+
 					# don't copy if /home/${USER_NAME} exists
 					# we could not move /home/${DEFAULT_USER}
 					[ -d "${TARGET_MNT_POINT}/home/${USER_NAME}" ] && continue
@@ -65,7 +65,7 @@ copy2HD()
 					[ "${DEFAULT_DIR#${dir}}" != "${DEFAULT_DIR}" ] && continue
 					;;
 			esac
-			
+
 			#
 			# do the copy
 			#
@@ -76,9 +76,16 @@ copy2HD()
 				--quiet \
 				--exclude-from="${SEARCHPATH}/data/exclusion_list" \
 				"${dir}" "${TARGET_MNT_POINT}"
+			ln -sf "${TARGET_MNT_POINT}/usr/bin" "${TARGET_MNT_POINT}/bin"
+			ln -sf "${TARGET_MNT_POINT}/usr/lib" "${TARGET_MNT_POINT}/lib"
+			ln -sf "${TARGET_MNT_POINT}/usr/lib32" "${TARGET_MNT_POINT}/lib32"
+			ln -sf "${TARGET_MNT_POINT}/usr/lib64" "${TARGET_MNT_POINT}/lib64"
+			ln -sf "${TARGET_MNT_POINT}/usr/libx32" "${TARGET_MNT_POINT}/libx32"
+			ln -sf "${TARGET_MNT_POINT}/usr/sbin" "${TARGET_MNT_POINT}/sbin"
+
 			if [ $? -ne 0 ] ; then
 				touch ${ERR_COPY}
-				# echo 20 "Error copying iso to harddisk" 
+				# echo 20 "Error copying iso to harddisk"
 				break
 			fi
 			sync
@@ -87,11 +94,11 @@ copy2HD()
 
 	# when the file /tmp/.installer.errors exist and the first field is 20
 	# then we must stop installation as an error has happened
-	
+
 	# if [ -s $ERRLOG ]; then
 	if [ -e ${ERR_COPY} ]; then
 		rm -f ${ERR_COPY}
-		error 20 "Error copying iso to harddisk" 
+		error 20 "Error copying iso to harddisk"
 	fi
 
 	#

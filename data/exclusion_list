@@ -2,13 +2,11 @@
 /disks/*
 /etc/network/run/*
 /home/*/.DCOPserver_*
-/home/*/.local/share/akonadi*
 /home/*/.gvfs*
 /home/*/.kde/cache-*
 /home/*/.kde/socket-*
 /home/*/.kde/tmp-*
 /home/*/.*uthority
-/home/*/Desktop/sidu-installer.desktop
 /home/*/.kaxtv*
 /lib/init/rw/*
 /media/*
@@ -19,3 +17,9 @@
 /tmp/*
 /var/cache/gdm/*
 /var/tmp/*
+/bin
+/lib
+/lib32
+/lib64
+/libx32
+/sbin

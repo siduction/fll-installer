@@ -52,7 +52,7 @@ install_grub_efi()
 	extramnt="/fll"
 	[ -e "${extramnt}/extras" ] || extramnt="$(fll_get_mnt)"
 	mount -o bind ${extramnt} ${TARGET_MNT_POINT}/mnt
-	echo 'deb file:///mnt/extras sid main' > ${EFIAPTSOURCES}/sources.list
+	echo 'deb [trusted=yes] file:///mnt/extras sid main' > ${EFIAPTSOURCES}/sources.list
 	mkdir ${EFIAPTSOURCES}/preferences.d
 	chroot_it ${APTGETBASE} update > /dev/null
 	chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes install ${grubdeb} > /dev/null

@@ -5,8 +5,8 @@ Maintainer: Alf Gaida <agaida@siduction.org>
 Uploaders: J. Hamatoma <hama@siduction.net>,
  Ferdinand Thommes <devil@siduction.org>,
  Ovidiu Angelescu <convbsd@siduction.net>,
-Build-Depends: debhelper (>= 10)
-Standards-Version: 3.9.8
+Build-Depends: debhelper (>= 11)
+Standards-Version: 4.2.1
 Vcs-Git: git://git.siduction.org/code/fll-installer
 Vcs-Browser: http://git.siduction.org/?p=code/fll-installer.git
 
@@ -14,7 +14,6 @@ Package: fll-installer
 Architecture: all
 Depends: ${misc:Depends},
  adduser,
- base-files (>= 6.4),
  initramfs-tools,
  grub-pc | grub-efi,
  lsof,
@@ -24,7 +23,6 @@ Depends: ${misc:Depends},
  os-prober,
  rsync,
  fll-live-initscripts
-Breaks: initscripts (<< 2.88dsf-16~)
 Suggests: gparted,
  distro-defaults
 Description: backend scripts to install siduction to hdd

@@ -63,19 +63,9 @@ fix_home_on_HD()
 			"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/config/kdesurc" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/apps/konsole/sumc.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.kde/share/apps/konsole/su.desktop" \
-			"${TARGET_MNT_POINT}${INSTHOME}/.gconf/apps/gksu/%gconf.xml" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.su-to-rootrc"; do
 		grep -s -q sudo "$file" && rm -f "$file"
 	done
-
-	#
-	# revert gksu sudo mode hack
-	#
-	logit "revert gksu sudo mode hack"
-	chroot "${TARGET_MNT_POINT}" \
-		sudo -u "${FLL_LIVE_USER}" gconftool-2 -s -t bool /apps/gksu/sudo-mode false
-	chroot "${TARGET_MNT_POINT}" \
-		sudo -u "${FLL_LIVE_USER}" gconftool-2 -s -t bool /apps/gksu/display-no-pass-info true
 
 	#
 	# remove installer from fluxbox menu
