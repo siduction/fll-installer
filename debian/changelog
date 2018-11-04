@@ -1,9 +1,21 @@
-fll-installer (0.11.3.6) UNRELEASED; urgency=medium
+fll-installer (0.11.3.6.2) unstable; urgency=medium
+
+  * really fixed usr-merge
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 04 Nov 2018 17:14:30 +0100
+
+fll-installer (0.11.3.6.1) unstable; urgency=medium
+
+  * second attempt
+
+ -- Alf Gaida <agaida@siduction.org>  Sun, 04 Nov 2018 15:59:57 +0100
+
+fll-installer (0.11.3.6) unstable; urgency=medium
 
   * Sync with upstream
   * Prepared usr-merge (not tested yet)
 
- -- Alf Gaida <agaida@siduction.org>  Sun, 04 Nov 2018 14:09:05 +0100
+ -- Alf Gaida <agaida@siduction.org>  Sun, 04 Nov 2018 14:54:20 +0100
 
 fll-installer (0.11.3.5) unstable; urgency=medium
 

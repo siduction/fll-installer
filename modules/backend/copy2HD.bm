@@ -19,98 +19,93 @@
 ##
 copy2HD()
 {
-	local ERR_COPY="/tmp/.err_copy"
-	#
-	# log my call
-	#
-	logit "copy the CD into the harddisk"
-	#
+    local ERR_COPY="/tmp/.err_copy"
+    #
+    # log my call
+    #
+    logit "copy the CD into the harddisk"
+    #
 
-	if [ -e "${ERR_COPY}" ]; then
-		rm -f "${ERR_COPY}"
-	fi
+    if [ -e "${ERR_COPY}" ]; then
+        rm -f "${ERR_COPY}"
+    fi
 
-	#
-	# experimental copy2HD loop adapted from fll-live-initramfs
-	#
+    #
+    # experimental copy2HD loop adapted from fll-live-initramfs
+    #
 
-	progress "Copying files. This can take a while. Please be patient."
+    progress "Copying files. This can take a while. Please be patient."
 
-	for dir in ${DEFAULT_DIR}/*; do
-		[ -d "${dir}" ] || continue
+    for dir in ${DEFAULT_DIR}/*; do
+        [ -d "${dir}" ] || continue
 
-		if [ -L "${dir}" ]; then
-			#
-			# /lib64 -> /lib symlink handling
-			#
-			ln -sf "$(readlink -f ${dir})" "${TARGET_MNT_POINT}/${dir##*/}"
-		else
-			dir="/${dir##*/}"
-			case "${dir}" in
-				/dev)
-					# copy the static dev from ${DEFAULT_DIR}
-					dir="${DEFAULT_DIR}${dir}"
-					;;
-				/home)
-					# don't clobber an existing /home/${DEFAULT_USER}
-					[ -d "${TARGET_MNT_POINT}/home/${DEFAULT_USER}" ] && continue
+        if [ -L "${dir}" ]; then
+            #
+            # The gamechanger is now called is usr-merge
+            # so it might be a good idea to handle the merged dirs and
+            # symlinks right™
+            #
+            echo ln -sf "/usr/${dir##*/}" "${TARGET_MNT_POINT}/${dir##*/}"
+            ln -sf "/usr/${dir##*/}" "${TARGET_MNT_POINT}/${dir##*/}"
+        else
+            dir="/${dir##*/}"
+            case "${dir}" in
+                /dev)
+                    # copy the static dev from ${DEFAULT_DIR}
+                    dir="${DEFAULT_DIR}${dir}"
+                    ;;
+                /home)
+                    # don't clobber an existing /home/${DEFAULT_USER}
+                    [ -d "${TARGET_MNT_POINT}/home/${DEFAULT_USER}" ] && continue
 
-					# don't copy if /home/${USER_NAME} exists
-					# we could not move /home/${DEFAULT_USER}
-					[ -d "${TARGET_MNT_POINT}/home/${USER_NAME}" ] && continue
-					;;
-				*)
-					# don't copy trees containing either source or target
-					[ "${TARGET_MNT_POINT#${dir}}" != "${TARGET_MNT_POINT}" ] && continue
-					[ "${DEFAULT_DIR#${dir}}" != "${DEFAULT_DIR}" ] && continue
-					;;
-			esac
+                    # don't copy if /home/${USER_NAME} exists
+                    # we could not move /home/${DEFAULT_USER}
+                    [ -d "${TARGET_MNT_POINT}/home/${USER_NAME}" ] && continue
+                    ;;
+                *)
+                    # don't copy trees containing either source or target
+                    [ "${TARGET_MNT_POINT#${dir}}" != "${TARGET_MNT_POINT}" ] && continue
+                    [ "${DEFAULT_DIR#${dir}}" != "${DEFAULT_DIR}" ] && continue
+                ;;
+            esac
 
-			#
-			# do the copy
-			#
-			rsync	--archive \
-				--acls \
-				--hard-links \
-				--xattrs \
-				--quiet \
-				--exclude-from="${SEARCHPATH}/data/exclusion_list" \
-				"${dir}" "${TARGET_MNT_POINT}"
-			ln -sf "${TARGET_MNT_POINT}/usr/bin" "${TARGET_MNT_POINT}/bin"
-			ln -sf "${TARGET_MNT_POINT}/usr/lib" "${TARGET_MNT_POINT}/lib"
-			ln -sf "${TARGET_MNT_POINT}/usr/lib32" "${TARGET_MNT_POINT}/lib32"
-			ln -sf "${TARGET_MNT_POINT}/usr/lib64" "${TARGET_MNT_POINT}/lib64"
-			ln -sf "${TARGET_MNT_POINT}/usr/libx32" "${TARGET_MNT_POINT}/libx32"
-			ln -sf "${TARGET_MNT_POINT}/usr/sbin" "${TARGET_MNT_POINT}/sbin"
+            #
+            # do the copy
+            #
+            echo "syncing ${dir} ..."
+            rsync --archive \
+                --acls \
+                --hard-links \
+                --xattrs \
+                --quiet \
+                --exclude-from="${SEARCHPATH}/data/exclusion_list" \
+                "${dir}" "${TARGET_MNT_POINT}"
+            if [ $? -ne 0 ] ; then
+                touch ${ERR_COPY}
+                break
+            fi
+            sync
+        fi
+    done
 
-			if [ $? -ne 0 ] ; then
-				touch ${ERR_COPY}
-				# echo 20 "Error copying iso to harddisk"
-				break
-			fi
-			sync
-		fi
-	done
+    # when the file /tmp/.installer.errors exist and the first field is 20
+    # then we must stop installation as an error has happened
 
-	# when the file /tmp/.installer.errors exist and the first field is 20
-	# then we must stop installation as an error has happened
+    # if [ -s $ERRLOG ]; then
+    if [ -e ${ERR_COPY} ]; then
+        rm -f ${ERR_COPY}
+        error 20 "Error copying iso to harddisk"
+    fi
 
-	# if [ -s $ERRLOG ]; then
-	if [ -e ${ERR_COPY} ]; then
-		rm -f ${ERR_COPY}
-		error 20 "Error copying iso to harddisk"
-	fi
-
-	#
-	# two beeps
-	if [ -z "$DISPLAY" ]; then
-		printf "\a"
-	fi
-	sleep 0.5
-	if [ -z "$DISPLAY" ]; then
-		printf "\a"
-	fi
-	sleep 0.5
-	return 0
+    #
+    # two beeps
+    if [ -z "$DISPLAY" ]; then
+        printf "\a"
+    fi
+    sleep 0.5
+    if [ -z "$DISPLAY" ]; then
+        printf "\a"
+    fi
+    sleep 0.5
+    return 0
 }
-
