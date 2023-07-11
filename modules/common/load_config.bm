@@ -34,7 +34,8 @@ load_config () {
 	for i in ${REGISTERED}; do  
 		
 		if [ "$i" != "HD_MAP" ] && [ "$i" != "SWAP_CHOICES" ] && \
-			[ "$i" != "SERVICES_START" ] && [ -z "$(eval echo \$$i)" ]; 
+			[ "$i" != "SERVICES_START" ] && [ "$i" != "NAME_NAME" ] && \
+			[ -z "$(eval echo \$$i)" ]; 
 		then  
 			error 10 "Parameter $i is not defined"
 			# exit 10
