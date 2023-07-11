@@ -1,3 +1,9 @@
+fll-installer (0.11.3.7) unstable; urgency=medium
+
+  * Exclude NAME_NAME from test for undefined variable.
+
+ -- Axel Konrad <emma-konrad@web.de>  Thu, 11 Jul 2023 19:44:28 +0200
+
 fll-installer (0.11.3.6.2) unstable; urgency=medium
 
   * really fixed usr-merge
