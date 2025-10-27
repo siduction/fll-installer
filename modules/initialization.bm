@@ -37,14 +37,23 @@ get_esp () {
 	disk="${1}"
 	if LANG=C  fdisk -l ${disk} | grep -q 'Disklabel type: gpt'
 	then
-		# use gdisk to check for efi system partition
-		efis="$(gdisk -l ${disk} | \
+		# check if sdX or nvmeX and use gdisk
+		# to check for efi system partition
+		case "$disk" in
+		*/sd* | */hd*)
+			efi="$(gdisk -l ${disk} | \
 			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'"$1}}')"
-		# stop on the first vfat partition found setting esp
-		for efi in $efis ; do
-			[ "$(blkid -s TYPE -o value ${efi})" = "vfat" ] && \
-				esp="${efi}" && break
-		done
+			;;
+		*/nvme*)
+			efi="$(gdisk -l ${disk} | \
+			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'p"$1}}')"
+			;;
+		*)
+			;;
+		esac 
+			
+		# stop if vfat partition found setting esp
+		[ "$(blkid -s TYPE -o value ${efi})" = "vfat" ] && esp="${efi}" && break
 	fi
 }
 
