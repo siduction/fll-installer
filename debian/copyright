@@ -4,7 +4,8 @@ Upstream-Contact: Stefan Lippers-Hollmann <s.l-h@gmx.de>
 Source: https://github.com/fullstory/fll-installer.git
 
 Files: *
-Copyright: 2012-2018, Alf Gaida <agaida@siduction.org>
+Copyright: 2023-2025, Axel Konrad <ak-li@siduction.org>
+           2012-2018, Alf Gaida <agaida@siduction.org>
            2012-2013, Ovidiu Angelescu <convbsd@siduction.org>
            2007-2011, Joaquim Boura <x-un-i@berlios.de>
            2008-2010, Niall Walsh <niallwalsh@users.berlios.de>

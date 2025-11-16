@@ -39,7 +39,8 @@ fix_home_on_HD()
 	# purge unwanted files
 	#
 	for file in	"${TARGET_MNT_POINT}${INSTHOME}/Desktop/${FLL_DISTRO_NAME}.desktop" \
-			"${TARGET_MNT_POINT}${INSTHOME}/Desktop/install-gui.desktop" \
+			"${TARGET_MNT_POINT}${INSTHOME}/Desktop/calamares.desktop" \
+			"${TARGET_MNT_POINT}${INSTHOME}/Desktop/chroot-helper.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.config/autostart/${FLL_DISTRO_NAME}.desktop" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.hushlogin" \
 			"${TARGET_MNT_POINT}${INSTHOME}/.config/chromium/SingletonLock" \
