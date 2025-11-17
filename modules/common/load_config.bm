@@ -44,10 +44,10 @@ load_config () {
 	# minimal check
 	# USER_NAME must not contain spaces
 	# HOST_NAME must not contain spaces
-	if echo "${USER_NAME}" | egrep -q '[[:space:]]'; then
+	if echo "${USER_NAME}" | grep -E -q '[[:space:]]'; then
 		error 11 "Username must not contain whitespaces"
 	fi
-	if echo "${HOST_NAME}" | egrep -q '[[:space:]]'; then
+	if echo "${HOST_NAME}" | grep -E -q '[[:space:]]'; then
 		error 11 "Hostname must not contain whitespaces"
 	fi
 	return 0

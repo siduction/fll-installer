@@ -41,12 +41,12 @@ get_esp () {
 		# to check for efi system partition
 		case "$disk" in
 		*/sd* | */hd*)
-			efi="$(gdisk -l ${disk} | \
-			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'"$1}}')"
+			efi=$(gdisk -l ${disk} | \
+			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'"$1}}')
 			;;
 		*/nvme*)
-			efi="$(gdisk -l ${disk} | \
-			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'p"$1}}')"
+			efi=$(gdisk -l ${disk} | \
+			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'p"$1}}')
 			;;
 		*)
 			;;

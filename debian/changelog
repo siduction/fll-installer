@@ -1,9 +1,28 @@
+fll-installer (0.11.4.2) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * Fix various missing double quotation marks.
+  * Remove quotation marks from the condition part of for loops.
+  * fix_home_on_HD.bm, purge_live_only_stuff.bm
+      Adjustments to changed files and programs.
+  * fix_home_on_HD.bm
+      Change 'rm -Rf "${dir}"/*' to 'rm -Rf "${dir:?}"/*'
+      What happens if $dir is empty? We have a test beforehand, but still.
+  * clean_exit.bm
+      Unmounting nested mounts.
+  * fll-installer
+      Change from /bin/sh to /usr/bin/bash
+      Reason: We would like to use some bash extensions and
+      upstream is located in "Morgue for obsolete fullstory packages".
+
+ -- Axel Konrad <ak-li@siduction.org> Mon, 17 Nov 2025
+
 fll-installer (0.11.4.1) unstable; urgency=medium
 
   [ Axel Konrad ]
   * Purge Live Desktop icons from the installation.
 
-
+ -- Axel Konrad <ak-li@siduction.org> Sun, 16 Nov 2025
 
 fll-installer (0.11.4) unstable; urgency=medium
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/bash
 #
 # Copyright (C) 2007 Joaquim Boura <x-un-i@berlios.de>
 # heavily based on the knoppix installer from
@@ -46,16 +46,16 @@ error () {
 	shift
 
 	# the gui should use this to proclaim success/error
-	printf "${exitval}-${@}\n" > "${ERRLOG}"
+    echo "${exitval}-${*}" > "${ERRLOG}"
 
-	printf "E: ${@}\n"
-	clean_exit ${exitval}
+    echo "E: ${*}"
+	clean_exit "${exitval}"
 }
 #--------------------------------------------------------------
 # say
 #--------------------------------------------------------------
 say () {
-        printf "O: ${1}\n"
+        echo "O: ${1}"
 }
 #--------------------------------------------------------------
 # usage
@@ -67,13 +67,9 @@ usage () {
 #--------------------------------------------------------------
 # preparation, process cli arguments with getopt
 #--------------------------------------------------------------
-TEMP=$(getopt -o di:h \
-        --long debug,inotify:,help \
-        -n  "$(basename ${0})" -- "${@}")
-
-if [ "${?}" -ne 0 ]; then
-        error 255 "getopt terminated abnormally"
-        # exit 255
+if ! TEMP=$(getopt -o di:h --long debug,inotify:,help \
+		-n  "$(basename "${0}")" -- "${@}"); then
+	error 255 "getopt terminated abnormally"
 fi
 
 # Note the quotes around `$TEMP': they are essential!

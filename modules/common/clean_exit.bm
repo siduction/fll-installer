@@ -11,6 +11,8 @@
 ##
 clean_exit()
 {
+	local still_mounted
+	
 	DURATION=$(($(date +%s) - STARTTIME))
 	say "Exiting after $((DURATION / 60)):$((DURATION % 60))." 
 	[ -n "$TMPDIR" ] && rm -rf "$TMPDIR"
@@ -19,7 +21,7 @@ clean_exit()
 		#
 		# copy the install log into users home
 		#
-		cp -f $LOG  "$TARGET_MNT_POINT/root"
+		cp -f "$LOG"  "$TARGET_MNT_POINT/root"
 
         #
         # remove passwords from the $CONFIG file
@@ -39,15 +41,18 @@ clean_exit()
 	# umount mounted filesystems
 	#
 	for i in $HD_MAP; do
-		point=$(echo $i | cut -d":" -f2)
+		point=$(echo "$i" | cut -d":" -f2)
 		umount "$TARGET_MNT_POINT$point"
 	done
 
 	# Just to be sure :-)
-	if mount | egrep -q "${TARGET_MNT_POINT}"; then
-		umount "${TARGET_MNT_POINT}"
+	if mount | grep -E -q "${TARGET_MNT_POINT}"; then
+		still_mounted=$(findmnt -Rrn -o "TARGET" "${TARGET_MNT_POINT}" | tac)
+		for m in $still_mounted; do
+			umount "$m"
+		done
 	fi
 
-	exit $1
+	exit "$1"
 }
 

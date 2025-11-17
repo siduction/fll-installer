@@ -31,13 +31,13 @@ install_grub_efi()
 	HD_MAP="$efisys:/boot/efi ${HD_MAP}"
 
 	# Create the target directory for the efi loader on the efisys partition
-	mkdir $TARGET_MNT_POINT/boot/efi
-	mount ${efisys} $TARGET_MNT_POINT/boot/efi
-	mkdir -p "${TARGET_MNT_POINT}/boot/efi/EFI/debian"
+	mkdir "$TARGET_MNT_POINT"/boot/efi
+	mount "${efisys}" "$TARGET_MNT_POINT"/boot/efi
+	mkdir -p "${TARGET_MNT_POINT}"/boot/efi/EFI/debian
 
 	# Install grub-efi in the chroot
 	grubdeb="grub-efi"
-	instarch=$(dpkg-architecture --print-architecture)
+	instarch=$(dpkg-architecture -p DEB_HOST_ARCH)
 	if [ -r /sys/firmware/efi/fw_platform_size ]; then
 		efisize="$(head -n1 /sys/firmware/efi/fw_platform_size)"
 		if [ "${instarch}" = "i386" ] && [ "${efisize}" = "64" ];  then
@@ -46,21 +46,21 @@ install_grub_efi()
 			grubdeb="grub-efi-ia32"
 		fi
 	fi
-	EFIAPTSOURCES=$(mktemp -d --tmpdir=${TARGET_MNT_POINT}/tmp/ liveapt.XXXXXX)
-	APTGETBASE="apt-get -o Dir::Etc=${EFIAPTSOURCES##${TARGET_MNT_POINT}}"
+	EFIAPTSOURCES=$(mktemp -d --tmpdir="${TARGET_MNT_POINT}"/tmp/ liveapt.XXXXXX)
+	APTGETBASE="apt-get -o Dir::Etc=${EFIAPTSOURCES##"${TARGET_MNT_POINT}"}"
 	. /lib/init/fll
 	extramnt="/fll"
 	[ -e "${extramnt}/extras" ] || extramnt="$(fll_get_mnt)"
-	mount -o bind ${extramnt} ${TARGET_MNT_POINT}/mnt
-	echo 'deb [trusted=yes] file:///mnt/extras sid main' > ${EFIAPTSOURCES}/sources.list
-	mkdir ${EFIAPTSOURCES}/preferences.d
-	chroot_it ${APTGETBASE} update > /dev/null
-	chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes install ${grubdeb} > /dev/null
-	umount ${TARGET_MNT_POINT}/mnt
-	echo '' > ${EFIAPTSOURCES}/sources.list
-	chroot_it ${APTGETBASE} update > /dev/null
-	chroot_it ${APTGETBASE} clean > /dev/null
-	rm -rf ${EFIAPTSOURCES}
+	mount -o bind "${extramnt}" "${TARGET_MNT_POINT}"/mnt
+	echo 'deb [trusted=yes] file:///mnt/extras sid main' > "${EFIAPTSOURCES}"/sources.list
+	mkdir "${EFIAPTSOURCES}"/preferences.d
+	chroot_it "${APTGETBASE}" update > /dev/null
+	chroot_it "${APTGETBASE}" --allow-unauthenticated --assume-yes install "${grubdeb}" > /dev/null
+	umount "${TARGET_MNT_POINT}"/mnt
+	echo '' > "${EFIAPTSOURCES}"/sources.list
+	chroot_it "${APTGETBASE}" update > /dev/null
+	chroot_it "${APTGETBASE}" clean > /dev/null
+	rm -rf "${EFIAPTSOURCES}"
 
 	return 0
 }

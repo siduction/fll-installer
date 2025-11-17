@@ -25,7 +25,7 @@ add_bootmanager()
 	local MSG1="Creating initrd for kernel $BOOT_KERNEL ..."
 	local MSG2="Installing $BOOT_LOADER to $BOOT_WHERE"
 	local root_partition
-	local root_device
+#	local root_device
 	local wanted
 
 	#
@@ -46,28 +46,28 @@ add_bootmanager()
 	# so we create one for that
 
 	# 0. prepare
-	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
-	map_devices="$(fll_disk_device $root_partition)"
+	root_partition=$(echo "${HD_CHOICE}" |cut -d"'" -f2)
+	map_devices="$(fll_disk_device "$root_partition")"
 
 	if [ -n "${HD_MAP}" ]; then
-		for i in "${HD_MAP}"
+		for i in ${HD_MAP}
 		do
-			part=$(echo $i | cut -d":" -f1)
-			map_devices="${map_devices} $(fll_disk_device $part)"
+			part=$(echo "$i" | cut -d":" -f1)
+			map_devices="${map_devices} $(fll_disk_device "$part")"
 		done
 	fi
-	map_devices="$(echo ${map_devices} | uniq -u)"
+	map_devices="$(echo "${map_devices}" | uniq -u)"
 	wanted=""
 	for map_device in ${map_devices}; do
 		wanted="${wanted} --wanted ${map_device}"
 	done
 
-	chroot_it fll_fstab_generator --file /etc/fstab ${wanted}
+	chroot_it fll_fstab_generator --file /etc/fstab "${wanted}"
 
 	local cryptsource
 	local crypttarget
 
-	set -- $(fll_crypt_device ${root_partition})
+	set -- $(fll_crypt_device "${root_partition}")
 	while [ -n "$1" ]; do
 		cryptsource="$1"
 		crypttarget="$2"
@@ -75,20 +75,20 @@ add_bootmanager()
 		if [ "${cryptsource}" = "${cryptsource#/dev/mapper/}" ]; then
 			local cryptuuid
 			# use uuid if possible for non /dev/mapper devices
-			cryptuuid=$(udevadm info -q env --name ${cryptsource} | \
+			cryptuuid=$(udevadm info -q env --name "${cryptsource}" | \
 					awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
 			if [ -n "${cryptuuid}" ]; then
 				cryptsource="UUID=${cryptuuid}"
 			fi
 		fi
-		echo "${crypttarget#/dev/mapper/}	$cryptsource	none	luks" >> ${TARGET_MNT_POINT}/etc/crypttab
+		echo "${crypttarget#/dev/mapper/}	$cryptsource	none	luks" >> "${TARGET_MNT_POINT}"/etc/crypttab
 	done
 	
 	BOOT_KERNELS=""
 
-	for i in $TARGET_MNT_POINT/lib/modules/?.*
+	for i in "$TARGET_MNT_POINT"/lib/modules/?.*
 	do
-		BOOT_KERNEL=$(basename $i)
+		BOOT_KERNEL=$(basename "$i")
 		BOOT_KERNELS="$BOOT_KERNELS $BOOT_KERNEL"
 		progress "$MSG1"
 		create_initrd
@@ -99,7 +99,7 @@ add_bootmanager()
 	# set the default to the first available
 	if ! stringinstring "$BOOT_RUNNING_KERNEL" "$BOOT_KERNELS"
 	then
-		set -- $BOOT_KERNELS
+		set -- "$BOOT_KERNELS"
 		BOOT_RUNNING_KERNEL="$1"
 	fi
 
@@ -118,7 +118,7 @@ add_bootmanager()
 	# determine if map devices are just usb
 	usb_dev=""
 	for map_device in ${map_devices}; do
-		if [ -n "$(fll_disk_isusb ${map_device})" ] ; then
+		if [ -n "$(fll_disk_isusb "${map_device}")" ] ; then
 			usb_dev="${usb_dev} ${map_device}"
 		else
 			# any non usb device means efi could be installed
@@ -156,7 +156,7 @@ add_bootmanager()
 			# find out what cryptopts we need for /
 			local cryptsource
 			local crypttarget
-			set -- $(fll_crypt_device ${root_partition})
+			set -- $(fll_crypt_device "${root_partition}")
 			while [ -n "$1" ]; do
 				cryptsource="$1"
 				crypttarget="${2#/dev/mapper/}"
@@ -164,7 +164,7 @@ add_bootmanager()
 				if [ "${cryptsource}" = "${cryptsource#/dev/mapper/}" ]; then
 					local cryptuuid
 					# use uuid if possible for non /dev/mapper devices
-					cryptuuid=$(udevadm info -q env --name ${cryptsource} | \
+					cryptuuid=$(udevadm info -q env --name "${cryptsource}" | \
 							awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
 					if [ -n "${cryptuuid}" ]; then
 						cryptsource="UUID=${cryptuuid}"
@@ -177,7 +177,7 @@ add_bootmanager()
 					GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS} cryptopts=source=$crypt,target=$crypttarget"
 				fi
 				# root is in a volume group so scan it
-				fll_disk_abstract ${root_partition}
+				fll_disk_abstract "${root_partition}"
 				[ "${f_d_abstract}" = "lvm" ] && GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS},lvm=${root_partition##/dev/mapper/}"
 			done
 			sed -i "s|\(GRUB_CMDLINE_LINUX=\).*|\1\"${GRUB_DEFOPTIONS}\"|" \
@@ -189,8 +189,8 @@ add_bootmanager()
 					 sed -i "s|\(GRUB_THEME=\).*|\1/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt|"
 						"${TARGET_MNT_POINT}/etc/default/grub"
 				else
-					printf "\nGRUB_THEME=\"/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt\"\n" \
-						>>"${TARGET_MNT_POINT}/etc/default/grub"
+					echo "" >> "${TARGET_MNT_POINT}/etc/default/grub"
+					echo "GRUB_THEME=\"/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt\"" >> "${TARGET_MNT_POINT}/etc/default/grub"
 				fi
 			fi
 		fi

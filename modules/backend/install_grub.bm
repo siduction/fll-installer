@@ -45,7 +45,7 @@ install_grub()
 	logit "installing grub"
 	#
 
-	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
+	root_partition=$(echo "${HD_CHOICE}" |cut -d"'" -f2)
 	bootfrom=""
         grubdev=""
 
@@ -65,7 +65,7 @@ install_grub()
 		# get the gd for this bf
 		# mbr might have set it but we want it reset each loop otherwise
 		if [ -z "$grubdev" ] ; then
-			gd="$(ls -l /dev/disk/by-id | awk '/\/'${bf##*/}'$/{print "/dev/disk/by-id/"$9;exit}' )"
+			gd="$(ls -l /dev/disk/by-id | awk '/\/'"${bf##*/}"'$/{print "/dev/disk/by-id/"$9;exit}' )"
 		else
 			gd="${grubdev}"
 		fi
@@ -74,8 +74,8 @@ install_grub()
 		#
 		# is twice because sometimes the first one fails in that cases the second
 		# don't fail !!!
-		grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bf}" >&2 || \
-			grub-install --recheck --no-floppy --force --root-directory=$TARGET_MNT_POINT "${bf}" >&2
+		grub-install --recheck --no-floppy --force --root-directory="$TARGET_MNT_POINT" "${bf}" >&2 || \
+			grub-install --recheck --no-floppy --force --root-directory="$TARGET_MNT_POINT" "${bf}" >&2
 		if [ -z "${gds}" ]; then
 			gds="$gd"
 		else
@@ -91,8 +91,8 @@ install_grub()
 	# we put portable efi bootloaders in the ESP on the device
 	# or the first fat partition
 	isusb=""
-	for disk in $(fll_disk_device ${root_partition}); do
-		if [ -n "$(fll_disk_isusb ${disk})" ]; then
+	for disk in $(fll_disk_device "${root_partition}"); do
+		if [ -n "$(fll_disk_isusb "${disk}")" ]; then
 			isusb="${isusb} ${disk}"
 		else
 			# any non-usb root device means we are not going portable
@@ -101,31 +101,31 @@ install_grub()
 		fi
 	done
 	if [ -n "${isusb}" ]; then
-		get_usbefi ${root_partition}
+		get_usbefi "${root_partition}"
 		if [ -n "${usbefi}" ]; then
 			HD_MAP="$usbefi:/boot/efi ${HD_MAP}"
 
 			# Mount it now
-			mkdir $TARGET_MNT_POINT/boot/efi
-			mount ${usbefi} $TARGET_MNT_POINT/boot/efi
+			mkdir "$TARGET_MNT_POINT"/boot/efi
+			mount "${usbefi}" "$TARGET_MNT_POINT"/boot/efi
 
 			# Install grub-fll-portable-efi in the chroot
-			EFIAPTSOURCES=$(mktemp -d --tmpdir=${TARGET_MNT_POINT}/tmp/ liveapt.XXXXXX)
-			APTGETBASE="apt-get -o Dir::Etc=${EFIAPTSOURCES##${TARGET_MNT_POINT}}"
+			EFIAPTSOURCES=$(mktemp -d --tmpdir="${TARGET_MNT_POINT}"/tmp/ liveapt.XXXXXX)
+			APTGETBASE="apt-get -o Dir::Etc=${EFIAPTSOURCES##"${TARGET_MNT_POINT}"}"
 			. /lib/init/fll
 			extramnt="/fll"
 			[ -e "${extramnt}/extras" ] || extramnt="$(fll_get_mnt)"
-			mount -o bind ${extramnt} ${TARGET_MNT_POINT}/mnt
-			echo 'deb file:///mnt/extras sid main' > ${EFIAPTSOURCES}/sources.list
-			mkdir ${EFIAPTSOURCES}/preferences.d
-			chroot_it ${APTGETBASE} update > /dev/null
-			chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes install grub2-fll-portable-efi > /dev/null
-			chroot_it ${APTGETBASE} --allow-unauthenticated --assume-yes remove --purge os-prober > /dev/null || :
-			umount ${TARGET_MNT_POINT}/mnt
-			echo '' > ${EFIAPTSOURCES}/sources.list
-			chroot_it ${APTGETBASE} update > /dev/null
-			chroot_it ${APTGETBASE} clean > /dev/null
-			rm -rf ${EFIAPTSOURCES}
+			mount -o bind "${extramnt}" "${TARGET_MNT_POINT}"/mnt
+			echo 'deb file:///mnt/extras sid main' > "${EFIAPTSOURCES}"/sources.list
+			mkdir "${EFIAPTSOURCES}"/preferences.d
+			chroot_it "${APTGETBASE}" update > /dev/null
+			chroot_it "${APTGETBASE}" --allow-unauthenticated --assume-yes install grub2-fll-portable-efi > /dev/null
+			chroot_it "${APTGETBASE}" --allow-unauthenticated --assume-yes remove --purge os-prober > /dev/null || :
+			umount "${TARGET_MNT_POINT}"/mnt
+			echo '' > "${EFIAPTSOURCES}"/sources.list
+			chroot_it "${APTGETBASE}" update > /dev/null
+			chroot_it "${APTGETBASE}" clean > /dev/null
+			rm -rf "${EFIAPTSOURCES}"
 		fi
 	fi
 

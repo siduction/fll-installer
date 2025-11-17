@@ -18,7 +18,7 @@ get_boot_cmdline()
 	#
 
 	SYSTEM_RESCUE_CMDS="acpi|noapic|nosmp|pci|pnpbios|noapm|nohlt|nolapic|irqpoll|i8042|=scsi"
-	SYSTEM_RESCUE_CMDLINE=$(cat /proc/cmdline | tr ' ' '\n' | egrep "$SYSTEM_RESCUE_CMDS" |  tr '\n' ' ')
+	SYSTEM_RESCUE_CMDLINE=$(cat /proc/cmdline | tr ' ' '\n' | grep -E "$SYSTEM_RESCUE_CMDS" |  tr '\n' ' ')
 
 	echo "$SYSTEM_RESCUE_CMDLINE quiet"
 }

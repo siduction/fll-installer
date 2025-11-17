@@ -28,21 +28,21 @@ update_fstab()
 	progress "Updating /etc/fstab..."
 
 	# 0. prepare
-	root_partition=$(echo ${HD_CHOICE} |cut -d"'" -f2)
+	root_partition=$(echo "${HD_CHOICE}" |cut -d"'" -f2)
 	root_device="$(fll_disk_device $root_partition)"
 	usb_dev="$(fll_disk_usb $root_partition)"
 	for want in ${root_device} ; do
 		wants="${wants} ${want}"
 	done
-	if [ -b /dev/mapper/${FLL_DISTRO_NAME}-live ]; then
+	if [ -b /dev/mapper/"${FLL_DISTRO_NAME}"-live ]; then
 		ignore_device="--ignore ${FLL_DISTRO_NAME}-live"
 	fi
 	# if root_device is solely usb, ignore devices not on the same device(s)
 	if [ "${root_device}" = "${usb_dev}" ]; then
 		for d in /sys/block/* ; do
-			for fdd in $(fll_disk_device /dev/${d##*/}) ; do
+			for fdd in $(fll_disk_device /dev/"${d##*/}") ; do
 				# add to list to ignore unless part of root
-				if echo ${root_device} | grep -m 1 -q -v ${fdd} ; then
+				if echo "${root_device}" | grep -m 1 -q -v "${fdd}" ; then
 					igds="${igds} ${fdd}"
 				fi
 			done
@@ -53,10 +53,9 @@ update_fstab()
 	fi
 
 	if [ -n "${HD_MAP}" ]; then
-		for i in "${HD_MAP}"
-		do
-			part=$(echo $i | cut -d":" -f1)
-			for want in $(fll_disk_device $part); do
+		for i in ${HD_MAP}; do
+			part=$(echo "$i" | cut -d":" -f1)
+			for want in $(fll_disk_device "$part"); do
 				wants="${wants} ${want}"
 			done
 		done
