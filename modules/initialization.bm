@@ -7,17 +7,17 @@ LOG="$HOME/.sidlog"
 #
 ###-------------------------------------
 #
-logit () {
+logit() {
 	local TIME
 	say "$@"
 	TIME=$(date)
-	[ -n "$*" ] && printf "$TIME: $@\n" >> "$LOG" || echo >> "$LOG"
+	[ -n "$*" ] && printf "$TIME: $*\n" >> "$LOG" || echo >> "$LOG"
 }
 
 #
 ###-------------------------------------
 #
-get_efisys () {
+get_efisys() {
 	efisys=""
 	# This is derived from the install-gui disk code
 	disks=`LANG=C fdisk -l | grep "Disk /dev" | cut -d: -f1 | cut -d" " -f2`
@@ -33,14 +33,14 @@ get_efisys () {
 #
 ###-------------------------------------
 #
-get_esp () {
+get_esp() {
 	disk="${1}"
 	if LANG=C  fdisk -l ${disk} | grep -q 'Disklabel type: gpt'
 	then
 		# check if sdX or nvmeX and use gdisk
 		# to check for efi system partition
 		case "$disk" in
-		*/sd* | */hd*)
+		*/sd*)
 			efi=$(gdisk -l ${disk} | \
 			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'"$1}}')
 			;;
@@ -60,22 +60,11 @@ get_esp () {
 #
 ###-------------------------------------
 #
-get_fat () {
+get_fat() {
 	disk="${1}"
 	if LANG=C fdisk -l ${disk} | grep -q 'Disklabel type: gpt'
 	then
-		# use gdisk to check for partitions
-		parts="$(gdisk -l ${disk} | \
-			awk '/^ +[[:digit:]]/{print "'${disk}'"$1}')"
-		# stop on the first vfat partition
-		for part in $parts ; do
-			[ "$(blkid -s TYPE -o value ${part})" = "vfat" ] && \
-				fat="${part}" && break
-		done
-	else
-		# use fdisk to check for partitions
-		parts="$(fdisk -l ${disk} | \
-			awk '/^\//{print $1}')"
+		parts=$(fdisk -l ${disk} | awk '/^\//{print $1}')
 		# stop on the first vfat partition
 		for part in $parts ; do
 			[ "$(blkid -s TYPE -o value ${part})" = "vfat" ] && \
@@ -87,7 +76,7 @@ get_fat () {
 #
 ###-------------------------------------
 #
-get_usbefi () {
+get_usbefi() {
 	# given a partition, finds an efi on a usb disk it is on
 	# failing that the first fat partition a disk it requires has
 	usbdisk="${1}"
@@ -122,7 +111,7 @@ FLL_MOUNTPOINT="/fll/siduction"
 
 DEFAULT_USER="$FLL_LIVE_USER"
 DEFAULT_DIR="$FLL_MOUNTPOINT"
-THEME=$(echo ${FLL_WALLPAPER} | cut -d / -f5)
+THEME=$(cut -d / -f5 <<< "${FLL_WALLPAPER}")
 
 #
 ###-------------------------------------

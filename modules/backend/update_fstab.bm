@@ -28,7 +28,7 @@ update_fstab()
 	progress "Updating /etc/fstab..."
 
 	# 0. prepare
-	root_partition=$(echo "${HD_CHOICE}" |cut -d"'" -f2)
+	root_partition=$(cut -d"'" -f2 <<< "${HD_CHOICE}")
 	root_device="$(fll_disk_device $root_partition)"
 	usb_dev="$(fll_disk_usb $root_partition)"
 	for want in ${root_device} ; do
@@ -47,20 +47,22 @@ update_fstab()
 				fi
 			done
 		done
-		for igd in $(echo ${igds} | sort -u); do
+		igds=$(tr " " "\n" <<< "${igds}" | sort -u)
+		for igd in ${igds}; do
 			ignore_device="${ignore_device} --ignore ${igd}"
 		done
 	fi
 
 	if [ -n "${HD_MAP}" ]; then
 		for i in ${HD_MAP}; do
-			part=$(echo "$i" | cut -d":" -f1)
+			part=$(cut -d":" -f1 <<< "$1")
 			for want in $(fll_disk_device "$part"); do
 				wants="${wants} ${want}"
 			done
 		done
 	fi
-	for want in $(echo ${wants} | sort -u) ; do
+	wants=$(tr " " "\n" <<< "${wants}" | sort -u)
+	for want in ${wants}; do
 		wanted="${wanted} --wanted ${want}"
 	done
 

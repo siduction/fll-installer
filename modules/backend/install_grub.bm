@@ -45,7 +45,7 @@ install_grub()
 	logit "installing grub"
 	#
 
-	root_partition=$(echo "${HD_CHOICE}" |cut -d"'" -f2)
+	root_partition=$(cut -d"'" -f2 <<< "${HD_CHOICE}")
 	bootfrom=""
         grubdev=""
 

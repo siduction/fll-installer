@@ -27,10 +27,10 @@ abort_progress()
 {
 	# printf for new install-gui choice "install with terminal output, debug modus"
 	[ -z "${INSTALLER_INOTIFY}" ] && \
-	printf "\n==========================\n install end, close the terminal \n==========================\n"
+	printf "\n==========================\n install abort, close the terminal \n==========================\n"
 
 	[ -n "$DISPLAY" ] && [ -e "${INSTALLER_INOTIFY}" ] && \
-	printf "$@\n" > ${INSTALLER_INOTIFY}
+	echo "$*" > "${INSTALLER_INOTIFY}"
 }
 
 # 
@@ -40,10 +40,10 @@ end_progress()
 {
 	# printf for new install-gui choice "install with terminal output, debug modus"
 	[ -z "${INSTALLER_INOTIFY}" ] && \
-	printf "\n==========================\n install abort, close the terminal \n==========================\n"
+	printf "\n==========================\n install end, close the terminal \n==========================\n"
 
 	[ -n "$DISPLAY" ] && [ -e "${INSTALLER_INOTIFY}" ] && \
-	printf "end\n" > ${INSTALLER_INOTIFY}
+	printf "end\n" > "${INSTALLER_INOTIFY}"
 }
 
 ##
@@ -64,19 +64,19 @@ progress()
 
 	# printf for new install-gui choice "install with terminal output, debug modus"
 	[ -z "${INSTALLER_INOTIFY}" ] && \
-	printf "\n==========================\n $@ \n==========================\n"
+	printf "\n==========================\n $* \n==========================\n"
 
 	if [ -n "$DISPLAY" ] && [ -e "${INSTALLER_INOTIFY}" ] ;then
 	
 		[ "${ACTION}" -lt 9 ] && ACTION=$((ACTION + 1))
-		text=$(echo "$@"|cut -d ":" -f 1)
+		text=$(cut -d ":" -f 1 <<< "$*")
 		perc=$(awk -v action=$ACTION 'BEGIN{printf ("%1.2f", action / 10)}')
 		perci=$(awk -v action=$ACTION 'BEGIN{printf ("%d", action * 100 / 10)}')
 		[ "$perci" -gt "100" ] && perc="1.0"
 
 		# send message to the gui
-		printf  "PERC=${perc}\n\
-CURRENT=<b>$text</b>\n\
-COMPLETE=completed ${ACTION} of 10" > $INSTALLER_INOTIFY
+		echo "PERC=${perc}" > "$INSTALLER_INOTIFY"
+		echo "CURRENT=<b>$text</b>" > "$INSTALLER_INOTIFY"
+		echo "COMPLETE=completed ${ACTION} of 10" > "$INSTALLER_INOTIFY"
 	fi
 }

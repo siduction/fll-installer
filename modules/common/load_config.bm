@@ -35,7 +35,7 @@ load_config () {
 		
 		if [ "$i" != "HD_MAP" ] && [ "$i" != "SWAP_CHOICES" ] && \
 			[ "$i" != "SERVICES_START" ] && [ "$i" != "NAME_NAME" ] && \
-			[ -z "$(eval echo \$$i)" ]; 
+			[ -z "$(eval echo \$"$i")" ]; 
 		then  
 			error 10 "Parameter $i is not defined"
 			# exit 10
@@ -44,10 +44,10 @@ load_config () {
 	# minimal check
 	# USER_NAME must not contain spaces
 	# HOST_NAME must not contain spaces
-	if echo "${USER_NAME}" | grep -E -q '[[:space:]]'; then
+	if grep -E -q '[[:space:]]' <<< "${USER_NAME}" ; then
 		error 11 "Username must not contain whitespaces"
 	fi
-	if echo "${HOST_NAME}" | grep -E -q '[[:space:]]'; then
+	if grep -E -q '[[:space:]]' <<< "${HOST_NAME}" ; then
 		error 11 "Hostname must not contain whitespaces"
 	fi
 	return 0

@@ -1,6 +1,7 @@
-fll-installer (0.11.4.2) unstable; urgency=medium
+fll-installer (0.11.5.0) unstable; urgency=medium
 
   [ Axel Konrad ]
+  * First commit with support of btrfs file system.
   * Fix various missing double quotation marks.
   * Remove quotation marks from the condition part of for loops.
   * fix_home_on_HD.bm, purge_live_only_stuff.bm
@@ -15,7 +16,7 @@ fll-installer (0.11.4.2) unstable; urgency=medium
       Reason: We would like to use some bash extensions and
       upstream is located in "Morgue for obsolete fullstory packages".
 
- -- Axel Konrad <ak-li@siduction.org> Mon, 17 Nov 2025
+ -- Axel Konrad <ak-li@siduction.org> Thu, 207 Nov 2025
 
 fll-installer (0.11.4.1) unstable; urgency=medium
 

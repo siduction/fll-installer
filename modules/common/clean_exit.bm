@@ -15,8 +15,7 @@ clean_exit()
 	
 	DURATION=$(($(date +%s) - STARTTIME))
 	say "Exiting after $((DURATION / 60)):$((DURATION % 60))." 
-	[ -n "$TMPDIR" ] && rm -rf "$TMPDIR"
-	if [ "$1" = "0" ]; then
+	[ -n "$TMPDIR" ] && if rm -rf "$TMPDIR"; then
 		logit "$FLL_DISTRO_NAME-installer terminated"
 		#
 		# copy the install log into users home
@@ -41,7 +40,7 @@ clean_exit()
 	# umount mounted filesystems
 	#
 	for i in $HD_MAP; do
-		point=$(echo "$i" | cut -d":" -f2)
+		point=$(cut -d":" -f2 <<< "$i")
 		umount "$TARGET_MNT_POINT$point"
 	done
 

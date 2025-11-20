@@ -46,17 +46,17 @@ add_bootmanager()
 	# so we create one for that
 
 	# 0. prepare
-	root_partition=$(echo "${HD_CHOICE}" |cut -d"'" -f2)
+	root_partition=$(cut -d"'" -f2 <<< "${HD_CHOICE}")
 	map_devices="$(fll_disk_device "$root_partition")"
 
 	if [ -n "${HD_MAP}" ]; then
 		for i in ${HD_MAP}
 		do
-			part=$(echo "$i" | cut -d":" -f1)
+			part=$(cut -d":" -f1 <<< "$i")
 			map_devices="${map_devices} $(fll_disk_device "$part")"
 		done
 	fi
-	map_devices="$(echo "${map_devices}" | uniq -u)"
+	map_devices=$(tr " " "\n" <<< "${map_devices}" | sort -u)
 	wanted=""
 	for map_device in ${map_devices}; do
 		wanted="${wanted} --wanted ${map_device}"

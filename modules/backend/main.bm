@@ -58,6 +58,7 @@ main()
 	#
 	for action in ${all_actions}; do
 		[ "${ACTION}" -lt 8 ] && ACTION=$((ACTION + 1))
+		echo
 		say "starting $action"
 		$action
 	done
