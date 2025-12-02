@@ -29,7 +29,6 @@ prepareHD()
 	local err_msg
 	local error_messages
 	local btrfs_sub
-	local btrfs_submnt
 	local btrfs_tmp
 
 	#
@@ -81,12 +80,12 @@ prepareHD()
 			error 14 "$err_msg"
 		fi
 
-		## Create the needed btrfs subvolume
+		# Create the needed btrfs subvolume
 		if [ "$HD_FSTYPE" = "btrfs" ]; then
-			say "Create subvolume @, @home, @root, @var@log at $HD_CHOICE"
+			say "Create subvolume @, @home, @root, @var@log, @snapshots at $HD_CHOICE"
 
-			btrfs_sub="@ @home @root @var@log"
-			btrfs_submnt="/home /root /var/log"
+			btrfs_sub="@ @home @root @var@log @snapshots"
+			btrfs_submnt="/home /root /var/log /.snapshots"
 
 			mkdir "$TMPDIR/btrfs" && btrfs_tmp="$TMPDIR/btrfs"
 			if ! mount -t btrfs -o subvolid=5 "$HD_CHOICE" "$btrfs_tmp" 2>"$TMP" 1>&2; then
@@ -105,11 +104,9 @@ prepareHD()
 			umount "$btrfs_tmp"
 			rmdir "$btrfs_tmp"
 
-			## Add the subvolume to HD_MAP
-			say "Add subvolume mountpoints to HD_MAP."
+			# Add the subvolume to HD_MAP
 			for s in $btrfs_submnt; do
-				HD_MAP="${HD_MAP} ${HD_CHOICE}:${s}"
-				say "	 $HD_CHOICE:$s"
+				HD_MAP="$HD_MAP $HD_CHOICE:$s"
 			done
 		fi
 	fi
@@ -147,9 +144,11 @@ prepareHD()
 		point=$(cut -d":" -f2 <<< "$i")
 		mkdir -p $TARGET_MNT_POINT$point
 		mount_options=""
+		
 		if [ "$HD_FSTYPE" = "btrfs" ] && [ "$HD_CHOICE" = "$part" ]; then
-			sub=$(sed 's|/|@|g' <<< "$point")
-			mount_options="-t btrfs -o subvol=/$sub"
+			sub=$(sed 's|/\.\?|@|g' <<< "$point")
+			mount_options="-t btrfs -o subvol=/$sub,defaults,noatime"
+			HD_MAP=$(sed "s|$part:$point \?||" <<< "${HD_MAP}")
 		fi
 
 		if mount $mount_options $part "$TARGET_MNT_POINT$point" > ${TMP} 2>&1; then

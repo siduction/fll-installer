@@ -5,20 +5,42 @@
 # HD_AUTO
 # HD_CHOICE
 # HD_MAP
+# SWAP_AUTODETECT
+# SWAP_CHOICES
 #
 # Calls:
 # logit
 # progress
-# chroot_it
-# fll_disk_device
 # fll_disk_usb
 #
 ##-------------------------------------
 ##
-update_fstab()
-{
-	local autohd
-	local root_partition root_device usb_dev part wanted want wants ignore_device d fdd igds i
+string_max() {
+# $1 = array index
+# $2 = predefined length
+local var_l="$2"
+for ar_name in $write_fstab; do
+	declare -n ZEILE="$ar_name"
+	L_string=${#ZEILE["$1"]}
+	if [ "$L_string" -gt "$var_l" ]; then
+		var_l="$L_string"
+	fi
+done
+echo "$var_l"
+}
+
+
+update_fstab() {
+	local part
+	local parts_all
+	local usb_dev
+	local ar_name
+	local submnt
+	local btrfs_submnt
+	local copy_name
+	local write_fstab
+	local sw
+	local i
 	#
 	# log my call
 	#
@@ -27,63 +49,212 @@ update_fstab()
 
 	progress "Updating /etc/fstab..."
 
-	# 0. prepare
-	root_partition=$(cut -d"'" -f2 <<< "${HD_CHOICE}")
-	root_device="$(fll_disk_device $root_partition)"
-	usb_dev="$(fll_disk_usb $root_partition)"
-	for want in ${root_device} ; do
-		wants="${wants} ${want}"
+	##---------------------------------------------------------------
+	## Preparations that are the same for all devices.
+	# Catch all physical partitions
+	parts_all=$(blkid -o device | grep "/dev/[sn]" | tr "\n" " ")
+
+	# When installing to USB, remove all partitions
+	# that are not on this drive.
+	usb_dev="$(fll_disk_usb "${HD_CHOICE}")"
+	if [ -n "$usb_dev" ]; then
+		parts_all=$(grep -o "$usb_dev""[0-9]\+" <<< "$parts_all" | tr "\n" " ")
+	fi
+  
+	# Create named arrays with the corresponding variable names
+	# that contain the associated values.
+	for part in $parts_all; do
+		ar_name=$(sed 's|/dev/||' <<< "$part")
+		declare -n ZEILE="$ar_name"
+		
+		# Device and its UUID
+		ZEILE=("$part" "UUID=$(blkid -o value -s UUID "$part")")
+		
+		# The file system type
+		ZEILE[3]="$(blkid -o value -s TYPE "$part")"
+		
+		# Universal mounting options
+		case "${ZEILE[3]}" in
+			ext*)
+				ZEILE[4]="defaults,relatime,errors=remount-ro"
+				;;
+			btrfs|swap)
+				ZEILE[4]="defaults,noatime"
+				;;
+			vfat)
+				ZEILE[4]="defaults,umask=077"
+				;;
+			xfs)
+				ZEILE[4]="defaults,errors=remount-ro"
+				;;
+			*)
+				ZEILE[4]="defaults"
+				;;
+		esac
 	done
-	if [ -b /dev/mapper/"${FLL_DISTRO_NAME}"-live ]; then
-		ignore_device="--ignore ${FLL_DISTRO_NAME}-live"
-	fi
-	# if root_device is solely usb, ignore devices not on the same device(s)
-	if [ "${root_device}" = "${usb_dev}" ]; then
-		for d in /sys/block/* ; do
-			for fdd in $(fll_disk_device /dev/"${d##*/}") ; do
-				# add to list to ignore unless part of root
-				if echo "${root_device}" | grep -m 1 -q -v "${fdd}" ; then
-					igds="${igds} ${fdd}"
-				fi
-			done
+
+
+	##---------------------------------------------------------------
+	## Preparations that depend on the input data.
+	local write_fstab=""
+
+	# 1) root device
+	ar_name="$HD_CHOICE"
+	parts_all=$(sed "s|$ar_name \?||" <<< "$parts_all")
+	ar_name=$(sed 's|/dev/||' <<< "$ar_name")
+	declare -n ZEILE="$ar_name"
+	ZEILE[2]="/"
+	ZEILE[5]="0 1"
+
+	if [ "${ZEILE[3]}" = "btrfs" ]; then
+		btrfs_submnt="/home:/@home /root:/@root /var/log:/@var@log /.snapshots:/@snapshots"
+		
+		# Copy the array to set the subvolumes.
+		for submnt in $btrfs_submnt; do
+			copy_name="$ar_name""_$(cut -d":" -f1 <<< "$submnt" | sed 's|[/\.]||g')"
+			declare -a "$copy_name"
+			declare -n COPY="$copy_name"
+			COPY=("${ZEILE[@]}")
+			
+			# Adjust the mount point and options
+			COPY[2]=$(cut -d":" -f1 <<< "$submnt")
+			COPY[4]="subvol=$(cut -d":" -f2 <<< "$submnt")"
+			COPY[5]="0 0"
+			
+			# The output order to the file fstab.
+			write_fstab="$write_fstab$copy_name "
 		done
-		igds=$(tr " " "\n" <<< "${igds}" | sort -u)
-		for igd in ${igds}; do
-			ignore_device="${ignore_device} --ignore ${igd}"
+
+		ZEILE[4]="subvol=/@,${ZEILE[4]}"
+		ZEILE[5]="0 0"
+	fi
+	# The output order to the file fstab.
+	write_fstab="$ar_name $write_fstab"
+
+
+	# 2) HD_MAP
+	if [ -n "$HD_MAP" ]; then
+		for i in $HD_MAP; do
+			ar_name=$(cut -d":" -f1 <<< "$i")
+			
+			# Remove partition from parts_all.
+			parts_all=$(sed "s|$ar_name \?||" <<< "$parts_all")
+			ar_name=$(sed 's|/dev/||' <<< "$ar_name")
+			declare -n ZEILE="$ar_name"
+
+			# Adjust the mount point, options, and filesystem check.
+			ZEILE[2]="$(cut -d":" -f2 <<< "$i")"
+			ZEILE[4]="${ZEILE[4]},auto"
+			ZEILE[5]="0 2"
+			
+			# The output order to the file fstab.
+			write_fstab="$write_fstab$ar_name "
 		done
 	fi
 
-	if [ -n "${HD_MAP}" ]; then
-		for i in ${HD_MAP}; do
-			part=$(cut -d":" -f1 <<< "$1")
-			for want in $(fll_disk_device "$part"); do
-				wants="${wants} ${want}"
-			done
-		done
+
+	# 3) swap
+	if [ -n "$SWAP_CHOICES" ]; then
+		sw="$SWAP_CHOICES"
+	elif [ "$SWAP_AUTODETECT" = "yes" ]; then
+		sw=$(blkid -o device -t TYPE=swap)
 	fi
-	wants=$(tr " " "\n" <<< "${wants}" | sort -u)
-	for want in ${wants}; do
-		wanted="${wanted} --wanted ${want}"
-	done
-
-	# 1. mount /proc, /dev and /sys on chroot
-	mount --bind /proc "${TARGET_MNT_POINT}/proc"
-	mount --bind /dev  "${TARGET_MNT_POINT}/dev"
-	mount --bind /sys  "${TARGET_MNT_POINT}/sys"
-	mount --bind /run  "${TARGET_MNT_POINT}/run"
-
-	[ "${HD_AUTO}" = "yes" ] && autohd="--auto" || autohd=""
-
-	# 2. create the fstab, creating the mountpoints
-	COLUMN="| awk '{printf(\"%-45s %-20s %-12s %-45s %-4s %-4s\n\",\$1,\$2,\$3,\$4,\$5,\$6)}' > /etc/fstab"
-	chroot_it sh -c "fll_fstab_generator --uuids --mkdir \
-		${ignore_device} ${wanted} ${autohd} ${COLUMN}"
 	
-	# 3. umount /proc, /dev and /sys on chroot
-	umount "${TARGET_MNT_POINT}/run"
-	umount "${TARGET_MNT_POINT}/sys"
-	umount "${TARGET_MNT_POINT}/dev"
-	umount "${TARGET_MNT_POINT}/proc"
-}
-#-----------------------------------
+	if [ -n "$sw" ]; then
+		for ar_name in $sw; do
+			ar_name=$(sed 's|/dev/||' <<< "$ar_name")
+			declare -n ZEILE="$ar_name"
+			
+			# Adjust the mount point and filesystem check.
+			if [ "${ZEILE[3]}" = "swap" ]; then
+				ZEILE[2]="swap"
+				ZEILE[5]="0 0"
+				
+				# The output order to the file fstab.
+				write_fstab="$write_fstab$ar_name "
+			fi
+		done
+	fi
+	
+	# Remove all swap partition from parts_all.
+	sw=$(blkid -o device -t TYPE=swap)
+	for ar_name in $sw; do
+		parts_all=$(sed "s|$ar_name \?||" <<< "$parts_all")
+	done
 
+
+	# 4) Finally, everything else.
+	if [ "$HD_AUTO" = "yes" ] && [ -n "$parts_all" ]; then
+		parts_all=$(for i in $parts_all; do echo "$i"; done | sort)
+		for ar_name in $parts_all; do
+		
+			# Test if removable usb media.
+			# Set the options so as not to interrupt the boot process
+			# if media not present but allow the user to mount it.
+			if [ "$(fll_disk_usb "$ar_name")" = "" ]; then
+				ar_name=$(sed 's|/dev/||' <<< "$ar_name")
+				declare -n ZEILE="$ar_name"
+				ZEILE[4]="${ZEILE[4]},auto"
+			else
+				ar_name=$(sed 's|/dev/||' <<< "$ar_name")
+				declare -n ZEILE="$ar_name"
+				ZEILE[4]="${ZEILE[4]},noauto,users"
+			fi
+			# Adjust the mount point and filesystem check.
+			ZEILE[2]="/disks/$ar_name"
+			ZEILE[5]="0 0"
+			
+			# The output order to the file fstab.
+			write_fstab="$write_fstab$ar_name "
+		done
+	fi
+	parts_all=""
+
+	##---------------------------------------------------------------
+	## Preparing the output lines.
+	# Determine the longest string in each case using function string_max.
+	local L_uu L_mp L_ty L_op
+	L_uu=15
+	L_mp=13
+	L_ty=6
+	L_op=9
+	
+	L_uu="$(string_max 1 $L_uu)"
+	L_mp="$(string_max 2 $L_mp)"
+	L_ty="$(string_max 3 $L_ty)"
+	L_op="$(string_max 4 $L_op)"
+	
+	# fstab standard information
+	cat > "$TARGET_MNT_POINT"/etc/fstab << EOF
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a device; this may
+# be used with UUID= as a more robust way to name devices that works even if
+# disks are added and removed. See fstab(5).
+#
+EOF
+	
+	# Header of the entries
+	printf "%-${L_uu}s %-$((L_mp - 5))s %-${L_ty}s %-$((L_op - 10))s %s\n" \
+		"# <file system>" "<mount point>" "<type>" "<options>" "<dump> <pass>" \
+		>> "$TARGET_MNT_POINT"/etc/fstab
+	
+	# The entries
+	for ar_name in $write_fstab; do
+		declare -n ZEILE="$ar_name"
+		
+		# The sed command within printf reads the entire array ZEILE,
+		# cuts ZEILE[0] with the following space (e.g. "/dev/nvme0n1p2 ")
+		# from the front of the string, and outputs the entire rest.
+		# This can be transferred directly to fstab.
+		printf "%-${L_uu}s %-${L_mp}s %-${L_ty}s %-${L_op}s %s %s\n" \
+				$(sed "s|${ZEILE[0]} \+||" <<< "${ZEILE[*]}") >> "$TARGET_MNT_POINT"/etc/fstab
+	done
+	
+	#
+	# log my call
+	#
+	logit "update fstab done"
+	#
+	#
+}

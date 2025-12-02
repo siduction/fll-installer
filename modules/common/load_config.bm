@@ -24,12 +24,10 @@ load_config () {
 
 	
 	if [ "$#" -eq 1 ]; then
-		config="$1"
-	else
-		config="$CONFIG_FILE"
+		CONFIG_FILE="$1"
 	fi
 	
-	. "$config"
+	. "$CONFIG_FILE"
 
 	for i in ${REGISTERED}; do  
 		

@@ -46,7 +46,8 @@ add_bootmanager()
 	# so we create one for that
 
 	# 0. prepare
-	root_partition=$(cut -d"'" -f2 <<< "${HD_CHOICE}")
+	root_partition="${HD_CHOICE}"
+#	root_partition=$(cut -d"'" -f2 <<< "${HD_CHOICE}")
 	map_devices="$(fll_disk_device "$root_partition")"
 
 	if [ -n "${HD_MAP}" ]; then
