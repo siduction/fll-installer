@@ -118,7 +118,7 @@ update_fstab() {
 			
 			# Adjust the mount point and options
 			COPY[2]=$(cut -d":" -f1 <<< "$submnt")
-			COPY[4]="subvol=$(cut -d":" -f2 <<< "$submnt")"
+			COPY[4]="subvol=$(cut -d":" -f2 <<< "$submnt"),${COPY[4]}"
 			COPY[5]="0 0"
 			
 			# The output order to the file fstab.
