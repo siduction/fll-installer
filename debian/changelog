@@ -1,3 +1,25 @@
+fll-installer (0.11.5.2) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * update_fstab.bm:
+      USB sticks and devicemapper mounts removed from the fstab file.
+      Some minor improvements.
+
+ -- Axel Konrad <ak-li@siduction.org> Wed, 03 Dec 2025
+ 
+fll-installer (0.11.5.1) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * Support for btrfs part 2
+  * update_fstab.bm: Rewritten in bash.
+  * load_config.bm: Simplify code
+  * Remove single quotation marks. Files:
+      add_bootmanager.bm
+      install_grub.bm
+  * prepareHD.bm: Add subvolume @snapshots and some minor improvements.
+
+ -- Axel Konrad <ak-li@siduction.org> Tue, 02 Dec 2025
+
 fll-installer (0.11.5.0) unstable; urgency=medium
 
   [ Axel Konrad ]
@@ -16,7 +38,7 @@ fll-installer (0.11.5.0) unstable; urgency=medium
       Reason: We would like to use some bash extensions and
       upstream is located in "Morgue for obsolete fullstory packages".
 
- -- Axel Konrad <ak-li@siduction.org> Thu, 207 Nov 2025
+ -- Axel Konrad <ak-li@siduction.org> Thu, 20 Nov 2025
 
 fll-installer (0.11.4.1) unstable; urgency=medium
 
