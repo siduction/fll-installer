@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: fll-installer
-Upstream-Contact: Stefan Lippers-Hollmann <s.l-h@gmx.de>
-Source: https://github.com/fullstory/fll-installer.git
+Upstream-Contact: Axel Konrad <ak-li@siduction.org>
+Source: https://github.com/siduction/fll-installer
 
 Files: *
 Copyright: 2023-2025, Axel Konrad <ak-li@siduction.org>
@@ -12,6 +12,7 @@ Copyright: 2023-2025, Axel Konrad <ak-li@siduction.org>
            2004-2018, Stefan Lippers-Hollmann <s.l-h@gmx.de>
 License: GPL-2.0
 Comment:
+ Reborn from https://github.com/fullstory-morgue/fll-installer
  Based on the knoppix installer from Fabian Franz
  <knoppix-installer@fabian-franz.de> with fixes and help by: Joerg Schirottke
  <master@kanotix.de> and Stefan Lippers-Hollmann <s.l-h@gmx.de>

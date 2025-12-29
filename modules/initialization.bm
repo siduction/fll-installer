@@ -3,106 +3,23 @@
 # ------------------------
 CONFIG_FILE="$HOME/.sidconf"
 LOG="$HOME/.sidlog"
-
-#
-###-------------------------------------
-#
-logit() {
-	local TIME
-	say "$@"
-	TIME=$(date)
-	[ -n "$*" ] && printf "$TIME: $*\n" >> "$LOG" || echo >> "$LOG"
-}
-
-#
-###-------------------------------------
-#
-get_efisys() {
-	efisys=""
-	# This is derived from the install-gui disk code
-	disks=`LANG=C fdisk -l | grep "Disk /dev" | cut -d: -f1 | cut -d" " -f2`
-	for disk in ${disks}
-	do
-		# next disk if usb
-		[ -n "$(echo $(readlink -f /sys/block/${disk##*/}/device) | grep 'usb')" ] && continue
-		get_esp "${disk}"
-		efisys="${esp}"
-	done
-}
-
-#
-###-------------------------------------
-#
-get_esp() {
-	disk="${1}"
-	if LANG=C  fdisk -l ${disk} | grep -q 'Disklabel type: gpt'
-	then
-		# check if sdX or nvmeX and use gdisk
-		# to check for efi system partition
-		case "$disk" in
-		*/sd*)
-			efi=$(gdisk -l ${disk} | \
-			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'"$1}}')
-			;;
-		*/nvme*)
-			efi=$(gdisk -l ${disk} | \
-			awk '/^ +[[:digit:]]/{if ($6=="EF00"){print "'${disk}'p"$1}}')
-			;;
-		*)
-			;;
-		esac 
-			
-		# stop if vfat partition found setting esp
-		[ "$(blkid -s TYPE -o value ${efi})" = "vfat" ] && esp="${efi}" && break
-	fi
-}
-
-#
-###-------------------------------------
-#
-get_fat() {
-	disk="${1}"
-	if LANG=C fdisk -l ${disk} | grep -q 'Disklabel type: gpt'
-	then
-		parts=$(fdisk -l ${disk} | awk '/^\//{print $1}')
-		# stop on the first vfat partition
-		for part in $parts ; do
-			[ "$(blkid -s TYPE -o value ${part})" = "vfat" ] && \
-				fat="${part}" && break
-		done
-	fi
-}
-
-#
-###-------------------------------------
-#
-get_usbefi() {
-	# given a partition, finds an efi on a usb disk it is on
-	# failing that the first fat partition a disk it requires has
-	usbdisk="${1}"
-	usbefi=""
-	fat=""
-	for disk in $(fll_disk_usb ${usbdisk}) ; do
-		get_esp "${disk}"
-		[ -n "$esp" ] && break
-		[ -z "$fat" ] && get_fat "${disk}"
-	done
-	[ -z "$esp" ] && [ -n "$fat" ] && esp="$fat"
-	[ -n "${esp}" ] && usbefi="${esp}"
-}
-
-#
-###-------------------------------------
-#
 TARGET_MNT_POINT="/fll/hdinstall" 
 TARGET_MNT_NAME="hdinstall" 
 
 
-#
+###-------------------------------------
+# Output to terminal and log file
+###-------------------------------------
+logit() {
+	local TIME=$(date)
+	sayit "$@"
+	[ -n "$*" ] && echo "$TIME: $*" >> "$LOG" || echo >> "$LOG"
+}
+
+
 ###-------------------------------------
 # make use of distro-defaults
 ###-------------------------------------
-#
 FLL_DISTRO_NAME="siduction"
 FLL_LIVE_USER="siducer"
 FLL_MOUNTPOINT="/fll/siduction"
@@ -113,37 +30,29 @@ DEFAULT_USER="$FLL_LIVE_USER"
 DEFAULT_DIR="$FLL_MOUNTPOINT"
 THEME=$(cut -d / -f5 <<< "${FLL_WALLPAPER}")
 
-#
+
 ###-------------------------------------
 # The default user
 ###-------------------------------------
-#
 DEFAULT_NAME=$(getent passwd "$DEFAULT_USER" | cut -f5 -d: | cut -f1 -d,)
 
-# 
+
 ###-------------------------------------
 # make sure proc is mounted
 ###-------------------------------------
-#
 [ -r /proc/cmdline ] || logit "/proc/cmdline not readable (procfs not mounted?)!"
 CMDLINE=$(cat /proc/cmdline)
 
-#
+
 ###-------------------------------------
 # Localisation  ** still needed ?? **
 ###-------------------------------------
-#
 export TEXTDOMAINDIR="/usr/share/locale"
 export TEXTDOMAIN=fll-installer
 
 
-#
 ###-------------------------------------
 # log my call
 ###-------------------------------------
-#
 logit "Initialisation done"
-#
-#
-###-------------------------------------
 

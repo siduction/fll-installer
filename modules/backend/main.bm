@@ -31,9 +31,12 @@ main()
 		prepareHD \
 		copy2HD \
 		convert_live2HD \
-		add_bootmanager \
 		update_fstab \
+		add_bootmanager \
 		purge_live_only_stuff"
+
+	# temporary not used:
+	#	checkHDSize \
 
 	#
 	# log my call
@@ -56,10 +59,14 @@ main()
 	#
 	# do the main job
 	#
-	for action in ${all_actions}; do
-		[ "${ACTION}" -lt 8 ] && ACTION=$((ACTION + 1))
+	for action in $all_actions; do
+		[ "$ACTION" -lt 8 ] && ACTION=$((ACTION + 1))
+
+		# temporary not used:
+		# [ "$ACTION" -lt 9 ] && ACTION=$((ACTION + 1))
+
 		echo
-		say "starting $action"
+		sayit "starting $action"
 		$action
 	done
 

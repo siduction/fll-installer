@@ -51,7 +51,7 @@ system_services () {
 	done
 
 	# disable all services in /etc/inetd.conf
-	say "disable all services in /etc/inetd.conf"
+	sayit "disable all services in /etc/inetd.conf"
 	if [ -x "${TARGET_MNT_POINT}/etc/init.d/openbsd-inetd" ]; then
 		chroot_it update-inetd --multi --disable '*'
 	fi

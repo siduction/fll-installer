@@ -13,7 +13,6 @@
 # progress
 # create_initrd
 # stringinstring
-# install_grub
 #
 ##-------------------------------------
 ##
@@ -22,105 +21,27 @@ add_bootmanager()
 	local BOOT_KERNELS
 	local BOOT_KERNEL
 	local BOOT_RUNNING_KERNEL
-	local MSG1="Creating initrd for kernel $BOOT_KERNEL ..."
-	local MSG2="Installing $BOOT_LOADER to $BOOT_WHERE"
 	local root_partition
-#	local root_device
-	local wanted
+	local efi_source
 
 	#
 	# log my call
 	#
 	logit "add_bootmanager"
 
-	mount --bind /proc "${TARGET_MNT_POINT}/proc"
-	mount --bind /dev  "${TARGET_MNT_POINT}/dev"
-	mount --bind /sys  "${TARGET_MNT_POINT}/sys"
-	mount --bind /run  "${TARGET_MNT_POINT}/run"
+	mount --bind /proc "$TARGET_MNT_POINT/proc"
+	mount --bind /dev  "$TARGET_MNT_POINT/dev"
+	mount --bind /sys  "$TARGET_MNT_POINT/sys"
+	mount --bind /run  "$TARGET_MNT_POINT/run"
 
-	##
-	## workaround...start
-	##
-	# This can be probably changed later, but for now
-	# must be done as at least update-grub uses an old-style /etc/fstab
-	# so we create one for that
-
-	# 0. prepare
-	root_partition="${HD_CHOICE}"
-#	root_partition=$(cut -d"'" -f2 <<< "${HD_CHOICE}")
+	root_partition="$HD_CHOICE"
 	map_devices="$(fll_disk_device "$root_partition")"
-
-	if [ -n "${HD_MAP}" ]; then
-		for i in ${HD_MAP}
-		do
-			part=$(cut -d":" -f1 <<< "$i")
-			map_devices="${map_devices} $(fll_disk_device "$part")"
-		done
-	fi
-	map_devices=$(tr " " "\n" <<< "${map_devices}" | sort -u)
-	wanted=""
-	for map_device in ${map_devices}; do
-		wanted="${wanted} --wanted ${map_device}"
-	done
-
-	chroot_it fll_fstab_generator --file /etc/fstab "${wanted}"
-
-	local cryptsource
-	local crypttarget
-
-	set -- $(fll_crypt_device "${root_partition}")
-	while [ -n "$1" ]; do
-		cryptsource="$1"
-		crypttarget="$2"
-		shift 2
-		if [ "${cryptsource}" = "${cryptsource#/dev/mapper/}" ]; then
-			local cryptuuid
-			# use uuid if possible for non /dev/mapper devices
-			cryptuuid=$(udevadm info -q env --name "${cryptsource}" | \
-					awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
-			if [ -n "${cryptuuid}" ]; then
-				cryptsource="UUID=${cryptuuid}"
-			fi
-		fi
-		echo "${crypttarget#/dev/mapper/}	$cryptsource	none	luks" >> "${TARGET_MNT_POINT}"/etc/crypttab
-	done
 	
-	BOOT_KERNELS=""
-
-	for i in "$TARGET_MNT_POINT"/lib/modules/?.*
-	do
-		BOOT_KERNEL=$(basename "$i")
-		BOOT_KERNELS="$BOOT_KERNELS $BOOT_KERNEL"
-		progress "$MSG1"
-		create_initrd
-	done
-
-	BOOT_RUNNING_KERNEL="$(uname -r)"
-	# If the running kernel can't be found
-	# set the default to the first available
-	if ! stringinstring "$BOOT_RUNNING_KERNEL" "$BOOT_KERNELS"
-	then
-		set -- "$BOOT_KERNELS"
-		BOOT_RUNNING_KERNEL="$1"
-	fi
-
-	progress "$MSG2"
-
-	##
-	## workaround...end
-	##
-
-	# Find efi system partition if we have booted by efi
-	efisys=""
-	if [ -d /sys/firmware/efi ]; then
-		get_efisys
-	fi
-
 	# determine if map devices are just usb
 	usb_dev=""
-	for map_device in ${map_devices}; do
-		if [ -n "$(fll_disk_isusb "${map_device}")" ] ; then
-			usb_dev="${usb_dev} ${map_device}"
+	for map_device in $map_devices; do
+		if [ -n "$(fll_disk_isusb "$map_device")" ] ; then
+			usb_dev="$usb_dev $map_device"
 		else
 			# any non usb device means efi could be installed
 			usb_dev=""
@@ -128,87 +49,107 @@ add_bootmanager()
 		fi
 	done
 
-	# do efi if grub and have efi system partition and not usb install
-	if [ "$BOOT_LOADER" = "grub" ] && [ -n "$efisys" ] && [ -z "$usb_dev" ]
-	then
-		install_grub_efi
-	elif [ "$BOOT_LOADER" = "grub" ]
-	then
-		install_grub
-	#
-	# else lilo no longer  supported
-	#
-	fi
+	local cryptsource
+	local crypttarget
 
-	if [ "$BOOT_LOADER" = "grub" ]; then
-		# 
-		# Create initital grub configuration (grub2 ignores -y)
-		#
-		say "create initial grub configuration"
-
-		if [ -e "${TARGET_MNT_POINT}/etc/default/grub" ]; then
-			#TODO a proper configuration
-			# propagate the default video mode 
-			# extract vga mode from CMDLINE
-			GRUB_DEFOPTIONS=""
-			GRUB_VGA=$(getbootparam vga)
-			[ -n "$GRUB_VGA" ] && GRUB_DEFOPTIONS="vga=$GRUB_VGA"
-
-			# find out what cryptopts we need for /
-			local cryptsource
-			local crypttarget
-			set -- $(fll_crypt_device "${root_partition}")
-			while [ -n "$1" ]; do
-				cryptsource="$1"
-				crypttarget="${2#/dev/mapper/}"
-				shift 2
-				if [ "${cryptsource}" = "${cryptsource#/dev/mapper/}" ]; then
-					local cryptuuid
-					# use uuid if possible for non /dev/mapper devices
-					cryptuuid=$(udevadm info -q env --name "${cryptsource}" | \
-							awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
-					if [ -n "${cryptuuid}" ]; then
-						cryptsource="UUID=${cryptuuid}"
-					fi
-				fi
-				# $dev is a crypted device on $crypt
-				if [ -z "$GRUB_DEFOPTIONS" ]; then
-					GRUB_DEFOPTIONS="cryptopts=source=$cryptsource,target=$crypttarget"
-				else
-					GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS} cryptopts=source=$crypt,target=$crypttarget"
-				fi
-				# root is in a volume group so scan it
-				fll_disk_abstract "${root_partition}"
-				[ "${f_d_abstract}" = "lvm" ] && GRUB_DEFOPTIONS="${GRUB_DEFOPTIONS},lvm=${root_partition##/dev/mapper/}"
-			done
-			sed -i "s|\(GRUB_CMDLINE_LINUX=\).*|\1\"${GRUB_DEFOPTIONS}\"|" \
-				"${TARGET_MNT_POINT}/etc/default/grub"
-
-			# enable a grub theme, if it exists
-			if [ -n "${FLL_GFXBOOT_THEME}" ] && [ -r "/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt" ]; then
-				if grep -q ^GRUB_THEME\= "${TARGET_MNT_POINT}/etc/default/grub" >/dev/null 2>&1; then
-					 sed -i "s|\(GRUB_THEME=\).*|\1/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt|"
-						"${TARGET_MNT_POINT}/etc/default/grub"
-				else
-					echo "" >> "${TARGET_MNT_POINT}/etc/default/grub"
-					echo "GRUB_THEME=\"/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt\"" >> "${TARGET_MNT_POINT}/etc/default/grub"
-				fi
+	set -- $(fll_crypt_device "$root_partition")
+	while [ -n "$1" ]; do
+		cryptsource="$1"
+		crypttarget="$2"
+		shift 2
+		if [ "$cryptsource" = "$cryptsource#/dev/mapper/" ]; then
+			local cryptuuid
+			# use uuid if possible for non /dev/mapper devices
+			cryptuuid=$(udevadm info -q env --name "$cryptsource" | \
+					awk 'BEGIN{FS="="}/ID_FS_UUID=/{print $2}')
+			if [ -n "$cryptuuid" ]; then
+				cryptsource="UUID=$cryptuuid"
 			fi
 		fi
+		echo "${crypttarget#/dev/mapper/}	$cryptsource	none	luks" >> "$TARGET_MNT_POINT"/etc/crypttab
+	done
+	
+	BOOT_KERNELS=""
 
-		# update the grub config with our changes
-		chroot_it update-grub >&2
+	for i in "$TARGET_MNT_POINT"/lib/modules/?.*; do
+		BOOT_KERNEL=$(basename "$i")
+		BOOT_KERNELS="$BOOT_KERNELS $BOOT_KERNEL"
+		progress "Creating initrd for kernel $BOOT_KERNEL ..."
+		create_initrd
+	done
+
+	BOOT_RUNNING_KERNEL="$(uname -r)"
+	# If the running kernel can't be found
+	# set the default to the first available
+	if ! stringinstring "$BOOT_RUNNING_KERNEL" "$BOOT_KERNELS"; then
+		set -- "$BOOT_KERNELS"
+		BOOT_RUNNING_KERNEL="$1"
 	fi
 
-	##
-	## workaround...start
-	##
+	progress "Installing $BOOT_LOADER to $BOOT_WHERE"
+
+	# ESP:       The cli-installer has already checked the ESP
+	#            and stored it in HD_MAP. It was then mounted by prepareHD.
+	#            Now we check whether everything is OK and install GRUB.
+	# MBR:       Check whether a boot partition is being used,
+	#            then install GRUB.
+	# Partition: Installing GRUB on $HD_CHOICE.
+
+	case "$BOOT_WHERE" in
+		ESP )
+			efi_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot/efi -o SOURCE)"
+			if [ -n "$efi_source" ]; then
+				mkdir -p "$TARGET_MNT_POINT"/boot/efi/EFI/siduction
+				mkdir "$TARGET_MNT_POINT"/boot/efi/EFI/debian
+				umount "$TARGET_MNT_POINT/boot/efi"
+				
+			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
+mount /boot &>/dev/null || true
+mount /boot/efi &>/dev/null || true
+/usr/sbin/grub-install --recheck --no-floppy --force
+/usr/sbin/update-grub
+if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
+umount /boot/efi &>/dev/null || true
+umount /boot &>/dev/null || true
+EOF
+			mount "$efi_source" "$TARGET_MNT_POINT"/boot/efi
+			else
+				logit "ERROR: Failed to install GRUB to ESP"
+				logit ""
+			fi
+			;;
+		MBR )
+			boot_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot -o SOURCE)"
+			if [ -n "$boot_source" ]; then
+				umount "$TARGET_MNT_POINT/boot" &>/dev/null || true
+			fi
+			export HD_CHOICE
+			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
+mount /boot &>/dev/null || true
+/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$HD_CHOICE"
+/usr/sbin/update-grub
+if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
+umount /boot &>/dev/null || true
+EOF
+			if [ -n "$boot_source" ]; then
+				mount "$TARGET_MNT_POINT/boot" &>/dev/null || true
+			fi
+			;;
+		Partition )
+			export root_partition
+			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
+/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$root_partition"
+/usr/sbin/update-grub
+EOF
+			;;
+		* )
+			exit 1
+			;;
+	esac
+
 	# umount /proc, /dev, /sys and /run on chroot
 	umount "${TARGET_MNT_POINT}/run"
 	umount "${TARGET_MNT_POINT}/sys"
 	umount "${TARGET_MNT_POINT}/dev"
 	umount "${TARGET_MNT_POINT}/proc"
-	##
-	## workaround...end
-	##
 }

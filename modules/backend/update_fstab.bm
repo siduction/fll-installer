@@ -64,7 +64,7 @@ update_fstab() {
 		for part in $parts_all; do
 			part="$(fll_disk_usb "$part" 2>/dev/null)"
 			if [ ! "$part" = "" ]; then
-				parts_all=$(sed "s|$part[0-9]\+ \?||g" <<< "$parts_all")
+				parts_all=$(sed 's|'"$part"'[0-9]\+ \?||g' <<< "$parts_all")
 			fi
 		done
 	fi

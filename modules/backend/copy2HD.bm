@@ -8,7 +8,6 @@
 #
 # Calls:
 # logit
-# module_hd_progressbar
 #
 # Error Codes
 # 20 - error copying iso to harddisk
@@ -23,11 +22,12 @@ copy2HD()
 	#
 	# log my call
 	#
-	progress "Copying the live system into the harddisk.\n This can take a while. Please be patient."
+	progress "Copying the live system into the harddisk.
+This can take a while. Please be patient."
 	#
 
-	if [ -e "${ERR_COPY}" ]; then
-		rm -f "${ERR_COPY}"
+	if [ -e "$ERR_COPY" ]; then
+		rm -f "$ERR_COPY"
 	fi
 
 	#
@@ -35,51 +35,51 @@ copy2HD()
 	#
 
 	logit "Copying files into target."
-	for dir in "${DEFAULT_DIR}"/*; do
-		[ -d "${dir}" ] || continue
+	for dir in "$DEFAULT_DIR"/*; do
+		[ -d "$dir" ] || continue
 
-		if [ -L "${dir}" ]; then
+		if [ -L "$dir" ]; then
 			#
 			# The gamechanger is now called is usr-merge
 			# so it might be a good idea to handle the merged dirs and
 			# symlinks right™
 			#
-			say "	Create usr-merge link:  /${dir##*/} -> /usr/${dir##*/}"
-			ln -sf "/usr/${dir##*/}" "${TARGET_MNT_POINT}/${dir##*/}"
+			sayit "	Create usr-merge link:  /${dir##*/} -> /usr/${dir##*/}"
+			ln -sf "/usr/${dir##*/}" "$TARGET_MNT_POINT/${dir##*/}"
 		else
 			dir="/${dir##*/}"
-			case "${dir}" in
+			case "$dir" in
 				/dev)
-					# copy the static dev from ${DEFAULT_DIR}
-					dir="${DEFAULT_DIR}${dir}"
+					# copy the static dev from $DEFAULT_DIR
+					dir="$DEFAULT_DIR$dir"
 					;;
 				/home)
-					# don't clobber an existing /home/${DEFAULT_USER}
-					[ -d "${TARGET_MNT_POINT}/home/${DEFAULT_USER}" ] && continue
+					# don't clobber an existing /home/$DEFAULT_USER
+					[ -d "$TARGET_MNT_POINT/home/$DEFAULT_USER" ] && continue
 
-					# don't copy if /home/${USER_NAME} exists
-					# we could not move /home/${DEFAULT_USER}
-					[ -d "${TARGET_MNT_POINT}/home/${USER_NAME}" ] && continue
+					# don't copy if /home/$USER_NAME exists
+					# we could not move /home/$DEFAULT_USER
+					[ -d "$TARGET_MNT_POINT/home/$USER_NAME" ] && continue
 					;;
 				*)
 					# don't copy trees containing either source or target
-					[ "${TARGET_MNT_POINT#"${dir}"}" != "${TARGET_MNT_POINT}" ] && continue
-					[ "${DEFAULT_DIR#"${dir}"}" != "${DEFAULT_DIR}" ] && continue
+					[ "${TARGET_MNT_POINT#"$dir"}" != "$TARGET_MNT_POINT" ] && continue
+					[ "${DEFAULT_DIR#"$dir"}" != "$DEFAULT_DIR" ] && continue
 					;;
 			esac
 
 			#
 			# do the copy
 			#
-			say "	operate on ${dir}"
+			sayit "	operate on $dir"
 			if ! rsync --archive \
 				--acls \
 				--hard-links \
 				--xattrs \
 				--quiet \
-				--exclude-from="${SEARCHPATH}/data/exclusion_list" \
-				"${dir}" "${TARGET_MNT_POINT}"; then
-				touch ${ERR_COPY}
+				--exclude-from="$SEARCHPATH/data/exclusion_list" \
+				"$dir" "$TARGET_MNT_POINT"; then
+				touch "$ERR_COPY"
 				break
 			fi
 			sync
@@ -89,21 +89,10 @@ copy2HD()
 	# when the file /tmp/.installer.errors exist and the first field is 20
 	# then we must stop installation as an error has happened
 
-	# if [ -s $ERRLOG ]; then
-	if [ -e ${ERR_COPY} ]; then
-		rm -f ${ERR_COPY}
+	if [ -e "$ERR_COPY" ]; then
+		rm -f "$ERR_COPY"
 		error 20 "Error copying iso to harddisk"
 	fi
 
-	#
-	# two beeps
-	if [ -z "$DISPLAY" ]; then
-		printf "\a"
-	fi
-	sleep 0.5
-	if [ -z "$DISPLAY" ]; then
-		printf "\a"
-	fi
-	sleep 0.5
 	return 0
 }

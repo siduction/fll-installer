@@ -6,6 +6,7 @@
 # HD_CHOICE
 # HD_FSTYPE
 # HD_MAP
+# HD_IGNORECHECK
 # TMPDIR
 #
 # Calls:
@@ -55,10 +56,10 @@ prepareHD()
 
 	if [ "$HD_FORMAT" = "yes" ]; then
 
-		say "Formatting $HD_CHOICE..."
+		sayit "Formatting $HD_CHOICE..."
 		umount "$HD_CHOICE"
 		
-		dd if=/dev/zero of=$HD_CHOICE bs=1k count=16 >/dev/null
+		dd if=/dev/zero of="$HD_CHOICE" bs=1k count=16 >/dev/null
 
 		case "$HD_FSTYPE" in
 			btrfs)
@@ -68,34 +69,34 @@ prepareHD()
 				mkfs.xfs -f "$HD_CHOICE" 2> "$TMP" 1>&2
 				;;
 			*)
-				mkfs.$HD_FSTYPE "$HD_CHOICE" 2> "$TMP" 1>&2
+				mkfs."$HD_FSTYPE" -F "$HD_CHOICE" 2> "$TMP" 1>&2
 				;;
 		esac
 		
 		rc="$?"
 		if [ $rc -ne 0 ]; then
-			error_messages=$(tail -8 $TMP)
+			error_messages=$(tail -8 "$TMP")
 			err_msg="Formatting of $HD_CHOICE failed. Some messages from mkfs.$HD_FSTYPE: $error_messages"
-			logit $err_msg
+			logit "$err_msg"
 			error 14 "$err_msg"
 		fi
 
 		# Create the needed btrfs subvolume
 		if [ "$HD_FSTYPE" = "btrfs" ]; then
-			say "Create subvolume @, @home, @root, @var@log, @snapshots at $HD_CHOICE"
+			sayit "Create subvolume @, @home, @root, @var@log, @snapshots at $HD_CHOICE"
 
 			btrfs_sub="@ @home @root @var@log @snapshots"
 			btrfs_submnt="/home /root /var/log /.snapshots"
 
 			mkdir "$TMPDIR/btrfs" && btrfs_tmp="$TMPDIR/btrfs"
 			if ! mount -t btrfs -o subvolid=5 "$HD_CHOICE" "$btrfs_tmp" 2>"$TMP" 1>&2; then
-				error_messages=$(tail -2 $TMP)
+				error_messages=$(tail -2 "$TMP")
 				err_msg="Create subvolume failed while mount $HD_CHOICE failed. Messages from mount: $error_messages"
 				error 15 "$err_msg"
 			else
 				for i in $btrfs_sub; do
 				btrfs subvolume create "$btrfs_tmp/$i" 2>"$TMP" 1>&2
-				say "	subvol $i"
+				sayit "	subvol $i"
 				done
 			fi
 
@@ -114,7 +115,7 @@ prepareHD()
 	#
 	# Mounting $HD_CHOICE r/w...
 	#
-	say "Mounting $HD_CHOICE on $TARGET_MNT_POINT r/w"
+	sayit "Mounting $HD_CHOICE on $TARGET_MNT_POINT r/w"
 	mkdir -p "$TARGET_MNT_POINT"
 	mount_options=""
 	
@@ -123,14 +124,14 @@ prepareHD()
 		mount_options="$mount_options -o subvol=/@"
 	fi
 	if ! mount $mount_options "$HD_CHOICE" "$TARGET_MNT_POINT" > "${TMP}" 2>&1; then
-		error_messages=$(tail -8 $TMP)
+		error_messages=$(tail -8 "$TMP")
 		err_msg="Mounting of $HD_CHOICE failed, trying remount. Some messages from mount: $error_messages"
-		logit $err_msg
+		logit "$err_msg"
 
 		if ! mount -o remount,dev "$TARGET_MNT_POINT" > "${TMP}" 2>&1; then
-			error_messages=$(tail -8 $TMP)
+			error_messages=$(tail -8 "$TMP")
 			err_msg="(re)Mounting of $HD_CHOICE failed. Some messages from mount: $error_messages"
-			logit $err_msg
+			logit "$err_msg"
 			error 16 "$err_msg"
 		fi
 	fi
@@ -138,11 +139,11 @@ prepareHD()
 	#
 	# Mounting additional partitions r/w...
 	#
-	say "Mounting additional subvolume or partitions r/w"
+	sayit "Mounting additional subvolume or partitions r/w"
 	for i in $HD_MAP; do
 		part=$(cut -d":" -f1 <<< "$i")
 		point=$(cut -d":" -f2 <<< "$i")
-		mkdir -p $TARGET_MNT_POINT$point
+		mkdir -p "$TARGET_MNT_POINT$point"
 		mount_options=""
 		
 		if [ "$HD_FSTYPE" = "btrfs" ] && [ "$HD_CHOICE" = "$part" ]; then
@@ -151,17 +152,17 @@ prepareHD()
 			HD_MAP=$(sed "s|$part:$point \?||" <<< "${HD_MAP}")
 		fi
 
-		if mount $mount_options $part "$TARGET_MNT_POINT$point" > ${TMP} 2>&1; then
-			say "	mounted $mount_options $part $TARGET_MNT_POINT$point"
+		if mount $mount_options "$part" "$TARGET_MNT_POINT$point" > "$TMP" 2>&1; then
+			sayit "	mounted $mount_options $part $TARGET_MNT_POINT$point"
 		else
-			error_messages=$(tail -8 $TMP)
+			error_messages=$(tail -8 "$TMP")
 			err_msg="Mounting of $HD_CHOICE failed, trying remount. Some messages from mount: $error_messages"
-			logit $err_msg
+			logit "$err_msg"
 
-			if ! mount -o remount,dev "$TARGET_MNT_POINT$point" > ${TMP} 2>&1; then
-				error_messages=$(tail -8 $TMP)
-				err_msg="Mounting of ${i} failed. Some messages from mount: $error_messages"
-				logit $err_msg
+			if ! mount -o remount,dev "$TARGET_MNT_POINT$point" > "$TMP" 2>&1; then
+				error_messages=$(tail -8 "$TMP")
+				err_msg="Mounting of $i failed. Some messages from mount: $error_messages"
+				logit "$err_msg"
 				error 17 "$err_msg"
 			fi
 		fi
@@ -171,38 +172,40 @@ prepareHD()
 ##-------------------------------------
 ##
 checkHDSize () {
-	local ROOT_MIN_RAW
-	local ROOT_MIN
+	if [ "$HD_IGNORECHECK" = "yes" ]; then
+		return 0
+	fi
+
+	logit "Check for space to install siduction"
+
 	local ROOT_SIZE
 	local REST_SIZE
 	local POINT_SIZE
 	local PART_SIZE
 
-	ROOT_MIN_RAW=$(df -m "$DEFAULT_DIR" | tail -1 | awk '{print $3}')
-	
-	ROOT_MIN=$(($ROOT_MIN_RAW* 1024 * 1024 * 360/100))
+	REST_SIZE=$(df -m "$DEFAULT_DIR" | tail -1 | awk '{print $3}')	
+	REST_SIZE=$((REST_SIZE * 1024 * 1024 * 360/100))
 
-	ROOT_SIZE=$(blockdev --getsize64 ${HD_CHOICE} )
-	REST_SIZE=${ROOT_MIN}
+	ROOT_SIZE=$(blockdev --getsize64 "$HD_CHOICE" )
 
 	for i in $HD_MAP; do
 		part=$(cut -d":" -f1 <<< "$i")
 		point=$(cut -d":" -f2 <<< "$i")
 
-		PART_SIZE=$(blockdev --getsize64 ${part})
-		POINT_SIZE=$(du -sk ${point} | cut -f 1 )
+		PART_SIZE=$(blockdev --getsize64 "${part}")
+		POINT_SIZE=$(du -sk "${point}" | cut -f 1 )
 
-		if [ ${PART_SIZE} -lt $((${POINT_SIZE} * 1024 * 120 / 100)) ]; then
+		if [ "$PART_SIZE" -lt $((POINT_SIZE * 1024 * 120 / 100)) ]; then
 			err_msg="Not enough size on partition $part to install ${FLL_DISTRO_NAME}$point"
-			error 18 $err_msg
+			error 18 "$err_msg"
 			break
 		else
-			REST_SIZE=$(($REST_SIZE - $POINT_SIZE))
+			REST_SIZE=$((REST_SIZE - $POINT_SIZE))
 		fi
 	done
-	if [ ${ROOT_SIZE} -lt $((${REST_SIZE} * 120 / 100 )) ] ; then
+	if [ "$ROOT_SIZE" -lt $((REST_SIZE * 120 / 100 )) ] ; then
 		err_msg="Not enough size on partition ${HD_CHOICE} to install ${FLL_DISTRO_NAME}"
-		error 18 $err_msg
+		error 18 "$err_msg"
 	fi
 
 }

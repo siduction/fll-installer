@@ -5,3 +5,4 @@ debian/fll-installer.substvars
 debian/fll-iso2usb.debhelper.log
 debian/fll-iso2usb.substvars
 debian/fll-iso2usb/
+obsolet/*
