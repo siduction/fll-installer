@@ -34,9 +34,9 @@ fix_locales_on_HD ()
 		#
 		# the system locales
 		#
-		chroot_it /usr/bin/env -i FLL_LANG=$HD_LANG /usr/share/fll-live-initscripts/fll_locales localize
+		chroot_it /usr/bin/env -i FLL_LANG="$HD_LANG" /usr/share/fll-live-initscripts/fll_locales localize
 
-		. $fll_locales
+		. "$fll_locales"
 
 		#
 		# the X11 keyboard (live keys for germans)
@@ -48,7 +48,7 @@ fix_locales_on_HD ()
 		fi
 
 		sed -i -e "/XkbVariant/d" \
-			-e "s/\(.*Option.*\"XkbLayout\"\).*$/\1\t\t\"$XKBLAYOUT\"$DEADKEYS/" $xorg_conf
+			-e "s/\(.*Option.*\"XkbLayout\"\).*$/\1\t\t\"$XKBLAYOUT\"$DEADKEYS/" "$xorg_conf"
  
 		#
 		# the user settings (KDE, and so on ...) ??

@@ -1,9 +1,86 @@
+fll-installer (0.11.5.3) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * Function 'say' changed to 'sayit'
+  * add_bootmanager.bm
+    - Rewritten with internal use of chroot.
+    - Removed Temporary creation of the file fstab.
+    - Removed creation of initial GRUB configuration.
+    - Files install_grub.bm and install_grub_efi.bm that are
+      no longer needed have been removed.
+    - In case the file system is Btrfs, add 'snapshot @'
+      to the boot line.
+  * copy2HD.bm
+    - Optimize double quote and curly braces
+    - Use the if query directly on a function instead of [ "$?" -eq 0 ]
+    - Removed two beeps
+  * fix_etc_onHD.bm
+    - Optimize double quote and curly braces
+  * main.bm
+    - Set module update_fstab before add_bootmanager
+  * prepareHD.bm
+    - Optimize double quote and curly braces
+  * progress.bm
+    - Optimize commands printf
+    - Removed code of install-gui
+  * update_fstab.bm
+    - No removable usb media.
+      (Since the startup process may be interrupted)
+    - When installing to USB, remove all partitions
+      that are not on this device.
+  * initialization.bm
+    - EFI features no longer needed removed.
+
+ -- Axel Konrad <ak-li@siduction.org> Mon, 29 Dec 2025
+ 
+fll-installer (0.11.5.2) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * update_fstab.bm:
+    - USB sticks and devicemapper mounts removed from the fstab file.
+    - Some minor improvements.
+
+ -- Axel Konrad <ak-li@siduction.org> Wed, 03 Dec 2025
+ 
+fll-installer (0.11.5.1) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * Support for btrfs part 2
+  * update_fstab.bm: Rewritten in bash.
+  * load_config.bm: Simplify code
+  * Remove single quotation marks. Files:
+      add_bootmanager.bm
+      install_grub.bm
+  * prepareHD.bm: Add subvolume @snapshots and some minor improvements.
+
+ -- Axel Konrad <ak-li@siduction.org> Tue, 02 Dec 2025
+
+fll-installer (0.11.5.0) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * First commit with support of btrfs file system.
+  * Fix various missing double quotation marks.
+  * Remove quotation marks from the condition part of for loops.
+  * fix_home_on_HD.bm, purge_live_only_stuff.bm
+      Adjustments to changed files and programs.
+  * fix_home_on_HD.bm
+      Change 'rm -Rf "${dir}"/*' to 'rm -Rf "${dir:?}"/*'
+      What happens if $dir is empty? We have a test beforehand, but still.
+  * clean_exit.bm
+      Unmounting nested mounts.
+  * fll-installer
+      Change from /bin/sh to /usr/bin/bash
+      Reason: We would like to use some bash extensions and
+      upstream is located in "Morgue for obsolete fullstory packages".
+
+ -- Axel Konrad <ak-li@siduction.org> Thu, 20 Nov 2025
+
 fll-installer (0.11.4.1) unstable; urgency=medium
 
   [ Axel Konrad ]
   * Purge Live Desktop icons from the installation.
 
-
+ -- Axel Konrad <ak-li@siduction.org> Sun, 16 Nov 2025
 
 fll-installer (0.11.4) unstable; urgency=medium
 

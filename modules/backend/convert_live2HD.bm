@@ -18,10 +18,9 @@ convert_live2HD()
 	#
 	# log my call
 	#
+	progress "Converting $FLL_DISTRO_NAME to Multi-User-System..."
 	logit "convert_live2HD"
 	#
-	
-	progress "Converting $FLL_DISTRO_NAME to Multi-User-System..."
 
 	update_passwd
 

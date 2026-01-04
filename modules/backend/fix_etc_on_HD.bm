@@ -24,9 +24,9 @@ fix_etc_on_HD () {
 	# hostname
 	#
 	sed -i '/localhost/!s/^\(127.0.0.1[ \t]\+\)\(.\+\)$/\1'"$HOST_NAME"'/' \
-		"${TARGET_MNT_POINT}/etc/hosts"
-	echo "${HOST_NAME}" > "${TARGET_MNT_POINT}/etc/hostname"
-	echo "${HOST_NAME}" > "${TARGET_MNT_POINT}/etc/mailname"
+		"$TARGET_MNT_POINT/etc/hosts"
+	echo "$HOST_NAME" > "$TARGET_MNT_POINT/etc/hostname"
+	echo "$HOST_NAME" > "$TARGET_MNT_POINT/etc/mailname"
 
 	#
 	# regenerate default snakeoil with new hostname
@@ -40,24 +40,24 @@ fix_etc_on_HD () {
 	# don't allow everyone to use sudo.
 	#
 	logit "fixing sudoers"
-	cat "${TARGET_MNT_POINT}/usr/share/base-files/profile" \
-		> "${TARGET_MNT_POINT}/etc/profile"
+	cat "$TARGET_MNT_POINT/usr/share/base-files/profile" \
+		> "$TARGET_MNT_POINT/etc/profile"
 	
 	#
 	# also fix sudoers
 	#
-	say "cleanup the sudoers conf file"
-	rm -f "${TARGET_MNT_POINT}/etc/sudoers.d/15_${FLL_DISTRO_NAME}"
-	chroot_it deluser "${USER_NAME}" sudo
+	sayit "cleanup the sudoers conf file"
+	rm -f "$TARGET_MNT_POINT/etc/sudoers.d/15_$FLL_DISTRO_NAME"
+	chroot_it deluser "$USER_NAME" sudo
 
 	#
 	# "normalize" gettys
 	#
 
 	# sysvinit
-	if [ -r "${TARGET_MNT_POINT}/usr/share/sysvinit/inittab" ]; then
-		cp -f	"${TARGET_MNT_POINT}/usr/share/sysvinit/inittab" \
-				"${TARGET_MNT_POINT}/etc/inittab"
+	if [ -r "$TARGET_MNT_POINT/usr/share/sysvinit/inittab" ]; then
+		cp -f	"$TARGET_MNT_POINT/usr/share/sysvinit/inittab" \
+				"$TARGET_MNT_POINT/etc/inittab"
 
 		sed -i	-e 's/^\([2-6]\):23:respawn/\1:2345:respawn/' \
 			-e 's/id:[0-6]:initdefault:/id:5:initdefault:/' \
@@ -65,25 +65,25 @@ fix_etc_on_HD () {
 	fi
 
 	# systemd
-	if [ -r "${TARGET_MNT_POINT}/etc/systemd/system/getty@.service" ]; then
-		rm -f	"${TARGET_MNT_POINT}/etc/systemd/system/getty@.service" \
-			"${TARGET_MNT_POINT}/etc/systemd/system/autovt@.service"
+	if [ -r "$TARGET_MNT_POINT/etc/systemd/system/getty@.service" ]; then
+		rm -f	"$TARGET_MNT_POINT/etc/systemd/system/getty@.service" \
+			"$TARGET_MNT_POINT/etc/systemd/system/autovt@.service"
 
 		ln -fs	/lib/systemd/system/autovt@.service \
-			"${TARGET_MNT_POINT}/etc/systemd/system/getty.target.wants/getty@tty1.service"
+			"$TARGET_MNT_POINT/etc/systemd/system/getty.target.wants/getty@tty1.service"
 	fi
 	
 	#
 	# normalize /etc/pam.d/login
 	#
-	if [ -f "${TARGET_MNT_POINT}/etc/pam.d/login" ]; then
-		sed -i '/^#.*pam_lastlog\.so/s/^#[ \t]\+//' "${TARGET_MNT_POINT}/etc/pam.d/login"
+	if [ -f "$TARGET_MNT_POINT/etc/pam.d/login" ]; then
+		sed -i '/^#.*pam_lastlog\.so/s/^#[ \t]\+//' "$TARGET_MNT_POINT/etc/pam.d/login"
 	fi
 
 	#
 	# remove confusing live traces from blkid.tab
 	#
-	rm -f "${TARGET_MNT_POINT}/etc/blkid.tab*"
+	rm -f "$TARGET_MNT_POINT/etc/blkid.tab*"
 
 	#
 	# Save ALSA sound volume
@@ -92,14 +92,14 @@ fix_etc_on_HD () {
 		/usr/sbin/alsactl store
 		if [ -f /var/lib/alsa/asound.state ]; then
 			cp /var/lib/alsa/asound.state \
-				"${TARGET_MNT_POINT}/var/lib/alsa"
+				"$TARGET_MNT_POINT/var/lib/alsa"
 		fi
 	fi
 
 	#
 	# revert GDM3 autologin
 	#
-	if [ -f "${TARGET_MNT_POINT}/etc/gdm3/daemon.conf" ]; then
+	if [ -f "$TARGET_MNT_POINT/etc/gdm3/daemon.conf" ]; then
 		# we want the gdm-theme (set by desktop-defaults in live mode) on hd-install, 
 		# only remove autologin for gdm
 		sed -i	-e "/^AutomaticLogin\=.*/d" \
@@ -107,45 +107,45 @@ fix_etc_on_HD () {
 			-e "/^TimedLogin\=.*/d" \
 			-e "/^TimedLoginDelay\=.*/d" \
 			-e "/^TimedLoginEnable\=.*/d" \
-				"${TARGET_MNT_POINT}/etc/gdm3/daemon.conf"
+				"$TARGET_MNT_POINT/etc/gdm3/daemon.conf"
 	fi
 
 	#
 	# revert lightdm autologin
 	#
-	if [ -f "${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf.d/80_fll-live-initscripts.conf" ]; then
-		rm -f "${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf.d/80_fll-live-initscripts.conf"
+	if [ -f "$TARGET_MNT_POINT/etc/lightdm/lightdm.conf.d/80_fll-live-initscripts.conf" ]; then
+		rm -f "$TARGET_MNT_POINT/etc/lightdm/lightdm.conf.d/80_fll-live-initscripts.conf"
 		rmdir --ignore-fail-on-non-empty \
-			"${TARGET_MNT_POINT}/etc/lightdm/lightdm.conf.d" || :
+			"$TARGET_MNT_POINT/etc/lightdm/lightdm.conf.d" || :
 	fi
 
 	#
 	# revert lxdm autologin
 	#
-	if [ -f "${TARGET_MNT_POINT}/etc/lxdm/live.conf" ] && \
-	   [ -f "${TARGET_MNT_POINT}/etc/lxdm/lxdm.conf" ]; then
-		rm -f "${TARGET_MNT_POINT}/etc/lxdm/live.conf"
-		ln -fs lxdm.conf "${TARGET_MNT_POINT}/etc/lxdm/default.conf"
+	if [ -f "$TARGET_MNT_POINT/etc/lxdm/live.conf" ] && \
+	   [ -f "$TARGET_MNT_POINT/etc/lxdm/lxdm.conf" ]; then
+		rm -f "$TARGET_MNT_POINT/etc/lxdm/live.conf"
+		ln -fs lxdm.conf "$TARGET_MNT_POINT/etc/lxdm/default.conf"
 	fi
 
 	#
 	# revert SDDM autologin
 	#
-	rm -f	"${TARGET_MNT_POINT}/etc/sddm.conf" \
-		"${TARGET_MNT_POINT}/var/lib/sddm/state.conf"
+	rm -f	"$TARGET_MNT_POINT/etc/sddm.conf" \
+		"$TARGET_MNT_POINT/var/lib/sddm/state.conf"
 
         # copy a possible configuration to sddm.conf
         
-        cp -fv   "${TARGET_MNT_POINT}/etc/sddm-*.conf"   "${TARGET_MNT_POINT}/etc/sddm.conf"
+        cp -fv   "$TARGET_MNT_POINT/etc/sddm-*.conf"   "$TARGET_MNT_POINT/etc/sddm.conf"
 
 	#
 	# revert slim autologin
 	#
-	if [ -f "${TARGET_MNT_POINT}/etc/slim.conf" ]; then
+	if [ -f "$TARGET_MNT_POINT/etc/slim.conf" ]; then
 		sed -i  -e "/^default_user.*/d" \
 			-e "/^auto_login.*/d" \
 			-e "s/^\#FLL\#//" \
-				"${TARGET_MNT_POINT}/etc/slim.conf"
+				"$TARGET_MNT_POINT/etc/slim.conf"
 	fi
 
 	return 0

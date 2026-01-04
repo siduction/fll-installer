@@ -20,16 +20,16 @@ fll_d_d() {
 	local f_d_temp
 	f_d_disk="$1"
 	[ -b "${f_d_disk}" ] || return
-	fll_disk_abstract ${f_d_disk}
+	fll_disk_abstract "${f_d_disk}"
 	if [ -z "${f_d_abstract}" ]; then
 		echo $(grub-probe -d "${f_d_disk}" -t disk)
 	elif [ "${f_d_abstract}" = "lvm" ]; then
 		for f_d_temp in $(lvs --noheadings -o devices ${f_d_disk}); do
-			fll_d_d ${f_d_temp%\(*}
+			fll_d_d "${f_d_temp%\(*}"
 		done
 	elif [ "${f_d_abstract}" = "cryptodisk" ]; then
-		for f_d_temp in $(cryptsetup status "${f_d_disk}" | awk '/^\s+device\:/{$1="";print $0}'); do
-			fll_d_d ${f_d_temp}
+		for f_d_temp in $(cryptsetup status ${f_d_disk} | awk '/^\s+device\:/{$1="";print $0}'); do
+			fll_d_d "${f_d_temp}"
 		done
 	fi
 }
@@ -44,14 +44,14 @@ fll_crypt_device() {
 		# just bail if we don't have a target, wrong args
 		[ -n "$2" ] || break
 		# do not repeat a source or target
-		echo $sources | grep -q "$1" && continue
-		echo $targets | grep -q "$2" && continue
+		grep -q "$1" <<< "$sources" && continue
+		grep -q "$2" <<< "$targets" && continue
 		sources="$sources $1"
 		targets="$targets $2"
 		pairs="$pairs $1 $2"
 		shift 2
 	done
-	echo $pairs
+	echo "$pairs"
 }
 
 fll_c_d() {
@@ -60,34 +60,34 @@ fll_c_d() {
 	local f_d_temp
 	f_d_disk="$1"
 	[ -b "${f_d_disk}" ] || return
-	fll_disk_abstract ${f_d_disk}
+	fll_disk_abstract "${f_d_disk}"
 	if [ -z "${f_d_abstract}" ]; then
 		return
 	elif [ "${f_d_abstract}" = "lvm" ]; then
 		for f_d_temp in $(lvs --noheadings -o devices ${f_d_disk}); do
-			fll_c_d ${f_d_temp%\(*}
+			fll_c_d "${f_d_temp%\(*}"
 		done
 	elif [ "${f_d_abstract}" = "cryptodisk" ]; then
-		for f_d_temp in $(cryptsetup status "${f_d_disk}" | awk '/^\s+device\:/{$1="";print $0}'); do
+		for f_d_temp in $(cryptsetup status ${f_d_disk} | awk '/^\s+device\:/{$1="";print $0}'); do
 			echo "${f_d_temp} ${f_d_disk}"
-			fll_c_d ${f_d_temp}
+			fll_c_d "${f_d_temp}"
 		done
 	fi
 }
 
 fll_disk_usb() {
 	# de-dupe fll_d_u
-	fll_d_u $1 | sort -u
+	fll_d_u "$1" | sort -u
 }
 
 fll_d_u() {
 	# walks up and out from block device and reports the usb disks required for it
 	local f_d_disk
-	for f_d_disk in $(fll_disk_device $1); do
-		fll_disk_isusb ${f_d_disk}
+	for f_d_disk in $(fll_disk_device "$1"); do
+		fll_disk_isusb "${f_d_disk}"
 	done
 }
 
 fll_disk_isusb() {
-	readlink -f /sys/block/${1#/dev/}/device | grep -q usb && echo ${1}
+	readlink -f /sys/block/"${1#/dev/}"/device | grep -q usb && echo "${1}"
 }
