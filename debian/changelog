@@ -4,7 +4,7 @@ fll-installer (0.11.5.4) unstable; urgency=medium
   * update_fstab.bm:
     - Support for installation on logical volumes.
 
- -- Axel Konrad <ak-li@siduction.org> Mon, 12 Jan 2026
+ -- Axel Konrad <ak-li@siduction.org>  Mon, 12 Jan 2026 14:55:52 +0200
  
 fll-installer (0.11.5.3) unstable; urgency=medium
 
@@ -39,7 +39,7 @@ fll-installer (0.11.5.3) unstable; urgency=medium
   * initialization.bm
     - EFI features no longer needed removed.
 
- -- Axel Konrad <ak-li@siduction.org> Mon, 29 Dec 2025
+ -- Axel Konrad <ak-li@siduction.org>  Mon, 29 Dec 2025 14:55:52 +0200
  
 fll-installer (0.11.5.2) unstable; urgency=medium
 
@@ -48,7 +48,7 @@ fll-installer (0.11.5.2) unstable; urgency=medium
     - USB sticks and devicemapper mounts removed from the fstab file.
     - Some minor improvements.
 
- -- Axel Konrad <ak-li@siduction.org> Wed, 03 Dec 2025
+ -- Axel Konrad <ak-li@siduction.org>  Wed, 03 Dec 2025 14:55:52 +0200
  
 fll-installer (0.11.5.1) unstable; urgency=medium
 
@@ -61,7 +61,7 @@ fll-installer (0.11.5.1) unstable; urgency=medium
       install_grub.bm
   * prepareHD.bm: Add subvolume @snapshots and some minor improvements.
 
- -- Axel Konrad <ak-li@siduction.org> Tue, 02 Dec 2025
+ -- Axel Konrad <ak-li@siduction.org>  Tue, 02 Dec 2025 14:55:52 +0200
 
 fll-installer (0.11.5.0) unstable; urgency=medium
 
@@ -81,14 +81,14 @@ fll-installer (0.11.5.0) unstable; urgency=medium
       Reason: We would like to use some bash extensions and
       upstream is located in "Morgue for obsolete fullstory packages".
 
- -- Axel Konrad <ak-li@siduction.org> Thu, 20 Nov 2025
+ -- Axel Konrad <ak-li@siduction.org>  Thu, 20 Nov 2025 14:55:52 +0200
 
 fll-installer (0.11.4.1) unstable; urgency=medium
 
   [ Axel Konrad ]
   * Purge Live Desktop icons from the installation.
 
- -- Axel Konrad <ak-li@siduction.org> Sun, 16 Nov 2025
+ -- Axel Konrad <ak-li@siduction.org>  Sun, 16 Nov 2025 14:55:52 +0200
 
 fll-installer (0.11.4) unstable; urgency=medium
 
