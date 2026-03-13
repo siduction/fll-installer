@@ -1,0 +1,52 @@
+##
+##-------------------------------------
+# Needs:
+# BOOT_LOADER
+# TARGET_MNT_POINT
+# HD_CHOICE
+# TMPDIR
+#
+# Calls:
+# logit
+# sayit
+# progress
+#
+# Error Codes
+# 18 - mkdir efi/EFI/systemd/drivers/ failed.
+# 19 - Download efi drivers failed.
+#
+# Return 0 on success 
+# on error the error code and message are in /tmp/.installer.errors
+##-------------------------------------------------------------------
+##
+prepare_bootmanager() {
+	# Check which boot manager was selected.
+	if [ "$BOOT_LOADER" = "GRUB" ]; then
+		logit "	Boot manager is GRUB. Nothing to do."
+		return 0
+	fi
+	
+	# Ein Fehler in systemd-boot verhindert das Laden der Treiber.
+	# Deshalb steigen wir hier vorerst aus.
+	# https://github.com/systemd/systemd/issues/40232
+	return 0
+	# Ende Fehlermeldung.
+	
+	mkdir -p /efi/EFI/systemd/drivers/ || error 18 "mkdir /efi.../drivers/ failed"
+	
+	# Download the required EFI file system drivers.
+	local efi_drivers
+	efi_drivers="ext2_x64.efi btrfs_x64.efi xfs_x64.efi exfat_x64.efi fat_x64.efi ntfs_x64.efi"
+		
+	for i in $efi_drivers; do
+		wget -q "https://github.com/pbatard/efifs/releases/download/v1.11/$i" \
+			-O "/efi/EFI/systemd/drivers/$i"
+	done
+	
+	if [ ! "$?" = "0" ]; then
+		error 19 "Download efi drivers failed."
+	fi
+	
+	chmod +x "/efi/EFI/systemd/drivers/*"
+	return 0
+}

@@ -29,6 +29,7 @@ main()
 	local rc
 	local all_actions="load_config \
 		prepareHD \
+		prepare_bootmanager \
 		copy2HD \
 		convert_live2HD \
 		update_fstab \
@@ -60,13 +61,13 @@ main()
 	# do the main job
 	#
 	for action in $all_actions; do
-		[ "$ACTION" -lt 8 ] && ACTION=$((ACTION + 1))
+		[ "$ACTION" -lt 8 ] && ((ACTION++))
 
 		# temporary not used:
-		# [ "$ACTION" -lt 9 ] && ACTION=$((ACTION + 1))
+		# [ "$ACTION" -lt 9 ] && ((ACTION++))
 
-		echo
-		sayit "starting $action"
+#		echo
+#		sayit "starting $action"
 		$action
 	done
 

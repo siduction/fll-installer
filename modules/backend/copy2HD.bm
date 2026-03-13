@@ -44,8 +44,8 @@ This can take a while. Please be patient."
 			# so it might be a good idea to handle the merged dirs and
 			# symlinks right™
 			#
-			sayit "	Create usr-merge link:  /${dir##*/} -> /usr/${dir##*/}"
-			ln -sf "/usr/${dir##*/}" "$TARGET_MNT_POINT/${dir##*/}"
+			sayit "	Create usr-merge link:  ${dir##*/} -> usr/${dir##*/}"
+			ln -sf "usr/${dir##*/}" "$TARGET_MNT_POINT/${dir##*/}"
 		else
 			dir="/${dir##*/}"
 			case "$dir" in

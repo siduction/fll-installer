@@ -30,4 +30,5 @@ progress()
 {
 	# printf for terminal output, debug modus"
 	printf "\n%s\n%s\n%s\n" "$d_line" "$*" "$d_line"
+	[ -n "$*" ] && echo "$TIME: $*" >> "$LOG" || echo >> "$LOG"
 }

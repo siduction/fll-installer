@@ -1,10 +1,35 @@
+fll-installer (0.11.5.5) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * First commit with support of systemd-boot
+  * fll-installer:
+    - Remove INSTALLER_INOTIFY
+  * prepare_bootmanager.bm (new)
+    - Necessary preparations if systemd-boot was selected.
+  * main.bm
+    - Add prepare_bootmanager
+  * add_bootmanager.bm
+    - Additionally systemd-boot
+  * purge_live_only_stuff
+    - Remove GRUB if systemd-boot has been installed.
+  * update_fstab.bm
+    - fix umask
+    - add VM partitions
+    - Indentation with EOF
+  * fix_home_on_HD.bm
+    - Indentation with EOF
+  * copy2HD.bm
+    - fix usr-merge link
+
+ -- Axel Konrad <ak-li@siduction.org>  Fri, 13 Mar 2026 14:13:08 +0100
+ 
 fll-installer (0.11.5.4) unstable; urgency=medium
 
   [ Axel Konrad ]
   * update_fstab.bm:
     - Support for installation on logical volumes.
 
- -- Axel Konrad <ak-li@siduction.org>  Mon, 12 Jan 2026 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Mon, 12 Jan 2026 15:55:52 +0100
  
 fll-installer (0.11.5.3) unstable; urgency=medium
 
@@ -39,7 +64,7 @@ fll-installer (0.11.5.3) unstable; urgency=medium
   * initialization.bm
     - EFI features no longer needed removed.
 
- -- Axel Konrad <ak-li@siduction.org>  Mon, 29 Dec 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Mon, 29 Dec 2025 15:55:52 +0100
  
 fll-installer (0.11.5.2) unstable; urgency=medium
 
@@ -48,7 +73,7 @@ fll-installer (0.11.5.2) unstable; urgency=medium
     - USB sticks and devicemapper mounts removed from the fstab file.
     - Some minor improvements.
 
- -- Axel Konrad <ak-li@siduction.org>  Wed, 03 Dec 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Wed, 03 Dec 2025 15:55:52 +0100
  
 fll-installer (0.11.5.1) unstable; urgency=medium
 
@@ -61,7 +86,7 @@ fll-installer (0.11.5.1) unstable; urgency=medium
       install_grub.bm
   * prepareHD.bm: Add subvolume @snapshots and some minor improvements.
 
- -- Axel Konrad <ak-li@siduction.org>  Tue, 02 Dec 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Tue, 02 Dec 2025 15:55:52 +0100
 
 fll-installer (0.11.5.0) unstable; urgency=medium
 
@@ -81,14 +106,14 @@ fll-installer (0.11.5.0) unstable; urgency=medium
       Reason: We would like to use some bash extensions and
       upstream is located in "Morgue for obsolete fullstory packages".
 
- -- Axel Konrad <ak-li@siduction.org>  Thu, 20 Nov 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Thu, 20 Nov 2025 15:55:52 +0100
 
 fll-installer (0.11.4.1) unstable; urgency=medium
 
   [ Axel Konrad ]
   * Purge Live Desktop icons from the installation.
 
- -- Axel Konrad <ak-li@siduction.org>  Sun, 16 Nov 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Sun, 16 Nov 2025 15:55:52 +0100
 
 fll-installer (0.11.4) unstable; urgency=medium
 

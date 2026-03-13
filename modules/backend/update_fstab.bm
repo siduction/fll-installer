@@ -62,7 +62,7 @@ update_fstab() {
 	## Preparations that are the same for all devices.
 	# Catch all partitions and logical volumes. The items are
 	# separated by new lines. This is sometimes necessary.
-	parts_all=$(blkid -o device | grep "/dev/[mns]")
+	parts_all=$(blkid -o device | grep "/dev/[mnsv]")
 
 	# Remove all items that have unsupported file systems.
 	item_del=$(lsblk -n -Q 'FSTYPE !~ ".+"' -o NAME)
@@ -120,7 +120,7 @@ update_fstab() {
 				ZEILE[4]="defaults,noatime"
 				;;
 			vfat)
-				ZEILE[4]="defaults,umask=077"
+				ZEILE[4]="defaults,umask=0077"
 				;;
 			xfs)
 				ZEILE[4]="defaults,errors=remount-ro"
@@ -272,14 +272,14 @@ update_fstab() {
 	L_opt="$var_l"
 	
 	# fstab default information
-	cat > "$TARGET_MNT_POINT"/etc/fstab << EOF
-# /etc/fstab: static file system information.
-#
-# Use 'blkid' to print the universally unique identifier for a device; this may
-# be used with UUID= as a more robust way to name devices that works even if
-# disks are added and removed. See fstab(5).
-#
-EOF
+	cat > "$TARGET_MNT_POINT"/etc/fstab <<- EOF
+	# /etc/fstab: static file system information.
+	#
+	# Use 'blkid' to print the universally unique identifier for a device; this may
+	# be used with UUID= as a more robust way to name devices that works even if
+	# disks are added and removed. See fstab(5).
+	#
+	EOF
 	
 	# Header of the entries
 	printf "%-${L_uuid}s %-${L_mount}s %-${L_type}s %-$((L_opt - 10))s %s\n" \

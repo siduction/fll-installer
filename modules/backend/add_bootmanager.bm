@@ -16,8 +16,7 @@
 #
 ##-------------------------------------
 ##
-add_bootmanager()
-{
+add_bootmanager() {
 	local BOOT_KERNELS
 	local BOOT_KERNEL
 	local BOOT_RUNNING_KERNEL
@@ -27,7 +26,7 @@ add_bootmanager()
 	#
 	# log my call
 	#
-	logit "add_bootmanager"
+	progress "Add_bootmanager"
 
 	mount --bind /proc "$TARGET_MNT_POINT/proc"
 	mount --bind /dev  "$TARGET_MNT_POINT/dev"
@@ -69,12 +68,14 @@ add_bootmanager()
 		echo "${crypttarget#/dev/mapper/}	$cryptsource	none	luks" >> "$TARGET_MNT_POINT"/etc/crypttab
 	done
 	
+	progress "Installing $BOOT_LOADER to $BOOT_WHERE"
+
 	BOOT_KERNELS=""
 
 	for i in "$TARGET_MNT_POINT"/lib/modules/?.*; do
 		BOOT_KERNEL=$(basename "$i")
 		BOOT_KERNELS="$BOOT_KERNELS $BOOT_KERNEL"
-		progress "Creating initrd for kernel $BOOT_KERNEL ..."
+		logit "Creating initrd for kernel $BOOT_KERNEL ..."
 		create_initrd
 	done
 
@@ -86,66 +87,89 @@ add_bootmanager()
 		BOOT_RUNNING_KERNEL="$1"
 	fi
 
-	progress "Installing $BOOT_LOADER to $BOOT_WHERE"
-
 	# ESP:       The cli-installer has already checked the ESP
 	#            and stored it in HD_MAP. It was then mounted by prepareHD.
 	#            Now we check whether everything is OK and install GRUB.
 	# MBR:       Check whether a boot partition is being used,
 	#            then install GRUB.
 	# Partition: Installing GRUB on $HD_CHOICE.
+	#
+	# systemd-boot:
+	#            The cli-installer has already checked the requirements
+	#            for systemd-boot. We use the ESP and the XBOOTLDR partition.
 
-	case "$BOOT_WHERE" in
-		ESP )
-			efi_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot/efi -o SOURCE)"
-			if [ -n "$efi_source" ]; then
-				mkdir -p "$TARGET_MNT_POINT"/boot/efi/EFI/siduction
-				mkdir "$TARGET_MNT_POINT"/boot/efi/EFI/debian
-				umount "$TARGET_MNT_POINT/boot/efi"
-				
-			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
-mount /boot &>/dev/null || true
-mount /boot/efi &>/dev/null || true
-/usr/sbin/grub-install --recheck --no-floppy --force
-/usr/sbin/update-grub
-if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
-umount /boot/efi &>/dev/null || true
-umount /boot &>/dev/null || true
-EOF
-			mount "$efi_source" "$TARGET_MNT_POINT"/boot/efi
-			else
-				logit "ERROR: Failed to install GRUB to ESP"
-				logit ""
-			fi
+	if [ "$BOOT_LOADER" = "GRUB" ]; then
+		case "$BOOT_WHERE" in
+			ESP)
+				efi_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot/efi -o SOURCE)"
+				if [ -n "$efi_source" ]; then
+					mkdir -p "$TARGET_MNT_POINT"/boot/efi/EFI/siduction
+					mkdir "$TARGET_MNT_POINT"/boot/efi/EFI/debian
+					umount "$TARGET_MNT_POINT/boot/efi"
+					
+				chroot "$TARGET_MNT_POINT" /usr/bin/bash -x <<- 'EOF'
+				/usr/bin/mount /boot &>/dev/null || true
+				/usr/bin/mount /boot/efi &>/dev/null || true
+				/usr/sbin/grub-install --recheck --no-floppy --force
+				/usr/sbin/update-grub
+				if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
+				/usr/bin/umount /boot/efi &>/dev/null || true
+				/usr/bin/umount /boot &>/dev/null || true
+				EOF
+				mount "$efi_source" "$TARGET_MNT_POINT"/boot/efi
+				else
+					logit "ERROR: Failed to install GRUB to ESP"
+					logit ""
+				fi
 			;;
-		MBR )
-			boot_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot -o SOURCE)"
-			if [ -n "$boot_source" ]; then
-				umount "$TARGET_MNT_POINT/boot" &>/dev/null || true
-			fi
-			export HD_CHOICE
-			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
-mount /boot &>/dev/null || true
-/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$HD_CHOICE"
-/usr/sbin/update-grub
-if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
-umount /boot &>/dev/null || true
-EOF
-			if [ -n "$boot_source" ]; then
-				mount "$TARGET_MNT_POINT/boot" &>/dev/null || true
-			fi
+			MBR)
+				boot_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot -o SOURCE)"
+				if [ -n "$boot_source" ]; then
+					umount "$TARGET_MNT_POINT/boot" &>/dev/null || true
+				fi
+				export HD_CHOICE
+				chroot "$TARGET_MNT_POINT" /usr/bin/bash -x <<- 'EOF'
+				/usr/bin/mount /boot &>/dev/null || true
+				/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$HD_CHOICE"
+				/usr/sbin/update-grub
+				if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
+				/usr/bin/umount /boot &>/dev/null || true
+				EOF
+				if [ -n "$boot_source" ]; then
+					mount "$TARGET_MNT_POINT/boot" &>/dev/null || true
+				fi
 			;;
-		Partition )
-			export root_partition
-			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
-/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$root_partition"
-/usr/sbin/update-grub
-EOF
+			Partition)
+				export root_partition
+				chroot "$TARGET_MNT_POINT" /usr/bin/bash -x <<- 'EOF'
+				/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$root_partition"
+				/usr/sbin/update-grub
+				EOF
 			;;
-		* )
-			exit 1
+			*)
+				exit 1
 			;;
-	esac
+		esac
+	else
+		# The boot loader is systemd-boot
+		sayit "	get and install systemd-boot, and create a customized initrd"
+
+		chroot "$TARGET_MNT_POINT" /usr/bin/bash -x <<- 'EOF'
+		/usr/bin/mount /efi &>/dev/null || true
+		/usr/bin/mount /boot &>/dev/null || true
+		/usr/bin/apt-get -q=3 -y install systemd-boot-efi systemd-boot
+		echo "$(date +%M:%S) sleep" && sleep 2
+		image_names=$(/usr/bin/find /usr/lib/modules/ -name "*siduction-amd64")
+		for kernel_name in $image_names; do
+			echo "/boot/linux-image-${kernel_name##/*/}"
+			dpkg-reconfigure "/boot/linux-image-${kernel_name##/*/}"
+		done
+		echo "$(date +%M:%S)"
+		/usr/bin/sed -i /timeout/"s/#//" /efi/loader/loader.conf
+		/usr/bin/umount /efi &>/dev/null || true
+		/usr/bin/umount /boot &>/dev/null || true
+		EOF
+	fi
 
 	# umount /proc, /dev, /sys and /run on chroot
 	umount "${TARGET_MNT_POINT}/run"
