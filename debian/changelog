@@ -1,3 +1,12 @@
+fll-installer (0.11.5.6) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * control
+    - Removed dependencies for grub-pc, grub-efi, and os-prober to allow
+      systemd-boot to be installed without them.
+
+ -- Axel Konrad <ak-li@siduction.org>  Sat, 02 May 2026 20:44:15 +0200
+
 fll-installer (0.11.5.5) unstable; urgency=medium
 
   [ Axel Konrad ]
