@@ -15,12 +15,10 @@ Architecture: all
 Depends: ${misc:Depends},
  adduser,
  initramfs-tools,
- grub-pc | grub-efi,
  lsof,
  procps,
  udev-config-siduction,
  whois,
- os-prober,
  rsync,
  fll-live-initscripts
 Suggests: gparted,
