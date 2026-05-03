@@ -6,7 +6,6 @@
 # BOOT_LOADER
 # HD_CHOICE
 # HD_MAP
-# FLL_GFXBOOT_THEME
 #
 # Calls:
 # logit
@@ -16,8 +15,7 @@
 #
 ##-------------------------------------
 ##
-add_bootmanager()
-{
+add_bootmanager() {
 	local BOOT_KERNELS
 	local BOOT_KERNEL
 	local BOOT_RUNNING_KERNEL
@@ -27,7 +25,7 @@ add_bootmanager()
 	#
 	# log my call
 	#
-	logit "add_bootmanager"
+	progress "Add_bootmanager"
 
 	mount --bind /proc "$TARGET_MNT_POINT/proc"
 	mount --bind /dev  "$TARGET_MNT_POINT/dev"
@@ -74,7 +72,7 @@ add_bootmanager()
 	for i in "$TARGET_MNT_POINT"/lib/modules/?.*; do
 		BOOT_KERNEL=$(basename "$i")
 		BOOT_KERNELS="$BOOT_KERNELS $BOOT_KERNEL"
-		progress "Creating initrd for kernel $BOOT_KERNEL ..."
+		logit "Creating initrd for kernel $BOOT_KERNEL ..."
 		create_initrd
 	done
 
@@ -85,8 +83,6 @@ add_bootmanager()
 		set -- "$BOOT_KERNELS"
 		BOOT_RUNNING_KERNEL="$1"
 	fi
-
-	progress "Installing $BOOT_LOADER to $BOOT_WHERE"
 
 	# ESP:       The cli-installer has already checked the ESP
 	#            and stored it in HD_MAP. It was then mounted by prepareHD.

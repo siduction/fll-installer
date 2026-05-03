@@ -88,36 +88,36 @@ fix_home_on_HD()
 	if [ -d /usr/share/siduction-settings-"${FLL_FLAVOUR}"-"${FLL_DISTRO_CODENAME_SAFE}" ]; then
 		case "$FLL_FLAVOUR" in
 			gnome)
-				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
-#!/bin/sh
-if [ ! -d /usr/share/fll-installer ]; then
-    gsettings set org.gnome.desktop.media-handling automount true
-    gsettings set org.gnome.desktop.media-handling automount-open true
-    rm ${INSTHOME}/.config/autostart/automount-open.desktop
-fi
-EOF
+				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<- EOF
+				#!/bin/sh
+				if [ ! -d /usr/share/fll-installer ]; then
+					gsettings set org.gnome.desktop.media-handling automount true
+					gsettings set org.gnome.desktop.media-handling automount-open true
+					rm ${INSTHOME}/.config/autostart/automount-open.desktop
+				fi
+				EOF
 			;;
 			cinnamon)
-				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
-#!/bin/sh
-if [ ! -d /usr/share/fll-installer ]; then
-    gsettings set org.cinnamon.desktop.media-handling automount true
-    gsettings set org.cinnamon.desktop.media-handling automount-open true
-    rm ${INSTHOME}/.config/autostart/automount-open.desktop
-fi
-EOF
-				;;
+				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<- EOF
+				#!/bin/sh
+				if [ ! -d /usr/share/fll-installer ]; then
+					gsettings set org.cinnamon.desktop.media-handling automount true
+					gsettings set org.cinnamon.desktop.media-handling automount-open true
+					rm ${INSTHOME}/.config/autostart/automount-open.desktop
+				fi
+				EOF
+			;;
 			mate)
-				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<EOF
-#!/bin/sh
-if [ ! -d /usr/share/fll-installer ]; then
-    gsettings set org.mate.media-handling automount true
-    gsettings set org.mate.media-handling automount-open true
-    rm ${INSTHOME}/.config/autostart/automount-open.desktop
-fi
-EOF
-				;;
-	esac
+				cat > "${TARGET_MNT_POINT}/usr/share/siduction-settings-${FLL_FLAVOUR}-${FLL_DISTRO_CODENAME_SAFE}/automount-open" <<- EOF
+				#!/bin/sh
+				if [ ! -d /usr/share/fll-installer ]; then
+					gsettings set org.mate.media-handling automount true
+					gsettings set org.mate.media-handling automount-open true
+					rm ${INSTHOME}/.config/autostart/automount-open.desktop
+				fi
+				EOF
+			;;
+		esac
 
 	# We don't check existence, -p handles that
 	mkdir -p "${TARGET_MNT_POINT}${INSTHOME}"/.config/autostart

@@ -139,7 +139,7 @@ prepareHD()
 	#
 	# Mounting additional partitions r/w...
 	#
-	sayit "Mounting additional subvolume or partitions r/w"
+	sayit "Mounting additional partitions or subvolume r/w"
 	for i in $HD_MAP; do
 		part=$(cut -d":" -f1 <<< "$i")
 		point=$(cut -d":" -f2 <<< "$i")
