@@ -5,6 +5,7 @@
 # TARGET_MNT_POINT
 # HD_CHOICE
 # TMPDIR
+# INET_CON
 #
 # Calls:
 # logit
@@ -20,33 +21,82 @@
 ##-------------------------------------------------------------------
 ##
 prepare_bootmanager() {
+	# The default installation uses GRUB.
+	# The files 'os-release' and 'entry-token' are used by systemd-boot.
+	# We create them to be compatible with systemd.
+		
+	progress "Prepare boot manager"
+	
+	logit "	Create files 'os-release' and 'entry-token'"
+	
+	. /etc/default/distro
+	
+	echo "$FLL_DISTRO_NAME-$FLL_FLAVOUR"  > /etc/kernel/entry-token
+
+	# Remove symlink.
+	if [ -h /etc/os-release ]; then
+		rm /etc/os-release
+
+		name_firstup=$(echo $FLL_DISTRO_CODENAME_SAFE | sed -e 's/\(.\)/\u\1/')
+		flav_upper=$(echo $FLL_FLAVOUR | tr '[:lower:]' '[:upper:]')
+
+		cat <<-EOF > /etc/os-release
+		PRETTY_NAME="$FLL_DISTRO_NAME $name_firstup $flav_upper"
+		NAME="$FLL_DISTRO_NAME"
+		VERSION_CODENAME=$FLL_DISTRO_CODENAME_SAFE
+		VERSION="$name_firstup"
+		VARIANT="$flav_upper"
+		VARIANT_ID=$FLL_FLAVOUR
+		ID=$FLL_DISTRO_NAME
+		ID_LIKE=debian
+		HOME_URL="https://siduction.org"
+		SUPPORT_URL="https://forum.siduction.org"
+		EOF
+	fi
+	
 	# Check which boot manager was selected.
 	if [ "$BOOT_LOADER" = "GRUB" ]; then
 		logit "	Boot manager is GRUB. Nothing to do."
 		return 0
 	fi
 	
-	# Ein Fehler in systemd-boot verhindert das Laden der Treiber.
-	# Deshalb steigen wir hier vorerst aus.
+	# Ein Fehler in systemd-boot verhindert das Laden der Treiber für die
+	# XBOOTLDR Partition.
 	# https://github.com/systemd/systemd/issues/40232
-	return 0
-	# Ende Fehlermeldung.
+	# Der folgende Code ist deshalb nicht anwendbar, aber er verbleibt
+	# auskommentiert für den Fall, dass systemd-boot gefixt wird.
+	# Im cli-installer wird das Dateisystem vfat für ESP und XBOOTLDR
+	# angefordert.
+#	mkdir -p /efi/EFI/systemd/drivers/ || error 18 "mkdir /efi.../drivers/ failed"
+#	
+#	# Download the required EFI file system drivers.
+#	local efi_drivers
+#	efi_drivers="ext2_x64.efi btrfs_x64.efi xfs_x64.efi exfat_x64.efi fat_x64.efi ntfs_x64.efi"
+#		
+#	for i in $efi_drivers; do
+#		wget -q "https://github.com/pbatard/efifs/releases/download/v1.11/$i" \
+#			-O "/efi/EFI/systemd/drivers/$i"
+#	done
+#	
+#	if [ ! "$?" = "0" ]; then
+#		error 19 "Download efi drivers failed."
+#	fi
+#	
+#	chmod +x "/efi/EFI/systemd/drivers/*"
+
+	logit "	Install systemd-boot"
+#	logit "	Purge GRUB and install systemd-boot"
+
+	findmnt "$TARGET_MNT_POINT/efi" &>/dev/null || mkdir "$TARGET_MNT_POINT"/efi
 	
-	mkdir -p /efi/EFI/systemd/drivers/ || error 18 "mkdir /efi.../drivers/ failed"
-	
-	# Download the required EFI file system drivers.
-	local efi_drivers
-	efi_drivers="ext2_x64.efi btrfs_x64.efi xfs_x64.efi exfat_x64.efi fat_x64.efi ntfs_x64.efi"
-		
-	for i in $efi_drivers; do
-		wget -q "https://github.com/pbatard/efifs/releases/download/v1.11/$i" \
-			-O "/efi/EFI/systemd/drivers/$i"
-	done
-	
-	if [ ! "$?" = "0" ]; then
-		error 19 "Download efi drivers failed."
+	if [ "$INET_CON" = "yes" ] && ping -c 3 siduction.org &>/dev/null; then
+#		( apt-get -y purge grub* 2>/dev/null )
+		apt-get -y install systemd-boot systemd-boot-efi
+		sleep 2
+	else
+		err_msg="No internet. Abort on install systemd-boot"
+		logit "$err_msg"
+		error 1 "$err_msg"
 	fi
-	
-	chmod +x "/efi/EFI/systemd/drivers/*"
 	return 0
 }

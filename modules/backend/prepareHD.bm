@@ -8,6 +8,9 @@
 # HD_MAP
 # HD_IGNORECHECK
 # TMPDIR
+# BOOT_LOADER
+# DEFAULT_DIR
+# FLL_DISTRO_NAME
 #
 # Calls:
 # logit
@@ -146,10 +149,17 @@ prepareHD()
 		mkdir -p "$TARGET_MNT_POINT$point"
 		mount_options=""
 		
+		# Options for btrfs subvolumes.
 		if [ "$HD_FSTYPE" = "btrfs" ] && [ "$HD_CHOICE" = "$part" ]; then
 			sub=$(sed 's|/\.\?|@|g' <<< "$point")
 			mount_options="-t btrfs -o subvol=/$sub,defaults,noatime"
 			HD_MAP=$(sed "s|$part:$point \?||" <<< "${HD_MAP}")
+		
+		# Options with systemd-boot for the ESP and XBOOTLDR.
+		elif [ "$BOOT_LOADER" = "systemd-boot" ]; then
+			if [ "$point" = "/efi" ] || [ "$point" = "/boot" ]; then
+				mount_options="-t vfat -o umask=0077" #,MS_NOEXEC,MS_NODEV,MS_NOSUID,MS_NOSYMFOLLOW"
+			fi
 		fi
 
 		if mount $mount_options "$part" "$TARGET_MNT_POINT$point" > "$TMP" 2>&1; then
@@ -192,19 +202,19 @@ checkHDSize () {
 		part=$(cut -d":" -f1 <<< "$i")
 		point=$(cut -d":" -f2 <<< "$i")
 
-		PART_SIZE=$(blockdev --getsize64 "${part}")
-		POINT_SIZE=$(du -sk "${point}" | cut -f 1 )
+		PART_SIZE=$(blockdev --getsize64 "$part")
+		POINT_SIZE=$(du -sk "$point" | cut -f 1 )
 
 		if [ "$PART_SIZE" -lt $((POINT_SIZE * 1024 * 120 / 100)) ]; then
-			err_msg="Not enough size on partition $part to install ${FLL_DISTRO_NAME}$point"
+			err_msg="Not enough size on partition $part to install $FLL_DISTRO_NAME$point"
 			error 18 "$err_msg"
 			break
 		else
 			REST_SIZE=$((REST_SIZE - $POINT_SIZE))
 		fi
 	done
-	if [ "$ROOT_SIZE" -lt $((REST_SIZE * 120 / 100 )) ] ; then
-		err_msg="Not enough size on partition ${HD_CHOICE} to install ${FLL_DISTRO_NAME}"
+	if [ "$ROOT_SIZE" -lt $((REST_SIZE * 120 / 100 )) ]; then
+		err_msg="Not enough size on partition $HD_CHOICE to install $FLL_DISTRO_NAME"
 		error 18 "$err_msg"
 	fi
 

@@ -20,15 +20,17 @@ logit() {
 ###-------------------------------------
 # make use of distro-defaults
 ###-------------------------------------
-FLL_DISTRO_NAME="siduction"
-FLL_LIVE_USER="siducer"
-FLL_MOUNTPOINT="/fll/siduction"
-
-[ -r /etc/default/distro ] && . /etc/default/distro
+if [ -r /etc/default/distro ]; then
+	. /etc/default/distro
+else
+	FLL_DISTRO_NAME="siduction"
+	FLL_LIVE_USER="siducer"
+	FLL_MOUNTPOINT="/fll/siduction"
+fi
 
 DEFAULT_USER="$FLL_LIVE_USER"
 DEFAULT_DIR="$FLL_MOUNTPOINT"
-THEME=$(cut -d / -f5 <<< "${FLL_WALLPAPER}")
+THEME=$(cut -d / -f5 <<< "$FLL_WALLPAPER")
 
 
 ###-------------------------------------
@@ -47,8 +49,8 @@ CMDLINE=$(cat /proc/cmdline)
 ###-------------------------------------
 # Localisation  ** still needed ?? **
 ###-------------------------------------
-export TEXTDOMAINDIR="/usr/share/locale"
-export TEXTDOMAIN=fll-installer
+#export TEXTDOMAINDIR="/usr/share/locale"
+#export TEXTDOMAIN=fll-installer
 
 
 ###-------------------------------------

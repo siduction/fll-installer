@@ -33,8 +33,8 @@ main()
 		copy2HD \
 		convert_live2HD \
 		update_fstab \
-		add_bootmanager \
-		purge_live_only_stuff"
+		purge_live_only_stuff \
+		add_bootmanager"
 
 	# temporary not used:
 	#	checkHDSize \

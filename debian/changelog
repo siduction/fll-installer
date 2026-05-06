@@ -1,3 +1,32 @@
+fll-installer (0.11.5.7) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * purge_live_only_stuff.bm
+    - FREE_SW_ONLY removed.
+    - 'disable live config' removed. The function has been integrated
+      into /etc/default/distro.
+  * initialization.bm
+    - Set distro-defaults depends on existing /etc/default/distro.
+  * prepare_HD.bm
+    - Added mount options when using systemd-boot for the ESP and XBOOTLDR.
+  * prepare_bootmanager.bm
+    - Create files os-release and entry-token.
+    - For the bootloader systemd-boot, install systemd-boot.
+  * add_bootmanager.bm
+    - New section: systemd-boot.
+    - Optimized chroot mounts.
+    - The previous kernel selection and initrd creation have been moved
+      to the GRUB section.
+    - Reinstall systemd-boot using chroot in the installation target.
+    - Creating a custom initrd.
+    - Adapting the systemd-boot configuration file.
+    - Adapting the systemd-boot boot entry file.
+  * main.bm
+    - The order in which the modules are executed has been adjusted.
+  * Moved update_status.bm to /obsolet
+
+ -- Axel Konrad <ak-li@siduction.org>  Wed, 06 May 2026 13:45:04 +0200
+
 fll-installer (0.11.5.6) unstable; urgency=medium
 
   [ Axel Konrad ]
