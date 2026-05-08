@@ -158,7 +158,7 @@ prepareHD()
 		# Options with systemd-boot for the ESP and XBOOTLDR.
 		elif [ "$BOOT_LOADER" = "systemd-boot" ]; then
 			if [ "$point" = "/efi" ] || [ "$point" = "/boot" ]; then
-				mount_options="-t vfat -o umask=0077" #,MS_NOEXEC,MS_NODEV,MS_NOSUID,MS_NOSYMFOLLOW"
+				mount_options="-t vfat -o umask=0077"
 			fi
 		fi
 

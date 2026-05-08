@@ -13,8 +13,9 @@
 # progress
 #
 # Error Codes
-# 18 - mkdir efi/EFI/systemd/drivers/ failed.
-# 19 - Download efi drivers failed.
+# 20 - mkdir efi/EFI/systemd/drivers/ failed.
+# 21 - Download efi drivers failed.
+# 22 - No internet. Abort on install systemd-boot
 #
 # Return 0 on success 
 # on error the error code and message are in /tmp/.installer.errors
@@ -67,7 +68,7 @@ prepare_bootmanager() {
 	# auskommentiert für den Fall, dass systemd-boot gefixt wird.
 	# Im cli-installer wird das Dateisystem vfat für ESP und XBOOTLDR
 	# angefordert.
-#	mkdir -p /efi/EFI/systemd/drivers/ || error 18 "mkdir /efi.../drivers/ failed"
+#	mkdir -p /efi/EFI/systemd/drivers/ || error 20 "mkdir /efi.../drivers/ failed"
 #	
 #	# Download the required EFI file system drivers.
 #	local efi_drivers
@@ -79,7 +80,7 @@ prepare_bootmanager() {
 #	done
 #	
 #	if [ ! "$?" = "0" ]; then
-#		error 19 "Download efi drivers failed."
+#		error 21 "Download efi drivers failed."
 #	fi
 #	
 #	chmod +x "/efi/EFI/systemd/drivers/*"
@@ -87,16 +88,15 @@ prepare_bootmanager() {
 	logit "	Install systemd-boot"
 #	logit "	Purge GRUB and install systemd-boot"
 
-	findmnt "$TARGET_MNT_POINT/efi" &>/dev/null || mkdir "$TARGET_MNT_POINT"/efi
-	
-	if [ "$INET_CON" = "yes" ] && ping -c 3 siduction.org &>/dev/null; then
-#		( apt-get -y purge grub* 2>/dev/null )
-		apt-get -y install systemd-boot systemd-boot-efi
+	if [ "$INET_CON" = "yes" ] && ping -c 3 siduction.org 2>/dev/null \
+		| grep -q "3 received"; then
+#		apt-get -y -qq purge grub* 2>/dev/null
+		apt-get -y -qq install systemd-boot systemd-boot-efi
 		sleep 2
 	else
 		err_msg="No internet. Abort on install systemd-boot"
 		logit "$err_msg"
-		error 1 "$err_msg"
+		error 22 "$err_msg"
 	fi
 	return 0
 }

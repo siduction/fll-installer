@@ -13,6 +13,9 @@
 # create_initrd
 # stringinstring
 #
+# Error Codes
+# 50 - No internet. Abort on install systemd-boot
+#
 ##-------------------------------------
 ##
 add_bootmanager() {
@@ -89,7 +92,7 @@ add_bootmanager() {
 
 		for i in "$TARGET_MNT_POINT"/lib/modules/?.*; do
 			BOOT_KERNEL=$(basename "$i")
-			BOOT_KERNELS="$BOOT_KERNELS $BOOT_KERNEL"
+			BOOT_KERNELS="$BOOT_KERNELS$BOOT_KERNEL "
 			logit "Creating initrd for kernel $BOOT_KERNEL ..."
 			create_initrd
 		done
@@ -157,7 +160,7 @@ add_bootmanager() {
 		#
 		# The boot loader is systemd-boot
 		#
-		sayit "	reinstall systemd-boot, and create a customized initrd"
+		sayit "	Reinstall systemd-boot and create a customized initrd"
 		local loader_conf_dir
 		local root_uuid
 		
@@ -167,19 +170,17 @@ add_bootmanager() {
 			loader_conf_dir="/boot"
 		fi
 		root_uuid="$(lsblk -n -o UUID "$root_partition")"
-#		sayit "	root_uuid: $root_uuid"
-#		sleep 2
 
 		export TARGET_MNT_POINT
 		export root_uuid
 
 		# reinstall systemd-boot
-		sayit "	reinstall systemd-boot"
-		chroot "$TARGET_MNT_POINT" /usr/bin/bash -c "apt-get -y reinstall systemd-boot systemd-boot-efi"
+		sayit "	Reinstall systemd-boot on the installation target"
+		chroot "$TARGET_MNT_POINT" /usr/bin/bash -c "apt-get -y -qq reinstall systemd-boot systemd-boot-efi"
 		sleep 2
 		
 		# creating an initrd in conjunction with systemd-boot.
-		sayit "	creating initrd with dpkg-reconfigure"
+		sayit "	Creating initrd with dpkg-reconfigure"
 		chroot "$TARGET_MNT_POINT" /usr/bin/bash -c "dpkg-reconfigure linux-image-$(uname -r)"
 		sleep 2
 
@@ -188,12 +189,14 @@ add_bootmanager() {
 		sed -i "s|lang=.* rootwait|root=UUID=$root_uuid ro|" \
 			"$TARGET_MNT_POINT"/boot/loader/entries/*
 			
-#		efibootmgr -k -o $(efibootmgr | grep -o "[0-9].*Linux Boot " \
-#			| grep -oi -E "[0-9a-f]{4}")
-		
-		# old efibootmgr version
-		efibootmgr -o $(efibootmgr | grep -o "[0-9].*Linux Boot " \
-			| grep -oi -E "[0-9a-f]{4}")
+		if efibootmgr | grep -q "[0-9].*Linux Boot Manager "; then
+			efibootmgr -k -o $(efibootmgr | grep -o "[0-9].*Linux Boot " \
+				| grep -oi -E "[0-9a-f]{4}")
+		else
+			err_msg="No internet. Abort on install systemd-boot"
+			logit "$err_msg"
+			error 50 "$err_msg"
+		fi
 	fi
 
 	# umount /proc, /dev, /sys, and /run on chroot
