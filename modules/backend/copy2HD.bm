@@ -10,7 +10,7 @@
 # logit
 #
 # Error Codes
-# 20 - error copying iso to harddisk
+# 50 - Copying iso to harddisk failed.
 #
 # Return 0 on success
 # on error the error code and message are in /tmp/.installer.errors
@@ -91,7 +91,7 @@ This can take a while. Please be patient."
 
 	if [ -e "$ERR_COPY" ]; then
 		rm -f "$ERR_COPY"
-		error 20 "Error copying iso to harddisk"
+		error 50 "Error copying iso to harddisk"
 	fi
 
 	return 0

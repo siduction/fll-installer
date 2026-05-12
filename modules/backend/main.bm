@@ -21,7 +21,8 @@
 # purge_live_only_stuff
 # end_progress
 #
-# exit code 1 : Config file $CONFIG_FILE could not be found.
+# Error Codes:
+# 01 - Config file $CONFIG_FILE could not be found.
 ##-------------------------------------
 ##
 main()
@@ -29,11 +30,12 @@ main()
 	local rc
 	local all_actions="load_config \
 		prepareHD \
+		prepare_bootmanager \
 		copy2HD \
 		convert_live2HD \
 		update_fstab \
-		add_bootmanager \
-		purge_live_only_stuff"
+		purge_live_only_stuff \
+		add_bootmanager"
 
 	# temporary not used:
 	#	checkHDSize \
@@ -45,8 +47,7 @@ main()
 	#
 
 	if [ ! -f "$CONFIG_FILE" ]; then
-		error 1 "Config file $CONFIG_FILE could not be found."
-		# exit 1
+		error 01 "Config file $CONFIG_FILE could not be found."
 	fi
 	
 	ACTION=0

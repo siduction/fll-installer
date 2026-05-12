@@ -7,16 +7,16 @@
 #
 # Calls:
 # logit
+# progress
 # chroot_it
 #
 ##-------------------------------------
 ##
-purge_live_only_stuff()
-{
+purge_live_only_stuff() {
 	#
 	# log my call
 	#
-	logit "purge_live_only_stuff"
+	progress "purge_live_only_stuff"
 	#
 	local installed_packages
 
@@ -49,16 +49,6 @@ purge_live_only_stuff()
 	# crucial
 	chroot_it dpkg --purge	kexec-tools >&2
 
-	logit "Free SW only: ${FREE_SW_ONLY}"    
-	if [ "${FREE_SW_ONLY}" = "T" ]; then
-		VRMS_OUT=$(vrms -s)
-		if [ -z "${VRMS_OUT}" ]; then
-			logit "+++ nothing found: vrms -s"
-		else
-			logit "Purge not DSFG package ${VRMS_OUT}:"
-			chroot_it apt purge "${VRMS_OUT}" --assume-yes >&2
-		fi
-	fi
 	logit "purge_live_only_stuff purged"
 
 	# remove virtualisation helpers on non-emulated hardware
@@ -72,10 +62,4 @@ purge_live_only_stuff()
 	# remove divert
 	rm -f "${TARGET_MNT_POINT}/usr/sbin/policy-rc.d"
 	chroot_it dpkg-divert --rename --remove /usr/sbin/policy-rc.d
-
-	#  disable live config
-	if [ -f "${TARGET_MNT_POINT}/etc/default/distro" ]; then
-		sed -i "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" \
-			"${TARGET_MNT_POINT}/etc/default/distro"
-	fi
 }

@@ -7,7 +7,9 @@
 # logit
 #
 # Error Codes
-# 10 - bad config file. At least one parameter is undefined.
+# 10 - Bad config file. At least one parameter is undefined.
+# 11 - Hostname must not contain whitespaces
+# 12 - No Internet connection. ...
 #
 # Return 0 on success 
 # on error the error code and message are in ERRLOG
@@ -39,6 +41,7 @@ load_config () {
 			# exit 10
  		fi
 	done
+	
 	# minimal check
 	# USER_NAME must not contain spaces
 	# HOST_NAME must not contain spaces
@@ -48,6 +51,22 @@ load_config () {
 	if grep -E -q '[[:space:]]' <<< "${HOST_NAME}" ; then
 		error 11 "Hostname must not contain whitespaces"
 	fi
+
+	# In the case the user does not start the installation immediately
+	# and has established an Internet connection in the meantime.
+	if [ "$INET_CON" = "no" ] && [ "$BOOT_LOADER" = "systemd-boot" ]; then
+		if 	ping -c 3 siduction.org 2>/dev/null | grep -q "3 received"; then
+			INET_CON="yes"
+			sayit "Synchronize the package index files from their sources."
+			sleep 3
+			apt update
+		else
+			error 12 "No Internet connection.
+	Unable to install the boot manager $BOOT_LOADER.
+	$FLL_DISTRO_NAME installation aborted."
+		fi
+	fi
+
 	return 0
 }
 ##-------------------------------------

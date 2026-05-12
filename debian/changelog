@@ -1,3 +1,55 @@
+fll-installer (0.11.5.8) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * prepare_bootmanager.bm, load_config.bm
+    - The INET_CON test, which uses 'ping', has been moved from
+      prepare_bootmanager.bm to load_config.bm.
+  * Error codes revised and listed in initialization.bm
+  * fll-installer
+    - 'error' and 'sayit' output using 'printf' to allow line breaks.
+  * update_fstab.bm
+    - Basic test of the written fstab.
+  * add_bootmanager.bm
+    - Several checks to verify that the systemd-boot bootloader has been
+      installed successfully.
+
+ -- Axel Konrad <ak-li@siduction.org> Tue, 12 May 2026 13:40:32 +0200
+
+fll-installer (0.11.5.7) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * Cleanup in multiple files.
+
+ -- Axel Konrad <ak-li@siduction.org> Fri, 08 May 2026 16:04:50 +0200
+
+fll-installer (0.11.5.7) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * purge_live_only_stuff.bm
+    - FREE_SW_ONLY removed.
+    - 'disable live config' removed. The function has been integrated
+      into /etc/default/distro.
+  * initialization.bm
+    - Set distro-defaults depends on existing /etc/default/distro.
+  * prepare_HD.bm
+    - Added mount options when using systemd-boot for the ESP and XBOOTLDR.
+  * prepare_bootmanager.bm
+    - Create files os-release and entry-token.
+    - For the bootloader systemd-boot, install systemd-boot.
+  * add_bootmanager.bm
+    - New section: systemd-boot.
+    - Optimized chroot mounts.
+    - The previous kernel selection and initrd creation have been moved
+      to the GRUB section.
+    - Reinstall systemd-boot using chroot in the installation target.
+    - Creating a custom initrd.
+    - Adapting the systemd-boot configuration file.
+    - Adapting the systemd-boot boot entry file.
+  * main.bm
+    - The order in which the modules are executed has been adjusted.
+  * Moved update_status.bm to /obsolet
+
+ -- Axel Konrad <ak-li@siduction.org>  Wed, 06 May 2026 13:45:04 +0200
 fll-installer (0.11.5.7) unstable; urgency=medium
 
   [ Axel Konrad ]
@@ -24,22 +76,35 @@ fll-installer (0.11.5.6) unstable; urgency=medium
 fll-installer (0.11.5.5) unstable; urgency=medium
 
   [ Axel Konrad ]
+  * First commit with support of systemd-boot
+  * fll-installer:
+    - Remove INSTALLER_INOTIFY
+  * prepare_bootmanager.bm (new)
+    - Necessary preparations if systemd-boot was selected.
+  * main.bm
+    - Add prepare_bootmanager
+  * add_bootmanager.bm
+    - Additionally systemd-boot
+  * purge_live_only_stuff
+    - Remove GRUB if systemd-boot has been installed.
   * update_fstab.bm
     - fix umask
     - add VM partitions
     - Indentation with EOF
+  * fix_home_on_HD.bm
+    - Indentation with EOF
   * copy2HD.bm
     - fix usr-merge link
 
- -- Axel Konrad <ak-li@siduction.org>  Fri, 13 Mar 2026 14:39:24 +0100
-
+ -- Axel Konrad <ak-li@siduction.org>  Fri, 13 Mar 2026 14:13:08 +0100
+ 
 fll-installer (0.11.5.4) unstable; urgency=medium
 
   [ Axel Konrad ]
   * update_fstab.bm:
     - Support for installation on logical volumes.
 
- -- Axel Konrad <ak-li@siduction.org>  Mon, 12 Jan 2026 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Mon, 12 Jan 2026 15:55:52 +0100
  
 fll-installer (0.11.5.3) unstable; urgency=medium
 
@@ -74,7 +139,7 @@ fll-installer (0.11.5.3) unstable; urgency=medium
   * initialization.bm
     - EFI features no longer needed removed.
 
- -- Axel Konrad <ak-li@siduction.org>  Mon, 29 Dec 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Mon, 29 Dec 2025 15:55:52 +0100
  
 fll-installer (0.11.5.2) unstable; urgency=medium
 
@@ -83,7 +148,7 @@ fll-installer (0.11.5.2) unstable; urgency=medium
     - USB sticks and devicemapper mounts removed from the fstab file.
     - Some minor improvements.
 
- -- Axel Konrad <ak-li@siduction.org>  Wed, 03 Dec 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Wed, 03 Dec 2025 15:55:52 +0100
  
 fll-installer (0.11.5.1) unstable; urgency=medium
 
@@ -96,7 +161,7 @@ fll-installer (0.11.5.1) unstable; urgency=medium
       install_grub.bm
   * prepareHD.bm: Add subvolume @snapshots and some minor improvements.
 
- -- Axel Konrad <ak-li@siduction.org>  Tue, 02 Dec 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Tue, 02 Dec 2025 15:55:52 +0100
 
 fll-installer (0.11.5.0) unstable; urgency=medium
 
@@ -116,14 +181,14 @@ fll-installer (0.11.5.0) unstable; urgency=medium
       Reason: We would like to use some bash extensions and
       upstream is located in "Morgue for obsolete fullstory packages".
 
- -- Axel Konrad <ak-li@siduction.org>  Thu, 20 Nov 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Thu, 20 Nov 2025 15:55:52 +0100
 
 fll-installer (0.11.4.1) unstable; urgency=medium
 
   [ Axel Konrad ]
   * Purge Live Desktop icons from the installation.
 
- -- Axel Konrad <ak-li@siduction.org>  Sun, 16 Nov 2025 14:55:52 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Sun, 16 Nov 2025 15:55:52 +0100
 
 fll-installer (0.11.4) unstable; urgency=medium
 

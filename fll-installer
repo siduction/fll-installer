@@ -35,56 +35,50 @@ if [ -z "${UID}" ]; then
 	UID=$(id -ur)
 fi
 
-if [ -n "$INSTDBG" ]; then
-	set -x
-fi
 #--------------------------------------------------------------
 # one place to save the error code and message
 #--------------------------------------------------------------
-error () {
-	local exitval="${1}"
+error() {
+	local exitval="$1"
 	shift
+	local pre_sign
+	pre_sign="E: "
 
-	# the gui should use this to proclaim success/error
-    echo "${exitval}-${*}" > "${ERRLOG}"
-
-    echo "E: ${*}"
-	clean_exit "${exitval}"
+	printf "%s%s\n" "$pre_sign" "$*"
+	clean_exit "$exitval"
 }
 #--------------------------------------------------------------
 # sayit
 #--------------------------------------------------------------
-sayit () {
-        echo "O: ${1}"
+sayit() {
+	local pre_sign
+	pre_sign="O: "
+	printf "%s%s\n" "$pre_sign" "$1"
 }
 #--------------------------------------------------------------
 # usage
 #--------------------------------------------------------------
-usage () {
-	echo "$0 [-d|--debug] [-i|--inotify inotify_fifo] [-h] [installer inotify_fifo]"
+usage() {
+	echo "$0 [-d|--debug] [-h|--help]"
 	exit 1
 }
 #--------------------------------------------------------------
 # preparation, process cli arguments with getopt
 #--------------------------------------------------------------
 if ! TEMP=$(getopt -o di:h --long debug,inotify:,help \
-		-n  "$(basename "${0}")" -- "${@}"); then
+		-n  "$(basename "$0")" -- "$@"); then
 	error 255 "getopt terminated abnormally"
 fi
 
 # Note the quotes around `$TEMP': they are essential!
-eval set -- "${TEMP}"
+eval set -- "$TEMP"
 
 
 while true ; do
-	case "${1}" in
+	case "$1" in
 		-d|--debug)
 			set -x
 			shift
-			;;
-		-i|--inotify)
-			INSTALLER_INOTIFY="${2}"
-			shift 2
 			;;
 		-h|--help)
 			usage
@@ -96,13 +90,6 @@ while true ; do
 	esac
 done
 
-# also handle old installer call
-shift $((OPTIND))
-if [ "$#" -eq "2"  ]; then
-	[ "$1" = "installer" ] && INSTALLER_INOTIFY="$2"
-fi
-
-
 #--------------------------------------------------------------
 #
 # Include needed Modules
@@ -110,7 +97,7 @@ fi
 
 SEARCHPATH="/usr/share/fll-installer"
 sayit "loading modules"
-for i in $(find "${SEARCHPATH}/modules" -name '*.bm'); do
+for i in $(find "$SEARCHPATH/modules" -name '*.bm'); do
 	. "$i"
 done
 #------------------

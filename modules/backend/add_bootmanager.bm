@@ -13,6 +13,11 @@
 # create_initrd
 # stringinstring
 #
+# Error Codes
+# 70 - Failed to edit systemd-boot loader entry. Abort on install systemd-boot.
+# 71 - No 'Linux Boot Manager' found. Abort on install systemd-boot.
+# 72 - Failed to change the EFI boot order.
+#
 ##-------------------------------------
 ##
 add_bootmanager() {
@@ -21,17 +26,22 @@ add_bootmanager() {
 	local BOOT_RUNNING_KERNEL
 	local root_partition
 	local efi_source
+	local di
 
 	#
 	# log my call
 	#
 	progress "Add_bootmanager"
-
-	mount --bind /proc "$TARGET_MNT_POINT/proc"
-	mount --bind /dev  "$TARGET_MNT_POINT/dev"
-	mount --bind /sys  "$TARGET_MNT_POINT/sys"
-	mount --bind /run  "$TARGET_MNT_POINT/run"
-
+	
+	# prepare chroot mounts
+	mkdir "$TARGET_MNT_POINT"/dev/pts/
+	mkdir -p "$TARGET_MNT_POINT"/sys/firmware/efi/efivars/
+	
+	for di in /proc/ /run/ /dev/ /dev/pts/ /sys/ /sys/firmware/efi/efivars/; \
+		do mount --rbind "$di" "$TARGET_MNT_POINT$di" \
+		&& mount --make-rslave "$TARGET_MNT_POINT$di"; \
+	done
+	
 	root_partition="$HD_CHOICE"
 	map_devices="$(fll_disk_device "$root_partition")"
 	
@@ -67,85 +77,137 @@ add_bootmanager() {
 		echo "${crypttarget#/dev/mapper/}	$cryptsource	none	luks" >> "$TARGET_MNT_POINT"/etc/crypttab
 	done
 	
-	BOOT_KERNELS=""
+	sayit "Installing $BOOT_LOADER to $BOOT_WHERE"
 
-	for i in "$TARGET_MNT_POINT"/lib/modules/?.*; do
-		BOOT_KERNEL=$(basename "$i")
-		BOOT_KERNELS="$BOOT_KERNELS $BOOT_KERNEL"
-		logit "Creating initrd for kernel $BOOT_KERNEL ..."
-		create_initrd
-	done
+	# ESP:			The cli-installer has already checked the ESP
+	#				and stored it in HD_MAP. It was then mounted by prepareHD.
+	#				Now we check whether everything is OK and install GRUB.
+	# MBR:			Check whether a boot partition is being used,
+	#				then install GRUB.
+	# Partition:	Installing GRUB on $HD_CHOICE.
+	# systemd-boot:	The cli-installer has already checked the requirements
+	#				for systemd-boot. We use the ESP and the XBOOTLDR partition.
 
-	BOOT_RUNNING_KERNEL="$(uname -r)"
-	# If the running kernel can't be found
-	# set the default to the first available
-	if ! stringinstring "$BOOT_RUNNING_KERNEL" "$BOOT_KERNELS"; then
-		set -- "$BOOT_KERNELS"
-		BOOT_RUNNING_KERNEL="$1"
+	if [ "$BOOT_LOADER" = "GRUB" ]; then
+
+		BOOT_KERNELS=""
+
+		for i in "$TARGET_MNT_POINT"/lib/modules/?.*; do
+			BOOT_KERNEL=$(basename "$i")
+			BOOT_KERNELS="$BOOT_KERNELS$BOOT_KERNEL "
+			logit "Creating initrd for kernel $BOOT_KERNEL ..."
+			create_initrd
+		done
+
+		BOOT_RUNNING_KERNEL="$(uname -r)"
+		# If the running kernel can't be found
+		# set the default to the first available
+		if ! stringinstring "$BOOT_RUNNING_KERNEL" "$BOOT_KERNELS"; then
+			set -- "$BOOT_KERNELS"
+			BOOT_RUNNING_KERNEL="$1"
+		fi
+
+		case "$BOOT_WHERE" in
+			ESP)
+				efi_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot/efi -o SOURCE)"
+				if [ -n "$efi_source" ]; then
+					mkdir -p "$TARGET_MNT_POINT"/boot/efi/EFI/siduction
+					mkdir "$TARGET_MNT_POINT"/boot/efi/EFI/debian
+					umount "$TARGET_MNT_POINT/boot/efi"
+					
+				chroot "$TARGET_MNT_POINT" /usr/bin/bash -x <<- EOF
+				/usr/bin/mount /boot &>/dev/null || true
+				/usr/bin/mount /boot/efi &>/dev/null || true
+				/usr/sbin/grub-install --recheck --no-floppy --force
+				/usr/sbin/update-grub
+				if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
+				/usr/bin/umount /boot/efi &>/dev/null || true
+				/usr/bin/umount /boot &>/dev/null || true
+				EOF
+				mount "$efi_source" "$TARGET_MNT_POINT"/boot/efi
+				else
+					logit "ERROR: Failed to install GRUB to ESP"
+					logit ""
+				fi
+			;;
+			MBR)
+				boot_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot -o SOURCE)"
+				if [ -n "$boot_source" ]; then
+					umount "$TARGET_MNT_POINT/boot" &>/dev/null || true
+				fi
+				export HD_CHOICE
+				chroot "$TARGET_MNT_POINT" /usr/bin/bash -x <<- EOF
+				/usr/bin/mount /boot &>/dev/null || true
+				/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$HD_CHOICE"
+				/usr/sbin/update-grub
+				if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
+				/usr/bin/umount /boot &>/dev/null || true
+				EOF
+				if [ -n "$boot_source" ]; then
+					mount "$TARGET_MNT_POINT/boot" &>/dev/null || true
+				fi
+			;;
+			Partition)
+				export root_partition
+				chroot "$TARGET_MNT_POINT" /usr/bin/bash -x <<- EOF
+				/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$root_partition"
+				/usr/sbin/update-grub
+				EOF
+			;;
+			*)
+			;;
+		esac
+	else
+		#
+		# The boot loader is systemd-boot
+		#
+		local token
+		local loader_conf_dir
+		local root_uuid
+		
+		token="$(cat /etc/kernel/entry-token)"
+		if stringinstring "/efi" "$HD_MAP"; then
+			loader_conf_dir="/efi"
+		else
+			loader_conf_dir="/boot"
+		fi
+		root_uuid="$(lsblk -n -o UUID "$root_partition")"
+
+		export TARGET_MNT_POINT
+		export root_uuid
+
+		# reinstall systemd-boot
+		sayit "	Reinstall systemd-boot on the installation target"
+		chroot "$TARGET_MNT_POINT" /usr/bin/bash -c "apt-get -y -qq reinstall systemd-boot systemd-boot-efi"
+		sleep 2
+		
+		# creating an initrd in conjunction with systemd-boot.
+		sayit "	Creating initrd with dpkg-reconfigure"
+		chroot "$TARGET_MNT_POINT" /usr/bin/bash -c "dpkg-reconfigure linux-image-$(uname -r)"
+		sleep 2
+
+		# Customize configuration files.
+		sayit "	Customize systemd-boot configuration files"
+		sed -i /timeout/"s/#//" "$TARGET_MNT_POINT$loader_conf_dir"/loader/loader.conf
+		
+		if ! sed -i "s/\(^options \+\).*/\1root=UUID=$root_uuid ro quiet systemd.show_status=1/" \
+			"$TARGET_MNT_POINT/boot/loader/entries/$token-$(uname -r).conf"; then
+			error "70" "Failed to edit loader entry Abort on install systemd-boot."
+		fi
+		
+		sayit "	Change EFI boot order"
+		if efibootmgr | grep -q "[0-9].*Linux Boot "; then
+			if [ ! $(efibootmgr -o $(efibootmgr | grep -o "[0-9].*Linux Boot " \
+				| grep -oi -E "[0-9a-f]{4}")) ]; then
+				sayit "Code 72: Failed to change the EFI boot order."
+			fi
+		else
+			error "71" "No 'Linux Boot Manager' found. Abort on install systemd-boot."
+		fi
 	fi
 
-	# ESP:       The cli-installer has already checked the ESP
-	#            and stored it in HD_MAP. It was then mounted by prepareHD.
-	#            Now we check whether everything is OK and install GRUB.
-	# MBR:       Check whether a boot partition is being used,
-	#            then install GRUB.
-	# Partition: Installing GRUB on $HD_CHOICE.
-
-	case "$BOOT_WHERE" in
-		ESP )
-			efi_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot/efi -o SOURCE)"
-			if [ -n "$efi_source" ]; then
-				mkdir -p "$TARGET_MNT_POINT"/boot/efi/EFI/siduction
-				mkdir "$TARGET_MNT_POINT"/boot/efi/EFI/debian
-				umount "$TARGET_MNT_POINT/boot/efi"
-				
-			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
-mount /boot &>/dev/null || true
-mount /boot/efi &>/dev/null || true
-/usr/sbin/grub-install --recheck --no-floppy --force
-/usr/sbin/update-grub
-if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
-umount /boot/efi &>/dev/null || true
-umount /boot &>/dev/null || true
-EOF
-			mount "$efi_source" "$TARGET_MNT_POINT"/boot/efi
-			else
-				logit "ERROR: Failed to install GRUB to ESP"
-				logit ""
-			fi
-			;;
-		MBR )
-			boot_source="$(findmnt -n -T "$TARGET_MNT_POINT"/boot -o SOURCE)"
-			if [ -n "$boot_source" ]; then
-				umount "$TARGET_MNT_POINT/boot" &>/dev/null || true
-			fi
-			export HD_CHOICE
-			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
-mount /boot &>/dev/null || true
-/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$HD_CHOICE"
-/usr/sbin/update-grub
-if [ "$(findmnt -n -T / -o FSTYPE)" = "btrfs" ]; then sed -i '0,/with/s/with/snapshot @ with/' /boot/grub/grub.cfg; fi
-umount /boot &>/dev/null || true
-EOF
-			if [ -n "$boot_source" ]; then
-				mount "$TARGET_MNT_POINT/boot" &>/dev/null || true
-			fi
-			;;
-		Partition )
-			export root_partition
-			chroot "$TARGET_MNT_POINT" /usr/bin/bash -x << 'EOF'
-/usr/sbin/grub-install --target=i386-pc --recheck --no-floppy --force "$root_partition"
-/usr/sbin/update-grub
-EOF
-			;;
-		* )
-			exit 1
-			;;
-	esac
-
-	# umount /proc, /dev, /sys and /run on chroot
-	umount "${TARGET_MNT_POINT}/run"
-	umount "${TARGET_MNT_POINT}/sys"
-	umount "${TARGET_MNT_POINT}/dev"
-	umount "${TARGET_MNT_POINT}/proc"
+	# umount /proc, /dev, /sys, and /run on chroot
+	for di in /sys/firmware/efi/efivars/ /sys/ /dev/pts/ /dev/ /proc/ /run/; do
+		umount -R "$TARGET_MNT_POINT$di" 2>/dev/null
+	done
 }
