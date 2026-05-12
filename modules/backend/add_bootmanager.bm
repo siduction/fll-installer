@@ -14,7 +14,9 @@
 # stringinstring
 #
 # Error Codes
-# 50 - No internet. Abort on install systemd-boot
+# 70 - Failed to edit systemd-boot loader entry. Abort on install systemd-boot.
+# 71 - No 'Linux Boot Manager' found. Abort on install systemd-boot.
+# 72 - Failed to change the EFI boot order.
 #
 ##-------------------------------------
 ##
@@ -30,7 +32,7 @@ add_bootmanager() {
 	# log my call
 	#
 	progress "Add_bootmanager"
-
+	
 	# prepare chroot mounts
 	mkdir "$TARGET_MNT_POINT"/dev/pts/
 	mkdir -p "$TARGET_MNT_POINT"/sys/firmware/efi/efivars/
@@ -153,17 +155,17 @@ add_bootmanager() {
 				EOF
 			;;
 			*)
-				exit 1
 			;;
 		esac
 	else
 		#
 		# The boot loader is systemd-boot
 		#
-		sayit "	Reinstall systemd-boot and create a customized initrd"
+		local token
 		local loader_conf_dir
 		local root_uuid
 		
+		token="$(cat /etc/kernel/entry-token)"
 		if stringinstring "/efi" "$HD_MAP"; then
 			loader_conf_dir="/efi"
 		else
@@ -185,17 +187,22 @@ add_bootmanager() {
 		sleep 2
 
 		# Customize configuration files.
+		sayit "	Customize systemd-boot configuration files"
 		sed -i /timeout/"s/#//" "$TARGET_MNT_POINT$loader_conf_dir"/loader/loader.conf
-		sed -i "s|lang=.* rootwait|root=UUID=$root_uuid ro|" \
-			"$TARGET_MNT_POINT"/boot/loader/entries/*
-			
-		if efibootmgr | grep -q "[0-9].*Linux Boot Manager "; then
-			efibootmgr -k -o $(efibootmgr | grep -o "[0-9].*Linux Boot " \
-				| grep -oi -E "[0-9a-f]{4}")
+		
+		if ! sed -i "s/\(^options \+\).*/\1root=UUID=$root_uuid ro quiet systemd.show_status=1/" \
+			"$TARGET_MNT_POINT/boot/loader/entries/$token-$(uname -r).conf"; then
+			error "70" "Failed to edit loader entry Abort on install systemd-boot."
+		fi
+		
+		sayit "	Change EFI boot order"
+		if efibootmgr | grep -q "[0-9].*Linux Boot "; then
+			if [ ! $(efibootmgr -o $(efibootmgr | grep -o "[0-9].*Linux Boot " \
+				| grep -oi -E "[0-9a-f]{4}")) ]; then
+				sayit "Code 72: Failed to change the EFI boot order."
+			fi
 		else
-			err_msg="No internet. Abort on install systemd-boot"
-			logit "$err_msg"
-			error 50 "$err_msg"
+			error "71" "No 'Linux Boot Manager' found. Abort on install systemd-boot."
 		fi
 	fi
 

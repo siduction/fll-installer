@@ -1,3 +1,20 @@
+fll-installer (0.11.5.8) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * prepare_bootmanager.bm, load_config.bm
+    - The INET_CON test, which uses 'ping', has been moved from
+      prepare_bootmanager.bm to load_config.bm.
+  * Error codes revised and listed in initialization.bm
+  * fll-installer
+    - 'error' and 'sayit' output using 'printf' to allow line breaks.
+  * update_fstab.bm
+    - Basic test of the written fstab.
+  * add_bootmanager.bm
+    - Several checks to verify that the systemd-boot bootloader has been
+      installed successfully.
+
+ -- Axel Konrad <ak-li@siduction.org> Tue, 12 May 2026 13:40:32 +0200
+
 fll-installer (0.11.5.7) unstable; urgency=medium
 
   [ Axel Konrad ]

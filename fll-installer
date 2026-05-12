@@ -35,24 +35,25 @@ if [ -z "${UID}" ]; then
 	UID=$(id -ur)
 fi
 
-if [ -n "$INSTDBG" ]; then
-	set -x
-fi
 #--------------------------------------------------------------
 # one place to save the error code and message
 #--------------------------------------------------------------
 error() {
 	local exitval="$1"
 	shift
+	local pre_sign
+	pre_sign="E: "
 
-	echo "E: $*"
+	printf "%s%s\n" "$pre_sign" "$*"
 	clean_exit "$exitval"
 }
 #--------------------------------------------------------------
 # sayit
 #--------------------------------------------------------------
 sayit() {
-        echo "O: $1"
+	local pre_sign
+	pre_sign="O: "
+	printf "%s%s\n" "$pre_sign" "$1"
 }
 #--------------------------------------------------------------
 # usage

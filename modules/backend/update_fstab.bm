@@ -13,6 +13,8 @@
 # progress
 # fll_disk_usb
 #
+# Error Codes:
+# 60 - File $TARGET_MNT_POINT/etc/fstab is corrupted.
 ##-------------------------------------
 ##
 string_max() {
@@ -46,17 +48,14 @@ update_fstab() {
 	local submnt
 	local btrfs_submnt
 	local copy_name
-	local mnt_opt
 	local write_fstab
 	local sw
 	local i
 	#
 	# log my call
 	#
-	logit "update_fstab"
-	#
-
 	progress "Updating /etc/fstab..."
+	#
 
 	##---------------------------------------------------------------
 	## Preparations that are the same for all devices.
@@ -217,22 +216,14 @@ update_fstab() {
 	done
 
 
-	# 4) Finally, everything other.
-	if [ -n "$parts_all" ]; then
+	# 4) Finally, everything other, if the user has selected that option.
+	if [ -n "$parts_all" ] && [ "$HD_AUTO" = "yes" ]; then
 		parts_all=$(for i in $parts_all; do echo "$i"; done | sort)
-		
-		# Set the mount options according to the user`s specifications.
-		# All remaining partitions receive an entry in the file fstab.
-		if [ "$HD_AUTO" = "yes" ]; then
-			mnt_opt="auto"
-		else
-			mnt_opt="noauto,users"
-		fi
 
 		for part in $parts_all; do
 			part_or_lv "$part"
 			declare -n ZEILE="$ar_name"
-			ZEILE[4]="${ZEILE[4]},$mnt_opt"
+			ZEILE[4]="${ZEILE[4]},users"
 
 			# Adjust the mount point and filesystem check.
 			ZEILE[2]="/disks/$ar_name"
@@ -296,6 +287,14 @@ update_fstab() {
 		printf "%-${L_uuid}s %-${L_mount}s %-${L_type}s %-${L_opt}s %s %s\n" \
 			$(cut -d " " -f "2-7" <<< "${ZEILE[*]}") >> "$TARGET_MNT_POINT"/etc/fstab
 	done
+	
+	# Check the written fstab. It must contain at least 8 lines.
+	if [ "$(wc --total=only -l "$TARGET_MNT_POINT"/etc/fstab)" -lt 8 ]; then
+		error_messages=$(tail -4 "$TMP")
+		error 60 "File $TARGET_MNT_POINT/etc/fstab is corrupted.
+	See:
+	$error_messages"
+	fi
 	
 	#
 	# log my call

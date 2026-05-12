@@ -21,7 +21,8 @@
 # purge_live_only_stuff
 # end_progress
 #
-# exit code 1 : Config file $CONFIG_FILE could not be found.
+# Error Codes:
+# 01 - Config file $CONFIG_FILE could not be found.
 ##-------------------------------------
 ##
 main()
@@ -46,8 +47,7 @@ main()
 	#
 
 	if [ ! -f "$CONFIG_FILE" ]; then
-		error 1 "Config file $CONFIG_FILE could not be found."
-		# exit 1
+		error 01 "Config file $CONFIG_FILE could not be found."
 	fi
 	
 	ACTION=0

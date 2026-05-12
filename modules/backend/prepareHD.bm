@@ -17,10 +17,11 @@
 # progress
 #
 # Error Codes
-# 14 - Could not format the root partition
-# 15 - Create subvolume failed while mount $HD_CHOICE failed.
-# 16 - Mounting of $HD_CHOICE failed. Some messages from mount follow
-# 17 - Mounting of $HD_CHOICE failed. Some messages from mount follow
+# 20 - Could not format the root partition
+# 21 - Create subvolume failed while mount $HD_CHOICE failed.
+# 22 - Mounting of $HD_CHOICE failed. Some messages from mount follow
+# 23 - Mounting of $HD_CHOICE failed. Some messages from mount follow
+# 30 - Not enough size on partition ...
 #
 # Return 0 on success 
 # on error the error code and message are in /tmp/.installer.errors
@@ -81,7 +82,7 @@ prepareHD()
 			error_messages=$(tail -8 "$TMP")
 			err_msg="Formatting of $HD_CHOICE failed. Some messages from mkfs.$HD_FSTYPE: $error_messages"
 			logit "$err_msg"
-			error 14 "$err_msg"
+			error 20 "$err_msg"
 		fi
 
 		# Create the needed btrfs subvolume
@@ -95,7 +96,7 @@ prepareHD()
 			if ! mount -t btrfs -o subvolid=5 "$HD_CHOICE" "$btrfs_tmp" 2>"$TMP" 1>&2; then
 				error_messages=$(tail -2 "$TMP")
 				err_msg="Create subvolume failed while mount $HD_CHOICE failed. Messages from mount: $error_messages"
-				error 15 "$err_msg"
+				error 21 "$err_msg"
 			else
 				for i in $btrfs_sub; do
 				btrfs subvolume create "$btrfs_tmp/$i" 2>"$TMP" 1>&2
@@ -135,7 +136,7 @@ prepareHD()
 			error_messages=$(tail -8 "$TMP")
 			err_msg="(re)Mounting of $HD_CHOICE failed. Some messages from mount: $error_messages"
 			logit "$err_msg"
-			error 16 "$err_msg"
+			error 22 "$err_msg"
 		fi
 	fi
 
@@ -173,7 +174,7 @@ prepareHD()
 				error_messages=$(tail -8 "$TMP")
 				err_msg="Mounting of $i failed. Some messages from mount: $error_messages"
 				logit "$err_msg"
-				error 17 "$err_msg"
+				error 23 "$err_msg"
 			fi
 		fi
 	done
@@ -207,7 +208,7 @@ checkHDSize () {
 
 		if [ "$PART_SIZE" -lt $((POINT_SIZE * 1024 * 120 / 100)) ]; then
 			err_msg="Not enough size on partition $part to install $FLL_DISTRO_NAME$point"
-			error 18 "$err_msg"
+			error 30 "$err_msg"
 			break
 		else
 			REST_SIZE=$((REST_SIZE - $POINT_SIZE))
@@ -215,7 +216,7 @@ checkHDSize () {
 	done
 	if [ "$ROOT_SIZE" -lt $((REST_SIZE * 120 / 100 )) ]; then
 		err_msg="Not enough size on partition $HD_CHOICE to install $FLL_DISTRO_NAME"
-		error 18 "$err_msg"
+		error 30 "$err_msg"
 	fi
 
 }

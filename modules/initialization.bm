@@ -1,6 +1,27 @@
-#-------------------------
+### ------------------------------------
+# Error codes and messages for all modules.
+### ------------------------------------
+# 01 - Config file $CONFIG_FILE could not be found.
+# 10 - Bad config file. At least one parameter is undefined.
+# 11 - Hostname must not contain whitespaces
+# 12 - No Internet connection. ...
+# 20 - Could not format the root partition
+# 21 - Create subvolume failed while mount $HD_CHOICE failed.
+# 22 - Mounting of $HD_CHOICE failed. Some messages from mount follow
+# 23 - Mounting of $HD_CHOICE failed. Some messages from mount follow
+# 30 - Not enough size on partition ...
+# 40 - mkdir efi/EFI/systemd/drivers/ failed.
+# 41 - Download efi drivers failed.
+# 50 - Copying iso to harddisk failed.
+# 60 - File $TARGET_MNT_POINT/etc/fstab is corrupted.
+# 70 - Failed to edit systemd-boot loader entry. Abort on install systemd-boot.
+# 71 - No 'Linux Boot Manager' found. Abort on install systemd-boot.
+# 72 - Failed to change the EFI boot order.
+
+
+###-------------------------------------
 # Global Variables
-# ------------------------
+### ------------------------------------
 CONFIG_FILE="$HOME/.sidconf"
 LOG="$HOME/.sidlog"
 TARGET_MNT_POINT="/fll/hdinstall" 

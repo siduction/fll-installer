@@ -13,9 +13,8 @@
 # progress
 #
 # Error Codes
-# 20 - mkdir efi/EFI/systemd/drivers/ failed.
-# 21 - Download efi drivers failed.
-# 22 - No internet. Abort on install systemd-boot
+# 40 - mkdir efi/EFI/systemd/drivers/ failed.
+# 41 - Download efi drivers failed.
 #
 # Return 0 on success 
 # on error the error code and message are in /tmp/.installer.errors
@@ -25,13 +24,12 @@ prepare_bootmanager() {
 	# The default installation uses GRUB.
 	# The files 'os-release' and 'entry-token' are used by systemd-boot.
 	# We create them to be compatible with systemd.
-		
+	
 	progress "Prepare boot manager"
 	
-	logit "	Create files 'os-release' and 'entry-token'"
+	logit "Create files 'os-release' and 'entry-token'"
 	
 	. /etc/default/distro
-	
 	echo "$FLL_DISTRO_NAME-$FLL_FLAVOUR"  > /etc/kernel/entry-token
 
 	# Remove symlink.
@@ -57,7 +55,7 @@ prepare_bootmanager() {
 	
 	# Check which boot manager was selected.
 	if [ "$BOOT_LOADER" = "GRUB" ]; then
-		logit "	Boot manager is GRUB. Nothing to do."
+		logit "Boot manager is GRUB. Nothing to prepare."
 		return 0
 	fi
 	
@@ -68,7 +66,7 @@ prepare_bootmanager() {
 	# auskommentiert für den Fall, dass systemd-boot gefixt wird.
 	# Im cli-installer wird das Dateisystem vfat für ESP und XBOOTLDR
 	# angefordert.
-#	mkdir -p /efi/EFI/systemd/drivers/ || error 20 "mkdir /efi.../drivers/ failed"
+#	mkdir -p /efi/EFI/systemd/drivers/ || error 40 "mkdir /efi.../drivers/ failed"
 #	
 #	# Download the required EFI file system drivers.
 #	local efi_drivers
@@ -80,23 +78,17 @@ prepare_bootmanager() {
 #	done
 #	
 #	if [ ! "$?" = "0" ]; then
-#		error 21 "Download efi drivers failed."
+#		error 41 "Download efi drivers failed."
 #	fi
 #	
 #	chmod +x "/efi/EFI/systemd/drivers/*"
 
-	logit "	Install systemd-boot"
-#	logit "	Purge GRUB and install systemd-boot"
+	logit "Install systemd-boot"
+#	logit "Purge GRUB and install systemd-boot"
 
-	if [ "$INET_CON" = "yes" ] && ping -c 3 siduction.org 2>/dev/null \
-		| grep -q "3 received"; then
-#		apt-get -y -qq purge grub* 2>/dev/null
-		apt-get -y -qq install systemd-boot systemd-boot-efi
-		sleep 2
-	else
-		err_msg="No internet. Abort on install systemd-boot"
-		logit "$err_msg"
-		error 22 "$err_msg"
-	fi
+#	apt-get -y -qq purge grub* 2>/dev/null
+	apt-get -y -qq install systemd-boot systemd-boot-efi
+	sleep 2
+
 	return 0
 }
