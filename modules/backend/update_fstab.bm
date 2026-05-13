@@ -86,9 +86,10 @@ update_fstab() {
 	# Otherwise remove all USB devices from parts_all.
 	else
 		for part in $parts_all; do
-			part="$(fll_disk_usb "$part" 2>/dev/null)"
+			part="$(sed 's|p\?[0-9]\+$||' <<< "$part")"
+			part="$(fll_disk_isusb "$part" 2>/dev/null)"
 			if [ ! "$part" = "" ]; then
-				parts_all=$(sed 's|'"$part"'[0-9]\+ \?||g' <<< "$parts_all")
+				parts_all="$(sed 's|'"$part"'[0-9]\+ \?||g' <<< "$parts_all")"
 			fi
 		done
 	fi
@@ -116,7 +117,7 @@ update_fstab() {
 				ZEILE[4]="defaults,relatime,errors=remount-ro"
 				;;
 			btrfs|swap)
-				ZEILE[4]="defaults,noatime"
+				ZEILE[4]="defaults,noatime,space_cache=v2,autodefrag,compress=zstd:3"
 				;;
 			vfat)
 				ZEILE[4]="defaults,umask=0077"

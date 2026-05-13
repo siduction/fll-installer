@@ -83,12 +83,14 @@ prepare_bootmanager() {
 #	
 #	chmod +x "/efi/EFI/systemd/drivers/*"
 
+	logit "Purge GRUB from live system
+I: GRUB installations from other systems will not be affected."
+	sleep 5
+	apt-get -y -qq purge grub* 2>/dev/null
+	
 	logit "Install systemd-boot"
-#	logit "Purge GRUB and install systemd-boot"
-
-#	apt-get -y -qq purge grub* 2>/dev/null
-	apt-get -y -qq install systemd-boot systemd-boot-efi
 	sleep 2
+	apt-get -y -qq install systemd-boot systemd-boot-efi
 
 	return 0
 }

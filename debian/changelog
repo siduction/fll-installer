@@ -1,3 +1,16 @@
+fll-installer (0.11.5.9) unstable; urgency=medium
+
+  [ Axel Konrad ]
+  * Fix changelog
+  * update_fstab.bm
+    - Extended btrfs mount options.
+    - If siduction is not installed on a USB device, the USB devices
+      have not been removed.
+  * prepare_bootmanager.bm
+    - Removal of GRUB from the live system enabled.
+
+ -- Axel Konrad <ak-li@siduction.org> Wed, 13 May 2026 16:07:50 +0200
+
 fll-installer (0.11.5.8) unstable; urgency=medium
 
   [ Axel Konrad ]
@@ -14,13 +27,6 @@ fll-installer (0.11.5.8) unstable; urgency=medium
       installed successfully.
 
  -- Axel Konrad <ak-li@siduction.org> Tue, 12 May 2026 13:40:32 +0200
-
-fll-installer (0.11.5.7) unstable; urgency=medium
-
-  [ Axel Konrad ]
-  * Cleanup in multiple files.
-
- -- Axel Konrad <ak-li@siduction.org> Fri, 08 May 2026 16:04:50 +0200
 
 fll-installer (0.11.5.7) unstable; urgency=medium
 
@@ -45,24 +51,16 @@ fll-installer (0.11.5.7) unstable; urgency=medium
     - Creating a custom initrd.
     - Adapting the systemd-boot configuration file.
     - Adapting the systemd-boot boot entry file.
+    - FLL_GFXBOOT_THEME removed.
   * main.bm
     - The order in which the modules are executed has been adjusted.
   * Moved update_status.bm to /obsolet
-
- -- Axel Konrad <ak-li@siduction.org>  Wed, 06 May 2026 13:45:04 +0200
-fll-installer (0.11.5.7) unstable; urgency=medium
-
-  [ Axel Konrad ]
-  * main.bm
-    - Output optimized.
   * progress.bm
     - Logging into .sidlog added.
-  * add_bootmanager.bm
-    - FLL_GFXBOOT_THEME removed.
   * fix_home_on_hd.bm
     - cat EOF with indentention (<<- EOF)
 
- -- Axel Konrad <ak-li@siduction.org>  Sun, 03 May 2026 13:34:54 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Wed, 06 May 2026 13:45:04 +0200
 
 fll-installer (0.11.5.6) unstable; urgency=medium
 
