@@ -116,8 +116,11 @@ update_fstab() {
 			ext*)
 				ZEILE[4]="defaults,relatime,errors=remount-ro"
 				;;
-			btrfs|swap)
+			btrfs)
 				ZEILE[4]="defaults,noatime,space_cache=v2,autodefrag,compress=zstd:3"
+				;;
+			swap)
+				ZEILE[4]="defaults,noatime"
 				;;
 			vfat)
 				ZEILE[4]="defaults,umask=0077"

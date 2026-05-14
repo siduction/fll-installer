@@ -164,7 +164,7 @@ prepareHD()
 		fi
 
 		if mount $mount_options "$part" "$TARGET_MNT_POINT$point" > "$TMP" 2>&1; then
-			sayit "	mounted $mount_options $part $TARGET_MNT_POINT$point"
+			sayit "	mounted $part $TARGET_MNT_POINT$point"
 		else
 			error_messages=$(tail -8 "$TMP")
 			err_msg="Mounting of $HD_CHOICE failed, trying remount. Some messages from mount: $error_messages"

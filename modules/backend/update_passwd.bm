@@ -29,14 +29,14 @@ update_passwd()
 	#
 	sed -i	-e "s|^$DEFAULT_USER|$USER_NAME|" \
 		-e "s|/home/$DEFAULT_USER|/home/$USER_NAME|" \
-		-e "s|:$DEFAULT_NAME,|:$NAME_NAME,|" \
-			"${TARGET_MNT_POINT}/etc/passwd"
+		-e "s|:$DEFAULT_NAME|:$NAME_NAME|" \
+			"$TARGET_MNT_POINT/etc/passwd"
 	
 	#
 	# Change user in shadow
 	#
 	sed -i	-e "s/^$DEFAULT_USER/$USER_NAME/" \
-			"${TARGET_MNT_POINT}/etc/shadow"
+			"$TARGET_MNT_POINT/etc/shadow"
 
 	#
 	# change user in /etc/group
@@ -44,7 +44,7 @@ update_passwd()
 	sed -i	-e "s/^$DEFAULT_USER/$USER_NAME/" \
 		-e "s/\:$DEFAULT_USER/\:$USER_NAME/" \
 		-e "s/\,$DEFAULT_USER/\,$USER_NAME/" \
-			"${TARGET_MNT_POINT}/etc/group"
+			"$TARGET_MNT_POINT/etc/group"
 	
 	#
 	# Change password of user/root
