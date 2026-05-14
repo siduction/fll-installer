@@ -9,7 +9,10 @@ fll-installer (0.11.5.9) unstable; urgency=medium
   * prepare_bootmanager.bm
     - Removal of GRUB from the live system enabled.
 
- -- Axel Konrad <ak-li@siduction.org> Wed, 13 May 2026 16:07:50 +0200
+  [Torsten Wohlfarth]
+  * packaging
+
+ -- Torsten Wohlfarth <towo@siduction.org>  Thu, 14 May 2026 14:01:42 +0200
 
 fll-installer (0.11.5.8) unstable; urgency=medium
 
@@ -26,7 +29,7 @@ fll-installer (0.11.5.8) unstable; urgency=medium
     - Several checks to verify that the systemd-boot bootloader has been
       installed successfully.
 
- -- Axel Konrad <ak-li@siduction.org> Tue, 12 May 2026 13:40:32 +0200
+ -- Axel Konrad <ak-li@siduction.org>  Tue, 12 May 2026 13:40:32 +0200
 
 fll-installer (0.11.5.7) unstable; urgency=medium
 
