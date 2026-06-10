@@ -83,17 +83,20 @@ update_fstab() {
 	if [ ! "$part" = "" ]; then
 		parts_all=$(grep -o "$part""[0-9]\+" <<< "$parts_all" | tr "\n" " ")
 	
-	# Otherwise remove all USB devices from parts_all.
+	# Otherwise remove all USB devices from ´parts_all´
+	# that are not included in ´HD_MAP´.
 	else
 		for part in $parts_all; do
-			part="$(sed 's|p\?[0-9]\+$||' <<< "$part")"
-			part="$(fll_disk_isusb "$part" 2>/dev/null)"
-			if [ ! "$part" = "" ]; then
-				parts_all="$(sed 's|'"$part"'[0-9]\+ \?||g' <<< "$parts_all")"
+			if stringinstring "$part" "$HD_MAP"; then
+				continue
+			fi
+			
+			if [ -n "$(fll_disk_isusb "$(sed 's|p\?[0-9]\+$||' <<< "$part")")" ]; then
+				parts_all="$(sed "\|$part|d" <<< "$parts_all")"
 			fi
 		done
 	fi
-  
+
 	# Create named arrays with the corresponding variable names
 	# that contain the associated values.
 	for part in $parts_all; do
