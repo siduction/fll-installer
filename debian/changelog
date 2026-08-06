@@ -4,7 +4,7 @@ fll-installer (0.11.5.11) unstable; urgency=medium
   * update_fstab.bm
     - Changes related to the `set_mount_points` function of the cli-installer.
 
- -- Axel Konrad <ak-li@siduction.org>  Wed, 10 Jun 2026 13:32:52 +0200
+ -- Torsten Wohlfarth <towo@siduction.org>  Thu, 06 Aug 2026 15:07:40 +0200
 
 fll-installer (0.11.5.10) unstable; urgency=medium
 
