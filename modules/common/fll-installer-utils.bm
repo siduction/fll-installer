@@ -8,45 +8,10 @@ stringinstring () {
 	return 1
 }
 
-##
-##-------------------------------------
-# Needs:
-# CMDLINE
-#
-# Calls:
-# stringinstring
-#
-##-------------------------------------
-##
-getbootparam () {
-	stringinstring "$1=" "$CMDLINE" || return 1
-	result="${CMDLINE##*$1=}"
-	result="${result%%[ 	]*}"
-	echo "$result"
-	return 0
-}
 
-##
-##-------------------------------------
-# Needs:
-# CMDLINE
-#
-# Calls:
-# stringinstring
-#
-##-------------------------------------
-##
-checkbootparam () {
-	stringinstring "$1" "$CMDLINE"
-	return "$?"
-}
-
-##
 ##-------------------------------------
 # Needs:
 # TARGET_MNT_POINT
-#
-# Calls:
 #
 ##-------------------------------------
 ##

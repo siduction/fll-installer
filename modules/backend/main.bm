@@ -27,7 +27,6 @@
 ##
 main()
 {
-	local rc
 	local all_actions="load_config \
 		prepareHD \
 		prepare_bootmanager \

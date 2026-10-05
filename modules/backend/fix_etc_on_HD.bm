@@ -53,17 +53,6 @@ fix_etc_on_HD () {
 	#
 	# "normalize" gettys
 	#
-
-	# sysvinit
-	if [ -r "$TARGET_MNT_POINT/usr/share/sysvinit/inittab" ]; then
-		cp -f	"$TARGET_MNT_POINT/usr/share/sysvinit/inittab" \
-				"$TARGET_MNT_POINT/etc/inittab"
-
-		sed -i	-e 's/^\([2-6]\):23:respawn/\1:2345:respawn/' \
-			-e 's/id:[0-6]:initdefault:/id:5:initdefault:/' \
-				"${TARGET_MNT_POINT}/etc/inittab"
-	fi
-
 	# systemd
 	if [ -r "$TARGET_MNT_POINT/etc/systemd/system/getty@.service" ]; then
 		rm -f	"$TARGET_MNT_POINT/etc/systemd/system/getty@.service" \
@@ -79,11 +68,6 @@ fix_etc_on_HD () {
 	if [ -f "$TARGET_MNT_POINT/etc/pam.d/login" ]; then
 		sed -i '/^#.*pam_lastlog\.so/s/^#[ \t]\+//' "$TARGET_MNT_POINT/etc/pam.d/login"
 	fi
-
-	#
-	# remove confusing live traces from blkid.tab
-	#
-	rm -f "$TARGET_MNT_POINT/etc/blkid.tab*"
 
 	#
 	# Save ALSA sound volume

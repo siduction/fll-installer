@@ -28,8 +28,6 @@ convert_live2HD()
 
 	fix_etc_on_HD
 
-	fix_locales_on_HD
-
 	progress "Converting live system to Debian..."
 
 	system_services
