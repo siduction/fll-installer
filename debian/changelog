@@ -1,3 +1,10 @@
+fll-installer (0.11.5.12) UNRELEASED; urgency=medium
+
+  * Removed unused code.
+  * Rearrange the desktop icons in the installation destination.
+
+ -- Axel Konrad <axel.konrad@mailbox.org>  Sat, 10 Oct 2026 12:15:38 +0200
+
 fll-installer (0.11.5.11) unstable; urgency=medium
 
   [ Axel Konrad ]
