@@ -44,7 +44,7 @@ error() {
 	local pre_sign
 	pre_sign="E: "
 
-	printf "%s%s\n" "$pre_sign" "$*"
+	printf "\n%s%s\n" "$pre_sign" "$*"
 	clean_exit "$exitval"
 }
 #--------------------------------------------------------------

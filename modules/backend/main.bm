@@ -25,8 +25,13 @@
 # 01 - Config file $CONFIG_FILE could not be found.
 ##-------------------------------------
 ##
-main()
-{
+main() {
+	# Environment for root TTY
+	# We have to use 'linux', because the output from 'dialog' becomes
+	# unreadable when using 'xterm'.
+	term_org="$TERM"
+	TERM=linux
+
 	local all_actions="load_config \
 		prepareHD \
 		prepare_bootmanager \
@@ -92,6 +97,9 @@ main()
 		j=$(($j+1))
 	done
 	sync
+
+	# Return to the previous tty setting.
+	TERM="$term_org"
 
 	clean_exit 0
 }

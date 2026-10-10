@@ -45,6 +45,11 @@ purge_live_only_stuff() {
 		chroot_it apt purge --assume-yes "$i" >&2
 	done
 
+	# purge any unnecessary packages, depending on the flavor.
+	logit "Purge any unnecessary packages, depending on the flavor.
+	This can take a while. Please be patient."
+	chroot_it apt autopurge --assume-yes >&2
+
 	# purge kexec-tools on uefi systems, where garbage collection is
 	# crucial
 	chroot_it dpkg --purge	kexec-tools >&2

@@ -14,7 +14,7 @@ create_initrd() {
 	#
 	# log my call
 	#
-	logit "create_initrd"
+	logit "create_initrd start"
 	#
 
 	# Check for a wanted kernel, otherwise set a default

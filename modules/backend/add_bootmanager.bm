@@ -177,17 +177,17 @@ add_bootmanager() {
 		export root_uuid
 
 		# reinstall systemd-boot
-		sayit "	Reinstall systemd-boot on the installation target"
+		logit "	Reinstall systemd-boot on the installation target"
 		chroot "$TARGET_MNT_POINT" /usr/bin/bash -c "apt-get -y -qq reinstall systemd-boot systemd-boot-efi"
 		sleep 2
 		
 		# creating an initrd in conjunction with systemd-boot.
-		sayit "	Creating initrd with dpkg-reconfigure"
+		logit "	Creating initrd with dpkg-reconfigure"
 		chroot "$TARGET_MNT_POINT" /usr/bin/bash -c "dpkg-reconfigure linux-image-$(uname -r)"
 		sleep 2
 
 		# Customize configuration files.
-		sayit "	Customize systemd-boot configuration files"
+		logit "	Customize systemd-boot configuration files"
 		sed -i /timeout/"s/#//" "$TARGET_MNT_POINT$loader_conf_dir"/loader/loader.conf
 		
 		if ! sed -i "s/\(^options \+\).*/\1root=UUID=$root_uuid ro quiet systemd.show_status=1/" \
@@ -197,8 +197,8 @@ add_bootmanager() {
 		
 		sayit "	Change EFI boot order"
 		if efibootmgr | grep -q "[0-9].*Linux Boot "; then
-			if [ ! $(efibootmgr -o $(efibootmgr | grep -o "[0-9].*Linux Boot " \
-				| grep -oi -E "[0-9a-f]{4}")) ]; then
+			if [ ! $(efibootmgr -o $(efibootmgr | grep -oE "[0-9a-f]{4}\* Linux Boot M" \
+				| cut -d"*" -f1)) ]; then
 				sayit "Code 72: Failed to change the EFI boot order."
 			fi
 		else
